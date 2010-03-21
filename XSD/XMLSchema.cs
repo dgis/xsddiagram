@@ -66,7 +66,7 @@ namespace XMLSchema {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("annotation", typeof(annotation), Order=1)]
+//        [System.Xml.Serialization.XmlElementAttribute("annotation", typeof(annotation), Order=1)]
         [System.Xml.Serialization.XmlElementAttribute("attribute", typeof(topLevelAttribute), Order=1)]
         [System.Xml.Serialization.XmlElementAttribute("attributeGroup", typeof(namedAttributeGroup), Order=1)]
         [System.Xml.Serialization.XmlElementAttribute("complexType", typeof(topLevelComplexType), Order=1)]
