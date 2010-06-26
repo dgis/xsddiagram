@@ -28,7 +28,7 @@ namespace XSDDiagram
 		private ArrayList listOfXsdFilename = new ArrayList();
 		private Hashtable hashtableTabPageByFilename = new Hashtable();
 		private XSDObject firstElement = null;
-		private string currentXsdfileName = "";
+		//private string currentXsdfileName = "";
 		private List<string> loadError = new List<string>();
 		private string originalTitle = "";
 		private DiagramBase contextualMenuPointedElement = null;
@@ -104,16 +104,18 @@ namespace XSDDiagram
 			saveFileDialog.RestoreDirectory = true;
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 			{
-				Graphics g = this.panelDiagram.DiagramControl.CreateGraphics();
-				IntPtr hdc = g.GetHdc();
+				Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
+				IntPtr hdc = g1.GetHdc();
 				Metafile metafile = new Metafile(saveFileDialog.FileName, hdc);
-				g.ReleaseHdc(hdc);
-				g.Dispose();
 
-				g = Graphics.FromImage(metafile);
-				this.diagram.Layout(g);
-				this.diagram.Paint(g);
-				g.Dispose();
+
+				Graphics g2 = Graphics.FromImage(metafile);
+				this.diagram.Layout(g2);
+				this.diagram.Paint(g2);
+				g2.Dispose();
+
+				g1.ReleaseHdc(hdc);
+				g1.Dispose();
 			}
 		}
 
@@ -142,7 +144,7 @@ namespace XSDDiagram
 
 			e.Graphics.Clip = new Region(e.MarginBounds);
 
-			Point virtualPoint = this.panelDiagram.VirtualPoint;
+			//Point virtualPoint = this.panelDiagram.VirtualPoint;
 			e.Graphics.TranslateTransform(-(float)(clipping.Left - e.MarginBounds.Left), -(float)(clipping.Top - e.MarginBounds.Top));
 
 			this.diagram.Paint(e.Graphics, clipping);
@@ -232,7 +234,7 @@ namespace XSDDiagram
 		{
 			Cursor = Cursors.WaitCursor;
 
-			this.currentXsdfileName = fileName;
+			//this.currentXsdfileName = fileName;
 			UpdateTitle(fileName);
 
 			this.diagram.Clear();
@@ -1449,8 +1451,8 @@ namespace XSDDiagram
 				MainForm_DragDrop(sender, e);
 		}
 
-		void DiagramControl_MouseMove(object sender, MouseEventArgs e)
-		{
+		//void DiagramControl_MouseMove(object sender, MouseEventArgs e)
+		//{
 			//System.Diagnostics.Trace.WriteLine("toolTipDiagramElement_Popup");
 			//Point contextualMenuMousePosition = this.panelDiagram.DiagramControl.PointToClient(MousePosition);
 			//contextualMenuMousePosition.Offset(this.panelDiagram.VirtualPoint);
@@ -1467,7 +1469,7 @@ namespace XSDDiagram
 			//        toolTipElement.Show("Coucou", this);
 			//    }
 			//}
-		}
+		//}
 	}
 
 	public class XSDObject
