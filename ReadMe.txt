@@ -52,6 +52,9 @@ CHANGES:
 
 version 0.6 (2010-06-27)
 - Add support for Mono and Linux.
+- Fix the import/include opening on Linux.
+- On Linux, print doesn't work very well.
+- On Linux, the export to EMF does not work because it seems the libgdiplus does not support this feature. 
 
 version 0.5 (2008-11-11)
 - The element panel has been added again. This is not very user friendly because this should not be editable.

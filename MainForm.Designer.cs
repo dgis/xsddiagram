@@ -943,7 +943,7 @@ namespace XSDDiagram
 			// printDialog
 			// 
 			this.printDialog.Document = this.printDocument;
-			this.printDialog.UseEXDialog = true;
+			//MONOFIX this.printDialog.UseEXDialog = true;
 			// 
 			// printPreviewDialog
 			// 

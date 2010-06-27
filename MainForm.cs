@@ -104,18 +104,52 @@ namespace XSDDiagram
 			saveFileDialog.RestoreDirectory = true;
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 			{
-				Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
-				IntPtr hdc = g1.GetHdc();
-				Metafile metafile = new Metafile(saveFileDialog.FileName, hdc);
+				try
+				{
+//					Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
+//					IntPtr hdc = g1.GetHdc();
+//					Metafile metafile = new Metafile(hdc, EmfType.EmfPlusOnly, "...");
+//					g1.ReleaseHdc(hdc);
+//	
+//					Graphics g2 = Graphics.FromImage(metafile);
+//					//g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+//					this.diagram.Layout(g2);
+//					this.diagram.Paint(g2);
+//					
+//					g2.Dispose();
+//					
+//		            int enhMetafileHandle = metafile.GetHenhmetafile().ToInt32();
+//		            int bufferSize = GetEnhMetaFileBits(enhMetafileHandle, 0, null); // Get required buffer size.
+//		            byte[] buffer = new byte[bufferSize]; // Allocate sufficient buffer
+//		            if(GetEnhMetaFileBits(enhMetafileHandle, bufferSize, buffer) <= 0) // Get raw metafile data.
+//		                throw new SystemException("DoTheTrick.GetEnhMetaFileBits");
+//		            FileStream ms = File.Open("C:\\test.emf", FileMode.Create);
+//		            ms.Write(buffer, 0, bufferSize);
+//		            ms.Close();
+//		            mf.Dispose();
+//						
+//					
+//					g1.Dispose();
 
-
-				Graphics g2 = Graphics.FromImage(metafile);
-				this.diagram.Layout(g2);
-				this.diagram.Paint(g2);
-				g2.Dispose();
-
-				g1.ReleaseHdc(hdc);
-				g1.Dispose();
+					
+					
+					Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
+					IntPtr hdc = g1.GetHdc();
+					Metafile metafile = new Metafile(saveFileDialog.FileName, hdc);
+	
+	
+					Graphics g2 = Graphics.FromImage(metafile);
+					g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+					this.diagram.Layout(g2);
+					this.diagram.Paint(g2);
+					g1.ReleaseHdc(hdc);
+					g2.Dispose();
+					g1.Dispose();
+				}
+				catch(Exception ex)
+				{
+					System.Diagnostics.Trace.WriteLine(ex.ToString());
+				}
 			}
 		}
 
@@ -356,7 +390,8 @@ namespace XSDDiagram
 
 					if (!string.IsNullOrEmpty(schemaLocation))
 					{
-						loadedFileName = basePath + '\\' + schemaLocation.Replace('/', '\\');
+						loadedFileName = basePath + Path.DirectorySeparatorChar + schemaLocation.Replace('/', Path.DirectorySeparatorChar);
+
 						string url = schemaLocation.Trim();
 						if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0)
 						{
@@ -364,7 +399,7 @@ namespace XSDDiagram
 							if (uri.Segments.Length > 0)
 							{
 								string fileNameToImport = uri.Segments[uri.Segments.Length - 1];
-								loadedFileName = basePath + '\\' + fileNameToImport;
+								loadedFileName = basePath + Path.DirectorySeparatorChar + fileNameToImport;
 								if (!File.Exists(loadedFileName))
 								{
 									WebClient webClient = new WebClient();
