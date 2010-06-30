@@ -188,7 +188,7 @@ namespace XSDDiagram
 			Rectangle clipping = new Rectangle(new Point(column * e.MarginBounds.Width, row * e.MarginBounds.Height),
 				new Size((column + 1) * e.MarginBounds.Width, (row + 1) * e.MarginBounds.Height));
 
-			e.Graphics.Clip = new Region(e.MarginBounds);
+			//MONOFIX e.Graphics.Clip = new Region(e.MarginBounds);
 
 			//Point virtualPoint = this.panelDiagram.VirtualPoint;
 			e.Graphics.TranslateTransform(-(float)(clipping.Left - e.MarginBounds.Left), -(float)(clipping.Top - e.MarginBounds.Top));
@@ -1202,8 +1202,10 @@ namespace XSDDiagram
 				WebBrowser webBrowser = tabControlView.SelectedTab.Controls[0] as WebBrowser;
 				if (webBrowser != null)
 				{
-					if (webBrowser.Url == null || webBrowser.Url != new Uri(tabControlView.SelectedTab.Tag as string))
-						webBrowser.Navigate(tabControlView.SelectedTab.Tag as string);
+					string url = tabControlView.SelectedTab.Tag as string;
+					//if (webBrowser.Url == null || webBrowser.Url != new Uri(url))
+					if(webBrowser.Document == null)
+						webBrowser.Navigate(url);
 					webBrowser.Select();
 				}
 			}

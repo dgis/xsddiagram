@@ -852,6 +852,7 @@ namespace XSDDiagram
 				StringFormat stringFormatOccurences = new StringFormat();
 				stringFormatOccurences.Alignment = StringAlignment.Far;
 				stringFormatOccurences.LineAlignment = StringAlignment.Center;
+				stringFormatOccurences.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
 				string occurences = string.Format("{0}..", this.minOccurrence) + (this.maxOccurrence == -1 ? "∞" : string.Format("{0}", this.maxOccurrence));
 				PointF pointOccurences = new PointF();
 				pointOccurences.X = this.Diagram.Scale * (this.Location.X + this.Size.Width - 10);
@@ -1251,6 +1252,7 @@ namespace XSDDiagram
 				StringFormat stringFormatText = new StringFormat();
 				stringFormatText.Alignment = StringAlignment.Center;
 				stringFormatText.LineAlignment = StringAlignment.Center;
+				stringFormatText.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
 				g.DrawString(this.name, this.Font, foreground, new RectangleF(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height), stringFormatText);
 			}
 

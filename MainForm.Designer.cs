@@ -387,7 +387,7 @@ namespace XSDDiagram
 			this.toolStripComboBoxSchemaElement.DropDownWidth = 300;
 			this.toolStripComboBoxSchemaElement.IntegralHeight = false;
 			this.toolStripComboBoxSchemaElement.Name = "toolStripComboBoxSchemaElement";
-			this.toolStripComboBoxSchemaElement.Size = new System.Drawing.Size(150, 25);
+			this.toolStripComboBoxSchemaElement.Size = new System.Drawing.Size(200, 25);
 			this.toolStripComboBoxSchemaElement.ToolTipText = "List of toplevel element";
 			this.toolStripComboBoxSchemaElement.SelectedIndexChanged += new System.EventHandler(this.toolStripComboBoxSchemaElement_SelectedIndexChanged);
 			// 
@@ -972,7 +972,6 @@ namespace XSDDiagram
 			this.toolTip.AutomaticDelay = 0;
 			this.toolTip.OwnerDraw = true;
 			this.toolTip.ShowAlways = true;
-			this.toolTip.Draw += new System.Windows.Forms.DrawToolTipEventHandler(this.toolTip_Draw);
 			// 
 			// MainForm
 			// 
