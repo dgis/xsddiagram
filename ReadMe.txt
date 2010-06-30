@@ -51,9 +51,9 @@ CHANGES:
 
 
 version 0.6 (2010-06-27)
+- Fix the print function.
 - Add support for Mono and Linux.
 - Fix the import/include opening on Linux.
-- On Linux, the print function does not work very well.
 - On Linux, the export to EMF does not work because it seems the libgdiplus does not support this feature. 
 
 version 0.5 (2008-11-11)
@@ -96,7 +96,7 @@ version 0.1 (2006-09-14)
 
 LICENSE:
 
-Copyright (c) 2006-2008 Regis COSNIER, All Rights Reserved.
+Copyright (c) 2006-2010 Regis COSNIER, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).

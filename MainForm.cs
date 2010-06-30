@@ -57,7 +57,11 @@ namespace XSDDiagram
 			schemaSerializer.UnknownAttribute += new XmlAttributeEventHandler(schemaSerializer_UnknownAttribute);
 
 			//this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
-		}
+            if (true)
+                toolsToolStripMenuItem.Visible = false;
+
+            //toolTip.SetToolTip(panelDiagram.DiagramControl, "Dummy DiagramControl");
+        }
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
@@ -1117,7 +1121,10 @@ namespace XSDDiagram
 		{
 			try
 			{
-				this.printDialog.ShowDialog(this);
+                if (this.printDialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    printDocument.Print();
+                }
 			}
 			catch (Exception ex)
 			{
@@ -1485,6 +1492,32 @@ namespace XSDDiagram
 			else if (e.Data.GetDataPresent(DataFormats.FileDrop))
 				MainForm_DragDrop(sender, e);
 		}
+
+        //private void toolTip_Popup(object sender, PopupEventArgs e)
+        //{
+        //    //toolTip.SetToolTip(e.AssociatedControl, "AAAAAAAAAA");
+        //}
+
+        //private void toolTip_Draw(object sender, DrawToolTipEventArgs e)
+        //{
+        //    Point diagramMousePosition = e.AssociatedControl.PointToClient(MousePosition);
+        //    e.DrawBackground();
+        //    e.DrawBorder();
+        //    string text = string.Format("AAAA %1.2f %1.2f\nA Que\n\nCoucou", diagramMousePosition.X, diagramMousePosition.Y);
+        //    using (StringFormat sf = new StringFormat())
+        //    {
+        //        sf.Alignment = StringAlignment.Center;
+        //        sf.LineAlignment = StringAlignment.Center;
+        //        sf.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
+        //        sf.FormatFlags = StringFormatFlags.NoWrap;
+        //        using (Font f = new Font("Tahoma", 9))
+        //        {
+        //            e.Graphics.DrawString(text, f,
+        //                SystemBrushes.ActiveCaptionText, e.Bounds, sf);
+        //        }
+        //    }
+        //    //e.DrawText();
+        //}
 
 		//void DiagramControl_MouseMove(object sender, MouseEventArgs e)
 		//{
