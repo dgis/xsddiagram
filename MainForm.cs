@@ -1293,18 +1293,22 @@ namespace XSDDiagram
 				foreach (ListViewItem lvi in this.listViewElements.SelectedItems)
 				{
 					XSDObject xsdObject = lvi.Tag as XSDObject;
-					switch (xsdObject.Type)
-					{
-						case "element":
-							this.diagram.AddElement(xsdObject.Tag as XMLSchema.element, xsdObject.NameSpace);
-							break;
-						case "group":
-							this.diagram.AddCompositors(xsdObject.Tag as XMLSchema.group, xsdObject.NameSpace);
-							break;
-						case "complexType":
-							this.diagram.AddComplexType(xsdObject.Tag as XMLSchema.complexType, xsdObject.NameSpace);
-							break;
-					}
+					this.diagram.Add(xsdObject.Tag as XMLSchema.openAttrs, xsdObject.NameSpace);
+					//switch (xsdObject.Type)
+					//{
+					//    case "element":
+					//        this.diagram.AddElement(xsdObject.Tag as XMLSchema.element, xsdObject.NameSpace);
+					//        break;
+					//    case "group":
+					//        this.diagram.AddCompositors(xsdObject.Tag as XMLSchema.group, xsdObject.NameSpace);
+					//        break;
+					//    case "complexType":
+					//        this.diagram.AddComplexType(xsdObject.Tag as XMLSchema.complexType, xsdObject.NameSpace);
+					//        break;
+					//    case "simpleType":
+					//        this.diagram.Add(xsdObject.Tag as XMLSchema.simpleType, xsdObject.NameSpace);
+					//        break;
+					//}
 				}
 				UpdateDiagram();
 			}

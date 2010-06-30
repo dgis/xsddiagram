@@ -385,6 +385,7 @@ namespace XSDDiagram
 			this.toolStripComboBoxSchemaElement.DropDownHeight = 200;
 			this.toolStripComboBoxSchemaElement.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.toolStripComboBoxSchemaElement.DropDownWidth = 300;
+			this.toolStripComboBoxSchemaElement.FlatStyle = System.Windows.Forms.FlatStyle.System;
 			this.toolStripComboBoxSchemaElement.IntegralHeight = false;
 			this.toolStripComboBoxSchemaElement.Name = "toolStripComboBoxSchemaElement";
 			this.toolStripComboBoxSchemaElement.Size = new System.Drawing.Size(200, 25);
@@ -443,6 +444,7 @@ namespace XSDDiagram
 			// 
 			this.toolStripComboBoxZoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.toolStripComboBoxZoom.DropDownWidth = 40;
+			this.toolStripComboBoxZoom.FlatStyle = System.Windows.Forms.FlatStyle.System;
 			this.toolStripComboBoxZoom.Items.AddRange(new object[] {
             "10%",
             "50%",
@@ -473,6 +475,7 @@ namespace XSDDiagram
 			// 
 			this.toolStripComboBoxAlignement.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.toolStripComboBoxAlignement.DropDownWidth = 50;
+			this.toolStripComboBoxAlignement.FlatStyle = System.Windows.Forms.FlatStyle.System;
 			this.toolStripComboBoxAlignement.Items.AddRange(new object[] {
             "Top",
             "Center",

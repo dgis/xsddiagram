@@ -55,6 +55,7 @@ version 0.6 (2010-06-27)
 - Add as much as possible the support for Mono 2.6.3 on Linux.
 - Fix the import/include opening on Linux.
 - Fix the print font clipping bug on Linux.
+- Fix the tab page selection corruption on Linux.
 - On Linux, the export to EMF does not work because it seems the libgdiplus does not support this feature. 
 
 version 0.5 (2008-11-11)
