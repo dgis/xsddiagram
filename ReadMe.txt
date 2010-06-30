@@ -45,10 +45,10 @@ TODO LIST:
 - Download xsd by specifying an Url instead of loading it from the file system
 - XML sample (skeleton) generation
 - Download .dtd dependency file
+- On Linux, the horizontal and vertical scrollbars don't appear correctly.
 
 
 CHANGES:
-
 
 version 0.6 (2010-06-27)
 - Fix the print function.
