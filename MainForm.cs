@@ -32,13 +32,14 @@ namespace XSDDiagram
 		private List<string> loadError = new List<string>();
 		private string originalTitle = "";
 		private DiagramBase contextualMenuPointedElement = null;
+		bool isRunningOnMono = IsRunningOnMono();
 
 		public MainForm()
 		{
 			InitializeComponent();
 
-			if (!IsRunningOnMono())
-				this.printDialog.UseEXDialog = true;
+			this.toolsToolStripMenuItem.Visible = !isRunningOnMono;
+			this.printDialog.UseEXDialog = !isRunningOnMono;
 
 			this.originalTitle = Text;
 
@@ -51,6 +52,8 @@ namespace XSDDiagram
 			this.panelDiagram.DiagramControl.ContextMenuStrip = this.contextMenuStripDiagram;
 			this.panelDiagram.DiagramControl.MouseWheel += new MouseEventHandler(DiagramControl_MouseWheel);
 			this.panelDiagram.DiagramControl.MouseClick += new MouseEventHandler(DiagramControl_MouseClick);
+			this.panelDiagram.DiagramControl.MouseHover += new EventHandler(DiagramControl_MouseHover);
+			this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
 			this.panelDiagram.VirtualSize = new Size(0, 0);
 			this.panelDiagram.DiagramControl.Paint += new PaintEventHandler(DiagramControl_Paint);
 
@@ -58,8 +61,9 @@ namespace XSDDiagram
 			schemaSerializer.UnknownNode += new XmlNodeEventHandler(schemaSerializer_UnknownNode);
 			schemaSerializer.UnknownElement += new XmlElementEventHandler(schemaSerializer_UnknownElement);
 			schemaSerializer.UnknownAttribute += new XmlAttributeEventHandler(schemaSerializer_UnknownAttribute);
-	
+
 			//this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
+			//toolTip.SetToolTip(panelDiagram.DiagramControl, "Dummy DiagramControl");
 		}
 
 		public static bool IsRunningOnMono()
@@ -114,38 +118,38 @@ namespace XSDDiagram
 			{
 				try
 				{
-//					Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
-//					IntPtr hdc = g1.GetHdc();
-//					Metafile metafile = new Metafile(hdc, EmfType.EmfPlusOnly, "...");
-//					g1.ReleaseHdc(hdc);
-//	
-//					Graphics g2 = Graphics.FromImage(metafile);
-//					//g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-//					this.diagram.Layout(g2);
-//					this.diagram.Paint(g2);
-//					
-//					g2.Dispose();
-//					
-//		            int enhMetafileHandle = metafile.GetHenhmetafile().ToInt32();
-//		            int bufferSize = GetEnhMetaFileBits(enhMetafileHandle, 0, null); // Get required buffer size.
-//		            byte[] buffer = new byte[bufferSize]; // Allocate sufficient buffer
-//		            if(GetEnhMetaFileBits(enhMetafileHandle, bufferSize, buffer) <= 0) // Get raw metafile data.
-//		                throw new SystemException("DoTheTrick.GetEnhMetaFileBits");
-//		            FileStream ms = File.Open("C:\\test.emf", FileMode.Create);
-//		            ms.Write(buffer, 0, bufferSize);
-//		            ms.Close();
-//		            mf.Dispose();
-//						
-//					
-//					g1.Dispose();
+					//					Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
+					//					IntPtr hdc = g1.GetHdc();
+					//					Metafile metafile = new Metafile(hdc, EmfType.EmfPlusOnly, "...");
+					//					g1.ReleaseHdc(hdc);
+					//	
+					//					Graphics g2 = Graphics.FromImage(metafile);
+					//					//g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+					//					this.diagram.Layout(g2);
+					//					this.diagram.Paint(g2);
+					//					
+					//					g2.Dispose();
+					//					
+					//		            int enhMetafileHandle = metafile.GetHenhmetafile().ToInt32();
+					//		            int bufferSize = GetEnhMetaFileBits(enhMetafileHandle, 0, null); // Get required buffer size.
+					//		            byte[] buffer = new byte[bufferSize]; // Allocate sufficient buffer
+					//		            if(GetEnhMetaFileBits(enhMetafileHandle, bufferSize, buffer) <= 0) // Get raw metafile data.
+					//		                throw new SystemException("DoTheTrick.GetEnhMetaFileBits");
+					//		            FileStream ms = File.Open("C:\\test.emf", FileMode.Create);
+					//		            ms.Write(buffer, 0, bufferSize);
+					//		            ms.Close();
+					//		            mf.Dispose();
+					//						
+					//					
+					//					g1.Dispose();
 
-					
-					
+
+
 					Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
 					IntPtr hdc = g1.GetHdc();
 					Metafile metafile = new Metafile(saveFileDialog.FileName, hdc);
-	
-	
+
+
 					Graphics g2 = Graphics.FromImage(metafile);
 					g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
 					this.diagram.Layout(g2);
@@ -154,7 +158,7 @@ namespace XSDDiagram
 					g2.Dispose();
 					g1.Dispose();
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					System.Diagnostics.Trace.WriteLine(ex.ToString());
 				}
@@ -629,7 +633,7 @@ namespace XSDDiagram
 					else if (element.type != null)
 					{
 						XSDObject xsdObject = this.hashtableElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
-						if(xsdObject != null)
+						if (xsdObject != null)
 						{
 							XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
 							if (annotatedElement is XMLSchema.complexType)
@@ -660,8 +664,7 @@ namespace XSDDiagram
 
 				this.listViewAttributes.Items.Clear();
 				foreach (XSDAttribute attribute in listAttributes)
-					this.listViewAttributes.Items.Add(new ListViewItem(new string[]
-							{ attribute.Name, attribute.Type, attribute.Use, attribute.DefaultValue })).Tag = attribute;
+					this.listViewAttributes.Items.Add(new ListViewItem(new string[] { attribute.Name, attribute.Type, attribute.Use, attribute.DefaultValue })).Tag = attribute;
 			}
 		}
 
@@ -700,12 +703,12 @@ namespace XSDDiagram
 						case XMLSchema.ItemsChoiceType4.simpleContent:
 						case XMLSchema.ItemsChoiceType4.complexContent:
 							XMLSchema.annotated annotatedContent = null;
-							if(complexType.Items[i] is XMLSchema.complexContent)
+							if (complexType.Items[i] is XMLSchema.complexContent)
 							{
 								XMLSchema.complexContent complexContent = complexType.Items[i] as XMLSchema.complexContent;
 								annotatedContent = complexContent.Item;
 							}
-							else if(complexType.Items[i] is XMLSchema.simpleContent)
+							else if (complexType.Items[i] is XMLSchema.simpleContent)
 							{
 								XMLSchema.simpleContent simpleContent = complexType.Items[i] as XMLSchema.simpleContent;
 								annotatedContent = simpleContent.Item;
@@ -1125,7 +1128,10 @@ namespace XSDDiagram
 		{
 			try
 			{
-				this.printDialog.ShowDialog(this);
+				if (this.printDialog.ShowDialog(this) == DialogResult.OK)
+				{
+					printDocument.Print();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -1196,7 +1202,7 @@ namespace XSDDiagram
 				WebBrowser webBrowser = tabControlView.SelectedTab.Controls[0] as WebBrowser;
 				if (webBrowser != null)
 				{
-					if(webBrowser.Url == null || webBrowser.Url != new Uri(tabControlView.SelectedTab.Tag as string))
+					if (webBrowser.Url == null || webBrowser.Url != new Uri(tabControlView.SelectedTab.Tag as string))
 						webBrowser.Navigate(tabControlView.SelectedTab.Tag as string);
 					webBrowser.Select();
 				}
@@ -1249,7 +1255,7 @@ namespace XSDDiagram
 				case "Center": this.diagram.Alignement = DiagramBase.Alignement.Center; break;
 				case "Bottom": this.diagram.Alignement = DiagramBase.Alignement.Far; break;
 			}
-		    UpdateDiagram();
+			UpdateDiagram();
 		}
 
 		void diagram_RequestAnyElement(DiagramBase diagramElement, out XMLSchema.element element, out string nameSpace)
@@ -1494,24 +1500,70 @@ namespace XSDDiagram
 				MainForm_DragDrop(sender, e);
 		}
 
-		//void DiagramControl_MouseMove(object sender, MouseEventArgs e)
+		void DiagramControl_MouseMove(object sender, MouseEventArgs e)
+		{
+			//toolTip.Show("Coucou", panelDiagram.DiagramControl, 200);
+		}
+
+		void DiagramControl_MouseHover(object sender, EventArgs e)
+		{
+		}
+
+		//private void toolTip_Popup(object sender, PopupEventArgs e)
 		//{
-			//System.Diagnostics.Trace.WriteLine("toolTipDiagramElement_Popup");
-			//Point contextualMenuMousePosition = this.panelDiagram.DiagramControl.PointToClient(MousePosition);
-			//contextualMenuMousePosition.Offset(this.panelDiagram.VirtualPoint);
-			//DiagramBase resultElement;
-			//DiagramBase.HitTestRegion resultRegion;
-			//this.diagram.HitTest(contextualMenuMousePosition, out resultElement, out resultRegion);
-			//if (resultRegion != DiagramBase.HitTestRegion.None)
+		//    //toolTip.SetToolTip(e.AssociatedControl, "AAAAAAAAAA");
+		//}
+
+		private void toolTip_Draw(object sender, DrawToolTipEventArgs e)
+		{
+			Point diagramMousePosition = e.AssociatedControl.PointToClient(MousePosition);
+			string text = string.Format("AAAA {0} {1}\nA Que\n\nCoucou", diagramMousePosition.X, diagramMousePosition.Y);
+
+			Size textSize = TextRenderer.MeasureText(text, e.Font);
+			Rectangle newBound = new Rectangle(e.Bounds.X + 20, e.Bounds.Y - 20, textSize.Width + 10, textSize.Height + 10);
+
+			DrawToolTipEventArgs newArgs = new DrawToolTipEventArgs(e.Graphics,
+				e.AssociatedWindow, e.AssociatedControl, newBound, text,
+				this.BackColor, this.ForeColor, e.Font);
+			newArgs.DrawBackground();
+			newArgs.DrawBorder();
+			newArgs.DrawText(TextFormatFlags.TextBoxControl);
+
+			//e.DrawBackground();
+			//e.DrawBorder();
+			//using (StringFormat sf = new StringFormat())
 			//{
-			//    if (resultRegion == DiagramBase.HitTestRegion.Element) // && resultElement.Parent == null)
+			//    sf.Alignment = StringAlignment.Center;
+			//    sf.LineAlignment = StringAlignment.Center;
+			//    sf.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
+			//    sf.FormatFlags = StringFormatFlags.NoWrap;
+			//    using (Font f = new Font("Tahoma", 9))
 			//    {
-			//        //this.contextualMenuPointedElement = resultElement;
-			//        //toolTipDiagramElement.SetToolTip(this.panelDiagram.DiagramControl, "coucou");
-			//        e.Cancel = true;
-			//        toolTipElement.Show("Coucou", this);
+			//        e.Graphics.DrawString(text, f,
+			//            SystemBrushes.ActiveCaptionText, e.Bounds, sf);
 			//    }
 			//}
+			//e.DrawText();
+		}
+
+		//void DiagramControl_MouseMove(object sender, MouseEventArgs e)
+		//{
+		//System.Diagnostics.Trace.WriteLine("toolTipDiagramElement_Popup");
+		//Point contextualMenuMousePosition = this.panelDiagram.DiagramControl.PointToClient(MousePosition);
+		//contextualMenuMousePosition.Offset(this.panelDiagram.VirtualPoint);
+		//DiagramBase resultElement;
+		//DiagramBase.HitTestRegion resultRegion;
+		//this.diagram.HitTest(contextualMenuMousePosition, out resultElement, out resultRegion);
+		//if (resultRegion != DiagramBase.HitTestRegion.None)
+		//{
+		//    if (resultRegion == DiagramBase.HitTestRegion.Element) // && resultElement.Parent == null)
+		//    {
+		//        //this.contextualMenuPointedElement = resultElement;
+		//        //toolTipDiagramElement.SetToolTip(this.panelDiagram.DiagramControl, "coucou");
+		//        e.Cancel = true;
+		//        toolTipElement.Show("Coucou", this);
+		//    }
+		//}
 		//}
 	}
 
