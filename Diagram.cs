@@ -646,6 +646,23 @@ namespace XSDDiagram
 			}
 		}
 
+		public string ToSVG() //Graphics g)
+		{
+			string result = @"<?xml version=""1.0"" standalone=""no""?>
+
+<!DOCTYPE svg PUBLIC ""-//W3C//DTD SVG 1.1//EN""
+""http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"">
+
+<svg width=""100%"" height=""100%"" version=""1.1""
+xmlns=""http://www.w3.org/2000/svg"">
+";
+			foreach (DiagramBase element in this.rootElements)
+				result += element.ToSVG(); //g);
+
+			result += @"</svg>";
+			return result;
+		}
+
 		public void HitTest(Point point, out DiagramBase element, out DiagramBase.HitTestRegion region)
 		{
 			element = null;
@@ -1301,6 +1318,449 @@ namespace XSDDiagram
 					g.DrawLine(foregroundPen, p1, p2);
 				}
 			}
+		}
+
+		// pen = "stroke:rgb(99,99,99);stroke-width:2"
+
+		void SVGLine(StringBuilder result, string pen, Point pt1, Point pt2) { SVGLine(result, pen, pt1.X, pt1.Y, pt2.X, pt2.Y); }
+		void SVGLine(StringBuilder result, string pen, int x1, int y1, int x2, int y2)
+		{
+			result.AppendFormat("<line x1=\"{0}\" y1=\"{1}\" x2=\"{2}\" y2=\"{3}\" style=\"{4}\"/>\n", x1, y1, x2, y2, pen);
+		}
+
+		void SVGRectangle(StringBuilder result, string pen, Rectangle rect)
+		{
+			result.AppendFormat("<rect x=\"{0}\" y=\"{1}\" width=\"{2}\" height=\"{3}\" style=\"{4}\"/>\n", rect.X, rect.Y, rect.Width, rect.Height, pen);
+		}
+
+		void SVGEllipse(StringBuilder result, string brush, Rectangle rect)
+		{
+			result.AppendFormat("<ellipse cx=\"{0}\" cy=\"{1}\" rx=\"{2}\" ry=\"{3}\" style=\"{4}\"/>\n", rect.X + rect.Width / 2, rect.Y + rect.Height / 2, rect.Width / 2, rect.Height / 2, brush);
+		}
+
+		void SVGPath(StringBuilder result, string style, string drawCommand)
+		{
+			result.AppendFormat("<path d=\"{0}\" style=\"{1}\"/>\n", drawCommand, style);
+		}
+
+		void SVGText(StringBuilder result, string text, string style, Point point)
+		{
+			result.AppendFormat("<text x=\"{0}\" y=\"{1}\" style=\"{2}\">{3}</text>\n", point.X, point.Y, style, text);
+		}
+		void SVGText(StringBuilder result, string text, string style, Rectangle rect)
+		{
+			result.AppendFormat("<text x=\"{0}\" y=\"{1}\" style=\"{2}\">{3}</text>\n", rect.X + rect.Width / 2.0, rect.Y + rect.Height / 2.0, style, text);
+		}
+
+		private string SVGPolygonToDrawCommand(Point[] pathPoint)
+		{
+			StringBuilder result = new StringBuilder();
+			for (int i = 0; i < pathPoint.Length; i++)
+			{
+				result.AppendFormat("{0}{1} {2} ", i == 0 ? 'M' : 'L', pathPoint[i].X, pathPoint[i].Y);
+			}
+			result.Append('Z');
+			return result.ToString();
+		}
+
+		public virtual string ToSVG() //Graphics g)
+		{
+			StringBuilder result = new StringBuilder("");
+
+			string background = "fill:rgb(255,255,255)"; // new SolidBrush(Color.White);
+			string foreground = "rgb(0,0,0)"; //new SolidBrush(Color.Black);
+			string foregroundPen = "stroke:" + foreground + ";stroke-width:1";
+			string dashed = "stroke-dasharray:4,1"; // stroke-dashoffset:2
+
+			//if (this.diagram.ShowBoundingBox)
+			//{
+			//    int color = 255 - depth * 8;
+			//    g.FillRectangle(new SolidBrush(Color.FromArgb(color, color, color)), ScaleRectangle(this.boundingBox));
+			//    g.DrawRectangle(foregroundPen, ScaleRectangle(this.boundingBox));
+			//}
+
+			// Draw the children
+			if (this.showChildElements)
+			{
+				foreach (DiagramBase element in this.childElements)
+					result.Append(element.ToSVG()); //g);
+			}
+
+			Rectangle scaledElementBox = ScaleRectangle(this.elementBox);
+
+			// Draw the children lines
+			if (this.showChildElements)
+			{
+				if (this.childElements.Count == 1)
+				{
+					int parentMidleY = ScaleInt(this.location.Y + this.size.Height / 2);
+					SVGLine(result, foregroundPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, ScaleInt(this.childElements[0].Location.X), parentMidleY);
+				}
+				else if (this.childElements.Count > 1)
+				{
+					DiagramBase firstElement = this.childElements[0];
+					DiagramBase lastElement = this.childElements[this.childElements.Count - 1];
+					int verticalLine = ScaleInt(firstElement.BoundingBox.Left);
+					foreach (DiagramBase element in this.childElements)
+					{
+						if (element.InheritFrom == null)
+						{
+							int currentMidleY = ScaleInt(element.Location.Y + element.Size.Height / 2);
+							SVGLine(result, foregroundPen, verticalLine, currentMidleY, ScaleInt(element.Location.X), currentMidleY);
+						}
+					}
+					int parentMidleY = ScaleInt(this.location.Y + this.size.Height / 2);
+					int firstMidleY = ScaleInt(firstElement.Location.Y + firstElement.Size.Height / 2);
+					firstMidleY = Math.Min(firstMidleY, parentMidleY);
+					int lastMidleY = ScaleInt(lastElement.Location.Y + lastElement.Size.Height / 2);
+					lastMidleY = Math.Max(lastMidleY, parentMidleY);
+					SVGLine(result, foregroundPen, verticalLine, firstMidleY, verticalLine, lastMidleY);
+					SVGLine(result, foregroundPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, verticalLine, parentMidleY);
+				}
+			}
+
+			// Draw the inheritor line
+			if (this.inheritFrom != null)
+			{
+				string foregroundInheritPen = foregroundPen + ";" + dashed;
+
+				Point p1 = new Point(ScaleInt(this.inheritFrom.Location.X - 5), ScaleInt(this.inheritFrom.Location.Y + this.inheritFrom.Size.Height + 5));
+				Point p2 = new Point(ScaleInt(this.location.X - 5), ScaleInt(this.location.Y - 5));
+				SVGLine(result, foregroundInheritPen, p1, p2);
+				SVGLine(result, foregroundInheritPen, p2, new Point(ScaleInt(this.location.X), ScaleInt(this.location.Y)));
+
+				////TODO Path <path d="M250 150 L150 350 L350 350 Z" />
+				//GraphicsPath inheritPath = new GraphicsPath();
+				//inheritPath.AddLine(ScalePoint(new Point(0, 0)), ScalePoint(new Point(5, -5)));
+				//inheritPath.AddLine(ScalePoint(new Point(5, -5)), ScalePoint(new Point(-5, -5)));
+				//inheritPath.AddLine(ScalePoint(new Point(-5, -5)), ScalePoint(new Point(0, 0)));
+				//CustomLineCap inheritCap = new CustomLineCap(null, inheritPath);
+				//inheritCap.BaseInset = ScaleInt(5);
+				//foregroundInheritPen.CustomStartCap = inheritCap;
+				SVGLine(result, foregroundInheritPen, new Point(ScaleInt(this.inheritFrom.Location.X), ScaleInt(this.inheritFrom.Location.Y + this.inheritFrom.Size.Height)), p1);
+			}
+
+			switch (this.type)
+			{
+				case TypeEnum.element:
+					{
+						// Draw the main shape following the min/max occurences
+						string foregroundBoxPen = foregroundPen;
+
+						if (this.minOccurrence == 0)
+						{
+							foregroundBoxPen += ";" + dashed;
+						}
+						if (this.maxOccurrence == 1)
+						{
+							SVGRectangle(result, background + ";" + foregroundBoxPen, scaledElementBox);
+						}
+						else
+						{
+							Rectangle elementBoxShifted = scaledElementBox;
+							elementBoxShifted.Offset(ScalePoint(new Point(3, 3)));
+							SVGRectangle(result, background + ";" + foregroundBoxPen, elementBoxShifted);
+							SVGRectangle(result, background + ";" + foregroundBoxPen, scaledElementBox);
+						}
+					}
+					break;
+
+				case TypeEnum.type:
+					{
+						// Draw the main shape following the min/max occurences
+						int bevel = (int)(scaledElementBox.Height * 0.30);
+						Point[] pathPoint = new Point[6];
+						pathPoint[0] = pathPoint[5] = scaledElementBox.Location;
+						pathPoint[1] = scaledElementBox.Location; pathPoint[1].X = scaledElementBox.Right;
+						pathPoint[2] = scaledElementBox.Location + scaledElementBox.Size;
+						pathPoint[3] = scaledElementBox.Location; pathPoint[3].Y = scaledElementBox.Bottom; pathPoint[4] = pathPoint[3];
+						pathPoint[0].X += bevel;
+						pathPoint[3].X += bevel;
+						pathPoint[4].Y -= bevel;
+						pathPoint[5].Y += bevel;
+
+						//GraphicsPath path = new GraphicsPath();
+						//path.StartFigure();
+						//path.AddPolygon(pathPoint);
+						//path.CloseFigure();
+						string path = SVGPolygonToDrawCommand(pathPoint);
+
+						Point[] pathPointShifted = new Point[6];
+						Size scaledShiftedBevel = ScaleSize(new Size(3, 3));
+						for (int i = 0; i < pathPoint.Length; i++)
+							pathPointShifted[i] = pathPoint[i] + scaledShiftedBevel;
+
+						//GraphicsPath pathShifted = new GraphicsPath();
+						//pathShifted.StartFigure();
+						//pathShifted.AddPolygon(pathPointShifted);
+						//pathShifted.CloseFigure();
+						string pathShifted = SVGPolygonToDrawCommand(pathPointShifted);
+
+						//Pen foregroundBoxPen = new Pen(foreground);
+						string foregroundBoxPen = foregroundPen;
+						if (this.minOccurrence == 0)
+						{
+							//foregroundBoxPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+							foregroundBoxPen += ";" + dashed;
+						}
+						if (this.maxOccurrence == 1)
+						{
+							//g.FillPath(background, path);
+							//g.DrawPath(foregroundBoxPen, path);
+							SVGPath(result, background + ";" + foregroundBoxPen, path);
+						}
+						else
+						{
+							Rectangle elementBoxShifted = scaledElementBox;
+							elementBoxShifted.Offset(ScalePoint(new Point(3, 3)));
+							//g.FillPath(background, pathShifted);
+							//g.DrawPath(foregroundBoxPen, pathShifted);
+							//g.FillPath(background, path);
+							//g.DrawPath(foregroundBoxPen, path);
+							SVGPath(result, background + ";" + foregroundBoxPen, pathShifted);
+							SVGPath(result, background + ";" + foregroundBoxPen, path);
+						}
+					}
+					break;
+
+				case TypeEnum.group:
+					{
+						// Draw the main shape following the min/max occurences
+						int bevel = (int)(scaledElementBox.Height * 0.30);
+						Point[] pathPoint = new Point[8];
+						pathPoint[0] = pathPoint[7] = scaledElementBox.Location;
+						pathPoint[1] = scaledElementBox.Location; pathPoint[1].X = scaledElementBox.Right; pathPoint[2] = pathPoint[1];
+						pathPoint[3] = pathPoint[4] = scaledElementBox.Location + scaledElementBox.Size;
+						pathPoint[5] = scaledElementBox.Location; pathPoint[5].Y = scaledElementBox.Bottom; pathPoint[6] = pathPoint[5];
+						pathPoint[0].X += bevel;
+						pathPoint[1].X -= bevel;
+						pathPoint[2].Y += bevel;
+						pathPoint[3].Y -= bevel;
+						pathPoint[4].X -= bevel;
+						pathPoint[5].X += bevel;
+						pathPoint[6].Y -= bevel;
+						pathPoint[7].Y += bevel;
+
+						//GraphicsPath path = new GraphicsPath();
+						//path.StartFigure();
+						//path.AddPolygon(pathPoint);
+						//path.CloseFigure();
+						string path = SVGPolygonToDrawCommand(pathPoint);
+
+						Point[] pathPointShifted = new Point[8];
+						Size scaledShiftedBevel = ScaleSize(new Size(3, 3));
+						for (int i = 0; i < pathPoint.Length; i++)
+							pathPointShifted[i] = pathPoint[i] + scaledShiftedBevel;
+
+						//GraphicsPath pathShifted = new GraphicsPath();
+						//pathShifted.StartFigure();
+						//pathShifted.AddPolygon(pathPointShifted);
+						//pathShifted.CloseFigure();
+						string pathShifted = SVGPolygonToDrawCommand(pathPointShifted);
+
+
+						string foregroundBoxPen = foregroundPen;
+						if (this.minOccurrence == 0)
+						{
+							foregroundBoxPen += ";" + dashed;
+						}
+						if (this.maxOccurrence == 1)
+						{
+							//g.FillPath(background, path);
+							//g.DrawPath(foregroundBoxPen, path);
+							SVGPath(result, background + ";" + foregroundBoxPen, path);
+						}
+						else
+						{
+							//Rectangle elementBoxShifted = scaledElementBox;
+							//elementBoxShifted.Offset(ScalePoint(new Point(3, 3)));
+							//g.FillPath(background, pathShifted);
+							//g.DrawPath(foregroundBoxPen, pathShifted);
+							//g.FillPath(background, path);
+							//g.DrawPath(foregroundBoxPen, path);
+							SVGPath(result, background + ";" + foregroundBoxPen, pathShifted);
+							SVGPath(result, background + ";" + foregroundBoxPen, path);
+						}
+
+						// Draw the group type
+						//Pen foregroundPointPen = new Pen(foreground, 4.0f);
+						switch (this.groupType)
+						{
+							case GroupTypeEnum.sequence:
+								{
+									Point p0 = this.Location + new Size(0, this.elementBox.Height / 2);
+									Point p1 = p0 + new Size(3, 0);
+									Point p2 = p1 + new Size(this.elementBox.Width - 6, 0);
+									SVGLine(result, foregroundPen, ScalePoint(p1), ScalePoint(p2));
+									Point point2 = p0 + new Size(this.elementBox.Width / 2, 0);
+									Point point1 = point2 + new Size(-5, 0);
+									Point point3 = point2 + new Size(+5, 0);
+									Size pointSize = new Size(4, 4);
+									Size pointSize2 = new Size(pointSize.Width / 2, pointSize.Height / 2);
+									point1 -= pointSize2;
+									point2 -= pointSize2;
+									point3 -= pointSize2;
+									pointSize = ScaleSize(pointSize);
+									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point1), pointSize));
+									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point2), pointSize));
+									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point3), pointSize));
+
+									//Point p0 = this.Location + new Size(0, this.elementBox.Height / 2);
+									//Point point0 = p0 + new Size(3, 0);
+									//Point point2 = p0 + new Size(this.elementBox.Width / 2, 0);
+									//Point point1 = point2 + new Size(-5, 0);
+									//Point point3 = point2 + new Size(+5, 0);
+									//Point point4 = point0 + new Size(this.elementBox.Width - 6, 0);
+
+									//Pen foregroundBallPen = new Pen(foreground);
+									//foregroundBallPen.EndCap = LineCap.RoundAnchor;
+									////foregroundBallPen.ScaleTransform(1.0f / this.diagram.Scale, 1.0f / this.diagram.Scale);
+									//foregroundBallPen.ScaleTransform(this.diagram.Scale, this.diagram.Scale);
+
+									//SVGDrawLine(result, foregroundBallPen, ScalePoint(point0), ScalePoint(point1));
+									//SVGDrawLine(result, foregroundBallPen, ScalePoint(point1), ScalePoint(point2));
+									//SVGDrawLine(result, foregroundBallPen, ScalePoint(point2), ScalePoint(point3));
+									//foregroundBallPen.EndCap = LineCap.Flat;
+									//SVGDrawLine(result, foregroundBallPen, ScalePoint(point3), ScalePoint(point4));
+								}
+								break;
+							case GroupTypeEnum.choice:
+								{
+									int yMiddle = this.elementBox.Y + this.elementBox.Height / 2;
+									int yUp = yMiddle - 4;
+									int yDown = yMiddle + 4;
+									int xMiddle = this.elementBox.X + this.elementBox.Width / 2;
+									int xLeft2 = xMiddle - 4;
+									int xLeft1 = xLeft2 - 4;
+									int xLeft0 = xLeft1 - 4;
+									int xRight0 = xMiddle + 4;
+									int xRight1 = xRight0 + 4;
+									int xRight2 = xRight1 + 4;
+
+									Point point1 = new Point(xMiddle, yUp);
+									Point point2 = new Point(xMiddle, yMiddle);
+									Point point3 = new Point(xMiddle, yDown);
+									Size pointSize = new Size(4, 4);
+									Size pointSize2 = new Size(pointSize.Width / 2, pointSize.Height / 2);
+									point1 -= pointSize2;
+									point2 -= pointSize2;
+									point3 -= pointSize2;
+									pointSize = ScaleSize(pointSize);
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xLeft0, yMiddle)), ScalePoint(new Point(xLeft1, yMiddle)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xLeft1, yMiddle)), ScalePoint(new Point(xLeft2, yUp)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yUp)), ScalePoint(new Point(xRight1, yUp)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yMiddle)), ScalePoint(new Point(xRight2, yMiddle)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yDown)), ScalePoint(new Point(xRight1, yDown)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight1, yUp)), ScalePoint(new Point(xRight1, yDown)));
+									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point1), pointSize));
+									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point2), pointSize));
+									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point3), pointSize));
+								}
+								break;
+							case GroupTypeEnum.all:
+								{
+									int yMiddle = this.elementBox.Y + this.elementBox.Height / 2;
+									int yUp = yMiddle - 4;
+									int yDown = yMiddle + 4;
+									int xMiddle = this.elementBox.X + this.elementBox.Width / 2;
+									int xLeft2 = xMiddle - 4;
+									int xLeft1 = xLeft2 - 4;
+									int xLeft0 = xLeft1 - 4;
+									int xRight0 = xMiddle + 4;
+									int xRight1 = xRight0 + 4;
+									int xRight2 = xRight1 + 4;
+
+									Point point1 = new Point(xMiddle, yUp);
+									Point point2 = new Point(xMiddle, yMiddle);
+									Point point3 = new Point(xMiddle, yDown);
+									Size pointSize = new Size(4, 4);
+									Size pointSize2 = new Size(pointSize.Width / 2, pointSize.Height / 2);
+									point1 -= pointSize2;
+									point2 -= pointSize2;
+									point3 -= pointSize2;
+									pointSize = ScaleSize(pointSize);
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xLeft2, yUp)), ScalePoint(new Point(xLeft1, yUp)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xLeft2, yMiddle)), ScalePoint(new Point(xLeft0, yMiddle)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xLeft2, yDown)), ScalePoint(new Point(xLeft1, yDown)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xLeft1, yUp)), ScalePoint(new Point(xLeft1, yDown)));
+
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yUp)), ScalePoint(new Point(xRight1, yUp)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yMiddle)), ScalePoint(new Point(xRight2, yMiddle)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yDown)), ScalePoint(new Point(xRight1, yDown)));
+									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight1, yUp)), ScalePoint(new Point(xRight1, yDown)));
+									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point1), pointSize));
+									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point2), pointSize));
+									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point3), pointSize));
+								}
+								break;
+						}
+						break;
+					}
+			}
+
+			float fontScale = 1.0f;
+
+			// Draw text
+			if (this.name.Length > 0)
+			{
+				string style = string.Format("font-family:{0};font-size:{1}pt;fill:{2};text-anchor:middle;dominant-baseline:central", this.Font.Name, this.Font.Size * fontScale, foreground);
+				SVGText(result, this.name, style, new Rectangle(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height));
+			}
+
+			// Draw occurences small text
+			if (this.maxOccurrence > 1 || this.maxOccurrence == -1)
+			{
+				string occurences = string.Format("{0}..", this.minOccurrence) + (this.maxOccurrence == -1 ? "∞" : string.Format("{0}", this.maxOccurrence));
+				PointF pointOccurences = new PointF();
+				pointOccurences.X = this.Diagram.Scale * (this.Location.X + this.Size.Width - 10);
+				pointOccurences.Y = this.Diagram.Scale * (this.Location.Y + this.Size.Height + 10);
+				string style = string.Format("font-family:{0};font-size:{1}pt;fill:{2};text-anchor:end;dominant-baseline:central", this.SmallFont.Name, this.SmallFont.Size * fontScale, foreground);
+				SVGText(result, occurences, style, new Point((int)pointOccurences.X, (int)pointOccurences.Y));
+			}
+
+			// Draw type
+			if (this.isSimpleContent)
+			{
+				Point currentPoint = scaledElementBox.Location + new Size(2, 2);
+				SVGLine(result, foregroundPen, currentPoint, currentPoint + new Size(ScaleInt(8), 0));
+				currentPoint += new Size(0, 2);
+				SVGLine(result, foregroundPen, currentPoint, currentPoint + new Size(ScaleInt(6), 0));
+				currentPoint += new Size(0, 2);
+				SVGLine(result, foregroundPen, currentPoint, currentPoint + new Size(ScaleInt(6), 0));
+				currentPoint += new Size(0, 2);
+				SVGLine(result, foregroundPen, currentPoint, currentPoint + new Size(ScaleInt(6), 0));
+			}
+
+			// Draw reference arrow
+			if (this.isReference)
+			{
+				string arrowPen = string.Format("stroke:{0};stroke-width:{1}", foreground, this.Diagram.Scale * 2.0f);
+				//TOTO arrowPen.EndCap = LineCap.ArrowAnchor;
+				Point basePoint = new Point(this.elementBox.Left + 2, this.elementBox.Bottom - 2);
+				SVGLine(result, arrowPen, ScalePoint(basePoint), ScalePoint(basePoint + new Size(4, -4)));
+			}
+
+			// Draw children expand box
+			if (this.hasChildElements)
+			{
+				Rectangle scaledChildExpandButtonBox = ScaleRectangle(this.childExpandButtonBox);
+				SVGRectangle(result, background + ";" + foregroundPen, scaledChildExpandButtonBox);
+
+				Point middle = new Point(scaledChildExpandButtonBox.Width / 2, scaledChildExpandButtonBox.Height / 2);
+				int borderPadding = Math.Max(2, ScaleInt(2));
+
+				Point p1 = scaledChildExpandButtonBox.Location + new Size(borderPadding, middle.Y);
+				Point p2 = new Point(scaledChildExpandButtonBox.Right - borderPadding, p1.Y);
+				SVGLine(result, foregroundPen, p1, p2);
+				if (!this.showChildElements)
+				{
+					p1 = scaledChildExpandButtonBox.Location + new Size(middle.X, borderPadding);
+					p2 = new Point(p1.X, scaledChildExpandButtonBox.Bottom - borderPadding);
+					SVGLine(result, foregroundPen, p1, p2);
+				}
+			}
+
+			return result.ToString();
 		}
 	}
 }

@@ -22,13 +22,11 @@ namespace XSDDiagram
 	{
 		private static XmlSerializer schemaSerializer = new XmlSerializer(typeof(XMLSchema.schema));
 		private Diagram diagram = new Diagram();
-		//private Hashtable hashtableNamespaceUrlByPrefix = new Hashtable();
 		private Hashtable hashtableElementsByName = new Hashtable();
 		private Hashtable hashtableAttributesByName = new Hashtable();
 		private ArrayList listOfXsdFilename = new ArrayList();
 		private Hashtable hashtableTabPageByFilename = new Hashtable();
 		private XSDObject firstElement = null;
-		//private string currentXsdfileName = "";
 		private List<string> loadError = new List<string>();
 		private string originalTitle = "";
 		private DiagramBase contextualMenuPointedElement = null;
@@ -111,52 +109,35 @@ namespace XSDDiagram
 		private void saveDiagramToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
-			saveFileDialog.Filter = "emf files (*.emf)|*.emf|All files (*.*)|*.*";
+			saveFileDialog.Filter = "SVH files (*.svg)|*.svg" + (isRunningOnMono ? "" : "|EMF files (*.emf)|*.emf") + "|All files (*.*)|*.*";
 			saveFileDialog.FilterIndex = 1;
 			saveFileDialog.RestoreDirectory = true;
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				try
 				{
-					//					Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
-					//					IntPtr hdc = g1.GetHdc();
-					//					Metafile metafile = new Metafile(hdc, EmfType.EmfPlusOnly, "...");
-					//					g1.ReleaseHdc(hdc);
-					//	
-					//					Graphics g2 = Graphics.FromImage(metafile);
-					//					//g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-					//					this.diagram.Layout(g2);
-					//					this.diagram.Paint(g2);
-					//					
-					//					g2.Dispose();
-					//					
-					//		            int enhMetafileHandle = metafile.GetHenhmetafile().ToInt32();
-					//		            int bufferSize = GetEnhMetaFileBits(enhMetafileHandle, 0, null); // Get required buffer size.
-					//		            byte[] buffer = new byte[bufferSize]; // Allocate sufficient buffer
-					//		            if(GetEnhMetaFileBits(enhMetafileHandle, bufferSize, buffer) <= 0) // Get raw metafile data.
-					//		                throw new SystemException("DoTheTrick.GetEnhMetaFileBits");
-					//		            FileStream ms = File.Open("C:\\test.emf", FileMode.Create);
-					//		            ms.Write(buffer, 0, bufferSize);
-					//		            ms.Close();
-					//		            mf.Dispose();
-					//						
-					//					
-					//					g1.Dispose();
-
-
-
-					Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
-					IntPtr hdc = g1.GetHdc();
-					Metafile metafile = new Metafile(saveFileDialog.FileName, hdc);
-
-
-					Graphics g2 = Graphics.FromImage(metafile);
-					g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-					this.diagram.Layout(g2);
-					this.diagram.Paint(g2);
-					g1.ReleaseHdc(hdc);
-					g2.Dispose();
-					g1.Dispose();
+					string extension = Path.GetExtension(saveFileDialog.FileName).ToLower();
+					if (extension.CompareTo(".svg") == 0 || isRunningOnMono)
+					{
+						string svgFileContent = this.diagram.ToSVG();
+						using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
+						{
+							sw.WriteLine(svgFileContent);
+						}
+					}
+					else
+					{
+						Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
+						IntPtr hdc = g1.GetHdc();
+						Metafile metafile = new Metafile(saveFileDialog.FileName, hdc);
+						Graphics g2 = Graphics.FromImage(metafile);
+						g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+						this.diagram.Layout(g2);
+						this.diagram.Paint(g2);
+						g1.ReleaseHdc(hdc);
+						g2.Dispose();
+						g1.Dispose();
+					}
 				}
 				catch (Exception ex)
 				{
@@ -280,7 +261,6 @@ namespace XSDDiagram
 		{
 			Cursor = Cursors.WaitCursor;
 
-			//this.currentXsdfileName = fileName;
 			UpdateTitle(fileName);
 
 			this.diagram.Clear();
@@ -351,8 +331,6 @@ namespace XSDDiagram
 				fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 				this.loadError.Clear();
 				XMLSchema.schema schemaDOM = (XMLSchema.schema)schemaSerializer.Deserialize(fileStream);
-				//string prefix = Path.GetFileNameWithoutExtension(fileName);
-				//this.hashtableNamespaceUrlByPrefix[schemaDOM.targetNamespace] = prefix;
 
 				this.listOfXsdFilename.Add(fileName);
 
