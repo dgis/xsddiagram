@@ -1067,13 +1067,13 @@ namespace XSDDiagram
 			{
 				if (e.Delta > 0)
 				{
-					if (this.toolStripComboBoxZoom.SelectedIndex > 0)
-						this.toolStripComboBoxZoom.SelectedIndex--;
+					if (this.toolStripComboBoxZoom.SelectedIndex < this.toolStripComboBoxZoom.Items.Count - 1)
+						this.toolStripComboBoxZoom.SelectedIndex++;
 				}
 				else
 				{
-					if (this.toolStripComboBoxZoom.SelectedIndex < this.toolStripComboBoxZoom.Items.Count - 1)
-						this.toolStripComboBoxZoom.SelectedIndex++;
+					if (this.toolStripComboBoxZoom.SelectedIndex > 0)
+						this.toolStripComboBoxZoom.SelectedIndex--;
 				}
 			}
 		}

@@ -1367,10 +1367,12 @@ xmlns=""http://www.w3.org/2000/svg"">
 		{
 			StringBuilder result = new StringBuilder("");
 
-			string background = "fill:rgb(255,255,255)"; // new SolidBrush(Color.White);
-			string foreground = "rgb(0,0,0)"; //new SolidBrush(Color.Black);
-			string foregroundPen = "stroke:" + foreground + ";stroke-width:1";
-			string dashed = "stroke-dasharray:4,1"; // stroke-dashoffset:2
+			string backgroundBrush = "fill:rgb(255,255,255)";
+			string foregroundColor = "rgb(0,0,0)";
+			string foregroundBrush = "fill:" + foregroundColor;
+			string foregroundPen = "stroke:" + foregroundColor + ";stroke-width:1";
+			string foregroundRoundPen = foregroundPen + ";stroke-linecap:round";
+			string dashed = "stroke-dasharray:4,1";
 
 			//if (this.diagram.ShowBoundingBox)
 			//{
@@ -1383,7 +1385,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 			if (this.showChildElements)
 			{
 				foreach (DiagramBase element in this.childElements)
-					result.Append(element.ToSVG()); //g);
+					result.Append(element.ToSVG());
 			}
 
 			Rectangle scaledElementBox = ScaleRectangle(this.elementBox);
@@ -1394,7 +1396,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 				if (this.childElements.Count == 1)
 				{
 					int parentMidleY = ScaleInt(this.location.Y + this.size.Height / 2);
-					SVGLine(result, foregroundPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, ScaleInt(this.childElements[0].Location.X), parentMidleY);
+					SVGLine(result, foregroundRoundPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, ScaleInt(this.childElements[0].Location.X), parentMidleY);
 				}
 				else if (this.childElements.Count > 1)
 				{
@@ -1406,7 +1408,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 						if (element.InheritFrom == null)
 						{
 							int currentMidleY = ScaleInt(element.Location.Y + element.Size.Height / 2);
-							SVGLine(result, foregroundPen, verticalLine, currentMidleY, ScaleInt(element.Location.X), currentMidleY);
+							SVGLine(result, foregroundRoundPen, verticalLine, currentMidleY, ScaleInt(element.Location.X), currentMidleY);
 						}
 					}
 					int parentMidleY = ScaleInt(this.location.Y + this.size.Height / 2);
@@ -1414,8 +1416,8 @@ xmlns=""http://www.w3.org/2000/svg"">
 					firstMidleY = Math.Min(firstMidleY, parentMidleY);
 					int lastMidleY = ScaleInt(lastElement.Location.Y + lastElement.Size.Height / 2);
 					lastMidleY = Math.Max(lastMidleY, parentMidleY);
-					SVGLine(result, foregroundPen, verticalLine, firstMidleY, verticalLine, lastMidleY);
-					SVGLine(result, foregroundPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, verticalLine, parentMidleY);
+					SVGLine(result, foregroundRoundPen, verticalLine, firstMidleY, verticalLine, lastMidleY);
+					SVGLine(result, foregroundRoundPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, verticalLine, parentMidleY);
 				}
 			}
 
@@ -1429,15 +1431,17 @@ xmlns=""http://www.w3.org/2000/svg"">
 				SVGLine(result, foregroundInheritPen, p1, p2);
 				SVGLine(result, foregroundInheritPen, p2, new Point(ScaleInt(this.location.X), ScaleInt(this.location.Y)));
 
-				////TODO Path <path d="M250 150 L150 350 L350 350 Z" />
-				//GraphicsPath inheritPath = new GraphicsPath();
-				//inheritPath.AddLine(ScalePoint(new Point(0, 0)), ScalePoint(new Point(5, -5)));
-				//inheritPath.AddLine(ScalePoint(new Point(5, -5)), ScalePoint(new Point(-5, -5)));
-				//inheritPath.AddLine(ScalePoint(new Point(-5, -5)), ScalePoint(new Point(0, 0)));
-				//CustomLineCap inheritCap = new CustomLineCap(null, inheritPath);
-				//inheritCap.BaseInset = ScaleInt(5);
-				//foregroundInheritPen.CustomStartCap = inheritCap;
-				SVGLine(result, foregroundInheritPen, new Point(ScaleInt(this.inheritFrom.Location.X), ScaleInt(this.inheritFrom.Location.Y + this.inheritFrom.Size.Height)), p1);
+				Point targetPoint = new Point(ScaleInt(this.inheritFrom.Location.X - 3), ScaleInt(this.inheritFrom.Location.Y + this.inheritFrom.Size.Height + 3));
+				SVGLine(result, foregroundInheritPen, targetPoint, p1);
+				Point[] pathPoint = new Point[5];
+				pathPoint[0] = targetPoint;
+				pathPoint[1] = targetPoint; pathPoint[1].X += ScaleInt(2); pathPoint[1].Y += ScaleInt(2);
+				pathPoint[2] = targetPoint; pathPoint[2].X += ScaleInt(3); pathPoint[2].Y -= ScaleInt(3);
+				pathPoint[3] = targetPoint; pathPoint[3].X -= ScaleInt(2); pathPoint[3].Y -= ScaleInt(2);
+				pathPoint[4] = targetPoint;
+
+				string path = SVGPolygonToDrawCommand(pathPoint);
+				SVGPath(result, backgroundBrush + ";" + foregroundPen, path);
 			}
 
 			switch (this.type)
@@ -1453,14 +1457,14 @@ xmlns=""http://www.w3.org/2000/svg"">
 						}
 						if (this.maxOccurrence == 1)
 						{
-							SVGRectangle(result, background + ";" + foregroundBoxPen, scaledElementBox);
+							SVGRectangle(result, backgroundBrush + ";" + foregroundBoxPen, scaledElementBox);
 						}
 						else
 						{
 							Rectangle elementBoxShifted = scaledElementBox;
 							elementBoxShifted.Offset(ScalePoint(new Point(3, 3)));
-							SVGRectangle(result, background + ";" + foregroundBoxPen, elementBoxShifted);
-							SVGRectangle(result, background + ";" + foregroundBoxPen, scaledElementBox);
+							SVGRectangle(result, backgroundBrush + ";" + foregroundBoxPen, elementBoxShifted);
+							SVGRectangle(result, backgroundBrush + ";" + foregroundBoxPen, scaledElementBox);
 						}
 					}
 					break;
@@ -1479,10 +1483,6 @@ xmlns=""http://www.w3.org/2000/svg"">
 						pathPoint[4].Y -= bevel;
 						pathPoint[5].Y += bevel;
 
-						//GraphicsPath path = new GraphicsPath();
-						//path.StartFigure();
-						//path.AddPolygon(pathPoint);
-						//path.CloseFigure();
 						string path = SVGPolygonToDrawCommand(pathPoint);
 
 						Point[] pathPointShifted = new Point[6];
@@ -1490,35 +1490,23 @@ xmlns=""http://www.w3.org/2000/svg"">
 						for (int i = 0; i < pathPoint.Length; i++)
 							pathPointShifted[i] = pathPoint[i] + scaledShiftedBevel;
 
-						//GraphicsPath pathShifted = new GraphicsPath();
-						//pathShifted.StartFigure();
-						//pathShifted.AddPolygon(pathPointShifted);
-						//pathShifted.CloseFigure();
 						string pathShifted = SVGPolygonToDrawCommand(pathPointShifted);
 
-						//Pen foregroundBoxPen = new Pen(foreground);
 						string foregroundBoxPen = foregroundPen;
 						if (this.minOccurrence == 0)
 						{
-							//foregroundBoxPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
 							foregroundBoxPen += ";" + dashed;
 						}
 						if (this.maxOccurrence == 1)
 						{
-							//g.FillPath(background, path);
-							//g.DrawPath(foregroundBoxPen, path);
-							SVGPath(result, background + ";" + foregroundBoxPen, path);
+							SVGPath(result, backgroundBrush + ";" + foregroundBoxPen, path);
 						}
 						else
 						{
 							Rectangle elementBoxShifted = scaledElementBox;
 							elementBoxShifted.Offset(ScalePoint(new Point(3, 3)));
-							//g.FillPath(background, pathShifted);
-							//g.DrawPath(foregroundBoxPen, pathShifted);
-							//g.FillPath(background, path);
-							//g.DrawPath(foregroundBoxPen, path);
-							SVGPath(result, background + ";" + foregroundBoxPen, pathShifted);
-							SVGPath(result, background + ";" + foregroundBoxPen, path);
+							SVGPath(result, backgroundBrush + ";" + foregroundBoxPen, pathShifted);
+							SVGPath(result, backgroundBrush + ";" + foregroundBoxPen, path);
 						}
 					}
 					break;
@@ -1541,10 +1529,6 @@ xmlns=""http://www.w3.org/2000/svg"">
 						pathPoint[6].Y -= bevel;
 						pathPoint[7].Y += bevel;
 
-						//GraphicsPath path = new GraphicsPath();
-						//path.StartFigure();
-						//path.AddPolygon(pathPoint);
-						//path.CloseFigure();
 						string path = SVGPolygonToDrawCommand(pathPoint);
 
 						Point[] pathPointShifted = new Point[8];
@@ -1552,10 +1536,6 @@ xmlns=""http://www.w3.org/2000/svg"">
 						for (int i = 0; i < pathPoint.Length; i++)
 							pathPointShifted[i] = pathPoint[i] + scaledShiftedBevel;
 
-						//GraphicsPath pathShifted = new GraphicsPath();
-						//pathShifted.StartFigure();
-						//pathShifted.AddPolygon(pathPointShifted);
-						//pathShifted.CloseFigure();
 						string pathShifted = SVGPolygonToDrawCommand(pathPointShifted);
 
 
@@ -1566,20 +1546,12 @@ xmlns=""http://www.w3.org/2000/svg"">
 						}
 						if (this.maxOccurrence == 1)
 						{
-							//g.FillPath(background, path);
-							//g.DrawPath(foregroundBoxPen, path);
-							SVGPath(result, background + ";" + foregroundBoxPen, path);
+							SVGPath(result, backgroundBrush + ";" + foregroundBoxPen, path);
 						}
 						else
 						{
-							//Rectangle elementBoxShifted = scaledElementBox;
-							//elementBoxShifted.Offset(ScalePoint(new Point(3, 3)));
-							//g.FillPath(background, pathShifted);
-							//g.DrawPath(foregroundBoxPen, pathShifted);
-							//g.FillPath(background, path);
-							//g.DrawPath(foregroundBoxPen, path);
-							SVGPath(result, background + ";" + foregroundBoxPen, pathShifted);
-							SVGPath(result, background + ";" + foregroundBoxPen, path);
+							SVGPath(result, backgroundBrush + ";" + foregroundBoxPen, pathShifted);
+							SVGPath(result, backgroundBrush + ";" + foregroundBoxPen, path);
 						}
 
 						// Draw the group type
@@ -1600,9 +1572,9 @@ xmlns=""http://www.w3.org/2000/svg"">
 									point2 -= pointSize2;
 									point3 -= pointSize2;
 									pointSize = ScaleSize(pointSize);
-									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point1), pointSize));
-									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point2), pointSize));
-									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point3), pointSize));
+									SVGEllipse(result, foregroundColor, new Rectangle(ScalePoint(point1), pointSize));
+									SVGEllipse(result, foregroundColor, new Rectangle(ScalePoint(point2), pointSize));
+									SVGEllipse(result, foregroundColor, new Rectangle(ScalePoint(point3), pointSize));
 
 									//Point p0 = this.Location + new Size(0, this.elementBox.Height / 2);
 									//Point point0 = p0 + new Size(3, 0);
@@ -1651,9 +1623,9 @@ xmlns=""http://www.w3.org/2000/svg"">
 									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yMiddle)), ScalePoint(new Point(xRight2, yMiddle)));
 									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yDown)), ScalePoint(new Point(xRight1, yDown)));
 									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight1, yUp)), ScalePoint(new Point(xRight1, yDown)));
-									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point1), pointSize));
-									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point2), pointSize));
-									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point3), pointSize));
+									SVGEllipse(result, foregroundColor, new Rectangle(ScalePoint(point1), pointSize));
+									SVGEllipse(result, foregroundColor, new Rectangle(ScalePoint(point2), pointSize));
+									SVGEllipse(result, foregroundColor, new Rectangle(ScalePoint(point3), pointSize));
 								}
 								break;
 							case GroupTypeEnum.all:
@@ -1687,9 +1659,9 @@ xmlns=""http://www.w3.org/2000/svg"">
 									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yMiddle)), ScalePoint(new Point(xRight2, yMiddle)));
 									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight0, yDown)), ScalePoint(new Point(xRight1, yDown)));
 									SVGLine(result, foregroundPen, ScalePoint(new Point(xRight1, yUp)), ScalePoint(new Point(xRight1, yDown)));
-									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point1), pointSize));
-									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point2), pointSize));
-									SVGEllipse(result, foreground, new Rectangle(ScalePoint(point3), pointSize));
+									SVGEllipse(result, foregroundColor, new Rectangle(ScalePoint(point1), pointSize));
+									SVGEllipse(result, foregroundColor, new Rectangle(ScalePoint(point2), pointSize));
+									SVGEllipse(result, foregroundColor, new Rectangle(ScalePoint(point3), pointSize));
 								}
 								break;
 						}
@@ -1697,12 +1669,12 @@ xmlns=""http://www.w3.org/2000/svg"">
 					}
 			}
 
-			float fontScale = 1.0f;
+			float fontScale = 0.8f;
 
 			// Draw text
 			if (this.name.Length > 0)
 			{
-				string style = string.Format("font-family:{0};font-size:{1}pt;fill:{2};text-anchor:middle;dominant-baseline:central", this.Font.Name, this.Font.Size * fontScale, foreground);
+				string style = string.Format("font-family:{0};font-size:{1}pt;fill:{2};text-anchor:middle;dominant-baseline:central", this.Font.Name, this.Font.Size * fontScale, foregroundColor);
 				SVGText(result, this.name, style, new Rectangle(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height));
 			}
 
@@ -1713,7 +1685,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 				PointF pointOccurences = new PointF();
 				pointOccurences.X = this.Diagram.Scale * (this.Location.X + this.Size.Width - 10);
 				pointOccurences.Y = this.Diagram.Scale * (this.Location.Y + this.Size.Height + 10);
-				string style = string.Format("font-family:{0};font-size:{1}pt;fill:{2};text-anchor:end;dominant-baseline:central", this.SmallFont.Name, this.SmallFont.Size * fontScale, foreground);
+				string style = string.Format("font-family:{0};font-size:{1}pt;fill:{2};text-anchor:end;dominant-baseline:central", this.SmallFont.Name, this.SmallFont.Size * fontScale, foregroundColor);
 				SVGText(result, occurences, style, new Point((int)pointOccurences.X, (int)pointOccurences.Y));
 			}
 
@@ -1733,34 +1705,29 @@ xmlns=""http://www.w3.org/2000/svg"">
 			// Draw reference arrow
 			if (this.isReference)
 			{
-				string arrowPen = string.Format("stroke:{0};stroke-width:{1}", foreground, this.Diagram.Scale * 2.0f);
-				//TODO arrowPen.EndCap = LineCap.ArrowAnchor;
-				Point basePoint = new Point(this.elementBox.Left + 2, this.elementBox.Bottom - 2);
-				SVGLine(result, arrowPen, ScalePoint(basePoint), ScalePoint(basePoint + new Size(4, -4)));
+				string arrowPen = string.Format("stroke:{0};stroke-width:{1}", foregroundColor, this.Diagram.Scale * 2.0f);
+				Point basePoint = new Point(this.elementBox.Left + 1, this.elementBox.Bottom - 1);
+				Point targetPoint = basePoint + new Size(2, -2);
+				basePoint = ScalePoint(basePoint);
+				targetPoint = ScalePoint(targetPoint);
+				SVGLine(result, arrowPen, basePoint, targetPoint);
 
-                //Point[] pathPoint = new Point[8];
-                //pathPoint[0] = pathPoint[7] = scaledElementBox.Location;
-                //pathPoint[1] = scaledElementBox.Location; pathPoint[1].X = scaledElementBox.Right; pathPoint[2] = pathPoint[1];
-                //pathPoint[3] = pathPoint[4] = scaledElementBox.Location + scaledElementBox.Size;
-                //pathPoint[5] = scaledElementBox.Location; pathPoint[5].Y = scaledElementBox.Bottom; pathPoint[6] = pathPoint[5];
-                //pathPoint[0].X += bevel;
-                //pathPoint[1].X -= bevel;
-                //pathPoint[2].Y += bevel;
-                //pathPoint[3].Y -= bevel;
-                //pathPoint[4].X -= bevel;
-                //pathPoint[5].X += bevel;
-                //pathPoint[6].Y -= bevel;
-                //pathPoint[7].Y += bevel;
+				Point[] pathPoint = new Point[5];
+				pathPoint[0] = targetPoint;
+				pathPoint[1] = targetPoint; pathPoint[1].X += ScaleInt(2); pathPoint[1].Y += ScaleInt(2);
+				pathPoint[2] = targetPoint; pathPoint[2].X += ScaleInt(3); pathPoint[2].Y -= ScaleInt(3);
+				pathPoint[3] = targetPoint; pathPoint[3].X -= ScaleInt(2); pathPoint[3].Y -= ScaleInt(2);
+				pathPoint[4] = targetPoint;
 
-                //string path = SVGPolygonToDrawCommand(pathPoint);
-                //SVGPath(result, background + ";" + foregroundBoxPen, path);
+                string path = SVGPolygonToDrawCommand(pathPoint);
+				SVGPath(result, foregroundBrush, path);
 			}
 
 			// Draw children expand box
 			if (this.hasChildElements)
 			{
 				Rectangle scaledChildExpandButtonBox = ScaleRectangle(this.childExpandButtonBox);
-				SVGRectangle(result, background + ";" + foregroundPen, scaledChildExpandButtonBox);
+				SVGRectangle(result, backgroundBrush + ";" + foregroundPen, scaledChildExpandButtonBox);
 
 				Point middle = new Point(scaledChildExpandButtonBox.Width / 2, scaledChildExpandButtonBox.Height / 2);
 				int borderPadding = Math.Max(2, ScaleInt(2));

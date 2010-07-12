@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.6 Copyright © 2006-2010 Regis Cosnier, All Rights Reserved.
+Version 0.7 Copyright © 2006-2010 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -13,8 +13,8 @@ FEATURES:
 - Display the elements, the groups and the attributes
 - Show the text/HTML documentation of element and attribute when available
 - Print the diagram
-- Export the diagram to emf
-- Zoom the diagram
+- Export the diagram to SVG and EMF
+- Zoom the diagram with the mouse wheel while holding the control key
 - Registration in the Windows Explorer contextual menu
 - Drag'n drop a file from explorer
 
@@ -49,6 +49,10 @@ TODO LIST:
 
 
 CHANGES:
+
+version 0.7 (2010-07-14)
+- Inversion of the mouse wheel direction to zoom
+- Add the SVG diagram export
 
 version 0.6 (2010-06-27)
 - Fix the print function.
