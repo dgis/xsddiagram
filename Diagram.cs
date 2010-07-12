@@ -1583,7 +1583,6 @@ xmlns=""http://www.w3.org/2000/svg"">
 						}
 
 						// Draw the group type
-						//Pen foregroundPointPen = new Pen(foreground, 4.0f);
 						switch (this.groupType)
 						{
 							case GroupTypeEnum.sequence:
@@ -1735,9 +1734,26 @@ xmlns=""http://www.w3.org/2000/svg"">
 			if (this.isReference)
 			{
 				string arrowPen = string.Format("stroke:{0};stroke-width:{1}", foreground, this.Diagram.Scale * 2.0f);
-				//TOTO arrowPen.EndCap = LineCap.ArrowAnchor;
+				//TODO arrowPen.EndCap = LineCap.ArrowAnchor;
 				Point basePoint = new Point(this.elementBox.Left + 2, this.elementBox.Bottom - 2);
 				SVGLine(result, arrowPen, ScalePoint(basePoint), ScalePoint(basePoint + new Size(4, -4)));
+
+                //Point[] pathPoint = new Point[8];
+                //pathPoint[0] = pathPoint[7] = scaledElementBox.Location;
+                //pathPoint[1] = scaledElementBox.Location; pathPoint[1].X = scaledElementBox.Right; pathPoint[2] = pathPoint[1];
+                //pathPoint[3] = pathPoint[4] = scaledElementBox.Location + scaledElementBox.Size;
+                //pathPoint[5] = scaledElementBox.Location; pathPoint[5].Y = scaledElementBox.Bottom; pathPoint[6] = pathPoint[5];
+                //pathPoint[0].X += bevel;
+                //pathPoint[1].X -= bevel;
+                //pathPoint[2].Y += bevel;
+                //pathPoint[3].Y -= bevel;
+                //pathPoint[4].X -= bevel;
+                //pathPoint[5].X += bevel;
+                //pathPoint[6].Y -= bevel;
+                //pathPoint[7].Y += bevel;
+
+                //string path = SVGPolygonToDrawCommand(pathPoint);
+                //SVGPath(result, background + ";" + foregroundBoxPen, path);
 			}
 
 			// Draw children expand box
