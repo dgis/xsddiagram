@@ -274,6 +274,9 @@ namespace XSDDiagram
 		{
 			Point virtualPoint = this.panelDiagram.VirtualPoint;
 			e.Graphics.TranslateTransform(-(float)virtualPoint.X, -(float)virtualPoint.Y);
+			e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+			e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+
 			this.diagram.Paint(e.Graphics, new Rectangle(virtualPoint, this.panelDiagram.DiagramControl.ClientRectangle.Size));
 		}
 

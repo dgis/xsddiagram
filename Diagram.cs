@@ -916,6 +916,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 			SolidBrush background = new SolidBrush(Color.White);
 			SolidBrush foreground = new SolidBrush(Color.Black);
 			Pen foregroundPen = new Pen(foreground);
+			float[] dashPattern = new float[] { Math.Max(2f, ScaleInt(5)), Math.Max(1f, ScaleInt(2)) };
 
 			//if (this.isReference && this.diagram.ShowBoundingBox)
 			if (this.diagram.ShowBoundingBox)
@@ -984,28 +985,21 @@ xmlns=""http://www.w3.org/2000/svg"">
 			{
 				Pen foregroundInheritPen = new Pen(foreground);
 				foregroundInheritPen.DashStyle = DashStyle.Dash;
+				foregroundInheritPen.DashPattern = dashPattern;
 
 				Point p1 = new Point(ScaleInt(this.inheritFrom.Location.X - 5), ScaleInt(this.inheritFrom.Location.Y + this.inheritFrom.Size.Height + 5));
 				Point p2 = new Point(ScaleInt(this.location.X - 5), ScaleInt(this.location.Y - 5));
 				g.DrawLine(foregroundInheritPen, p1, p2);
 				g.DrawLine(foregroundInheritPen, p2, new Point(ScaleInt(this.location.X), ScaleInt(this.location.Y)));
 
-				GraphicsPath inheritPath = new GraphicsPath();
-				inheritPath.AddLine(ScalePoint(new Point(0, 0)), ScalePoint(new Point(5, -5)));
-				inheritPath.AddLine(ScalePoint(new Point(5, -5)), ScalePoint(new Point(-5, -5)));
-				inheritPath.AddLine(ScalePoint(new Point(-5, -5)), ScalePoint(new Point(0, 0)));
-				CustomLineCap inheritCap = new CustomLineCap(null, inheritPath);
-				inheritCap.BaseInset = ScaleInt(5);
-				foregroundInheritPen.CustomStartCap = inheritCap;
-				Point targetPoint = new Point(ScaleInt(this.inheritFrom.Location.X - 3), ScaleInt(this.inheritFrom.Location.Y + this.inheritFrom.Size.Height + 3));
+				Point targetPoint = new Point(ScaleInt(this.inheritFrom.Location.X), ScaleInt(this.inheritFrom.Location.Y + this.inheritFrom.Size.Height));
 				g.DrawLine(foregroundInheritPen, targetPoint, p1);
 
-				Point[] pathPoint = new Point[5];
+				Point[] pathPoint = new Point[4];
 				pathPoint[0] = targetPoint;
-				pathPoint[1] = targetPoint; pathPoint[1].X += ScaleInt(2); pathPoint[1].Y += ScaleInt(2);
-				pathPoint[2] = targetPoint; pathPoint[2].X += ScaleInt(3); pathPoint[2].Y -= ScaleInt(3);
-				pathPoint[3] = targetPoint; pathPoint[3].X -= ScaleInt(2); pathPoint[3].Y -= ScaleInt(2);
-				pathPoint[4] = targetPoint;
+				pathPoint[1] = targetPoint; pathPoint[1].Y += ScaleInt(5);
+				pathPoint[2] = targetPoint; pathPoint[2].X -= ScaleInt(5);
+				pathPoint[3] = targetPoint;
 
 				GraphicsPath path = new GraphicsPath();
 				path.StartFigure();
@@ -1013,6 +1007,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 				path.CloseFigure();
 				
 				Pen foregroundBoxPen = new Pen(foreground);
+				g.FillPath(background, path);
 				g.DrawPath(foregroundBoxPen, path);
 			}
 
@@ -1025,6 +1020,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 						if (this.minOccurrence == 0)
 						{
 							foregroundBoxPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+							foregroundBoxPen.DashPattern = dashPattern;
 						}
 						if (this.maxOccurrence == 1)
 						{
@@ -1076,6 +1072,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 						if (this.minOccurrence == 0)
 						{
 							foregroundBoxPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+							foregroundBoxPen.DashPattern = dashPattern;
 						}
 						if (this.maxOccurrence == 1)
 						{
@@ -1131,6 +1128,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 						if (this.minOccurrence == 0)
 						{
 							foregroundBoxPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+							foregroundBoxPen.DashPattern = dashPattern;
 						}
 						if (this.maxOccurrence == 1)
 						{
@@ -1304,7 +1302,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 			if (this.isReference)
 			{
 				Pen arrowPen = new Pen(foreground, this.Diagram.Scale * 2.0f);
-				arrowPen.EndCap = LineCap.ArrowAnchor;
+				//arrowPen.EndCap = LineCap.ArrowAnchor;
 				//Point basePoint = new Point(this.elementBox.Left + 2, this.elementBox.Bottom - 2);
 				//g.DrawLine(arrowPen, ScalePoint(basePoint), ScalePoint(basePoint + new Size(4, -4)));
 				Point basePoint = new Point(this.elementBox.Left + 1, this.elementBox.Bottom - 1);
