@@ -13,7 +13,7 @@ FEATURES:
 - Display the elements, the groups and the attributes
 - Show the text/HTML documentation of element and attribute when available
 - Print the diagram
-- Export the diagram to SVG and EMF
+- Export the diagram to SVG, PNG and EMF (EMF only with Windows)
 - Zoom the diagram with the mouse wheel while holding the control key
 - Registration in the Windows Explorer contextual menu
 - Drag'n drop a file from explorer
@@ -53,6 +53,8 @@ CHANGES:
 version 0.7 (2010-07-14)
 - Inversion of the mouse wheel direction to zoom
 - Add the SVG diagram export
+- Add the Tiago Daitx's code about the PNG diagram export
+- Improve the diagram quality
 
 version 0.6 (2010-06-27)
 - Fix the print function.

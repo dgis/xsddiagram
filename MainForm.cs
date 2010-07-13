@@ -109,38 +109,80 @@ namespace XSDDiagram
 		private void saveDiagramToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
-			saveFileDialog.Filter = "SVH files (*.svg)|*.svg" + (isRunningOnMono ? "" : "|EMF files (*.emf)|*.emf") + "|All files (*.*)|*.*";
+            saveFileDialog.Filter = "SVH files (*.svg)|*.svg" + (isRunningOnMono ? "" : "|EMF files (*.emf)|*.emf") + "|PNG files (*.png)|*.png|All files (*.*)|*.*";
 			saveFileDialog.FilterIndex = 1;
 			saveFileDialog.RestoreDirectory = true;
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				try
 				{
+                    Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
+
 					string extension = Path.GetExtension(saveFileDialog.FileName).ToLower();
-					if (extension.CompareTo(".svg") == 0 || isRunningOnMono)
+                    if (string.IsNullOrEmpty(extension)) { extension = ".svg"; saveFileDialog.FileName += extension;  }
+                    if (extension.CompareTo(".emf") == 0)
+                    {
+                        float scaleSave = this.diagram.Scale;
+                        try
+                        {
+                            this.diagram.Scale = 1.0f;
+                            this.diagram.Layout(g1);
+                            IntPtr hdc = g1.GetHdc();
+                            Metafile metafile = new Metafile(saveFileDialog.FileName, hdc);
+                            Graphics g2 = Graphics.FromImage(metafile);
+                            g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                            this.diagram.Layout(g2);
+                            this.diagram.Paint(g2);
+                            g1.ReleaseHdc(hdc);
+                            metafile.Dispose();
+                            g2.Dispose();
+                        }
+                        finally
+                        {
+                            this.diagram.Scale = scaleSave;
+                            this.diagram.Layout(g1);
+                        }
+                    }
+                    else if (extension.CompareTo(".png") == 0)
+                    {
+                        Rectangle bbox = this.diagram.ScaleRectangle(this.diagram.BoundingBox);
+                        bool bypassAlert = true;
+                        if (bbox.Width > 10000 || bbox.Height > 10000)
+                            bypassAlert = MessageBox.Show(this, string.Format("Are you agree to generate a {0}x{1} image?", bbox.Width, bbox.Height), "Huge image generation", MessageBoxButtons.YesNo) == DialogResult.Yes;
+                        if (bypassAlert)
+                        {
+                            Bitmap bitmap = new Bitmap(bbox.Width, bbox.Height);
+                            Graphics graphics = Graphics.FromImage((Image)bitmap);
+                            graphics.FillRectangle(Brushes.White, 0, 0, bbox.Width, bbox.Height);
+                            this.diagram.Paint(graphics);
+                            bitmap.Save(saveFileDialog.FileName);
+                        }
+                    }
+                    else //if (extension.CompareTo(".svg") == 0)
 					{
-						string svgFileContent = this.diagram.ToSVG();
-						using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
-						{
-							sw.WriteLine(svgFileContent);
-						}
+                        float scaleSave = this.diagram.Scale;
+                        try
+                        {
+                            this.diagram.Scale = 1.0f;
+                            this.diagram.Layout(g1);
+                            string svgFileContent = this.diagram.ToSVG();
+                            using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
+                            {
+                                sw.WriteLine(svgFileContent);
+                                sw.Close();
+                            }
+                        }
+                        finally
+                        {
+                            this.diagram.Scale = scaleSave;
+                            this.diagram.Layout(g1);
+                        }
 					}
-					else
-					{
-						Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
-						IntPtr hdc = g1.GetHdc();
-						Metafile metafile = new Metafile(saveFileDialog.FileName, hdc);
-						Graphics g2 = Graphics.FromImage(metafile);
-						g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-						this.diagram.Layout(g2);
-						this.diagram.Paint(g2);
-						g1.ReleaseHdc(hdc);
-						g2.Dispose();
-						g1.Dispose();
-					}
+                    g1.Dispose();
 				}
 				catch (Exception ex)
 				{
+                    MessageBox.Show(ex.Message);
 					System.Diagnostics.Trace.WriteLine(ex.ToString());
 				}
 			}

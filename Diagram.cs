@@ -862,59 +862,10 @@ xmlns=""http://www.w3.org/2000/svg"">
 			this.elementBox.Offset(this.location);
 		}
 
-		protected void DrawOccurencesText(Graphics g, SolidBrush foreground)
-		{
-			if (this.maxOccurrence > 1 || this.maxOccurrence == -1)
-			{
-				StringFormat stringFormatOccurences = new StringFormat();
-				stringFormatOccurences.Alignment = StringAlignment.Far;
-				stringFormatOccurences.LineAlignment = StringAlignment.Center;
-				stringFormatOccurences.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
-				string occurences = string.Format("{0}..", this.minOccurrence) + (this.maxOccurrence == -1 ? "∞" : string.Format("{0}", this.maxOccurrence));
-				PointF pointOccurences = new PointF();
-				pointOccurences.X = this.Diagram.Scale * (this.Location.X + this.Size.Width - 10);
-				pointOccurences.Y = this.Diagram.Scale * (this.Location.Y + this.Size.Height + 10);
-				g.DrawString(occurences, this.SmallFont, foreground, pointOccurences, stringFormatOccurences);
-			}
-		}
-
 		protected int ScaleInt(int integer) { return this.diagram.ScaleInt(integer); }
 		protected Point ScalePoint(Point point) { return this.diagram.ScalePoint(point); }
 		protected Size ScaleSize(Size point) { return this.diagram.ScaleSize(point); }
 		protected Rectangle ScaleRectangle(Rectangle rectangle) { return this.diagram.ScaleRectangle(rectangle); }
-
-		protected void DrawLines(Graphics g, Pen foregroundPen)
-		{
-			if (this.showChildElements)
-			{
-				if (this.childElements.Count == 1)
-				{
-					int parentMidleY = ScaleInt(this.location.Y + this.size.Height / 2);
-					g.DrawLine(foregroundPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, ScaleInt(this.childElements[0].Location.X), parentMidleY);
-				}
-				else if (this.childElements.Count > 1)
-				{
-					DiagramBase firstElement = this.childElements[0];
-					DiagramBase lastElement = this.childElements[this.childElements.Count - 1];
-					int verticalLine = ScaleInt(firstElement.BoundingBox.Left);
-					foreach (DiagramBase element in this.childElements)
-					{
-						if (element.InheritFrom == null)
-						{
-							int currentMidleY = ScaleInt(element.Location.Y + element.Size.Height / 2);
-							g.DrawLine(foregroundPen, verticalLine, currentMidleY, ScaleInt(element.Location.X), currentMidleY);
-						}
-					}
-					int parentMidleY = ScaleInt(this.location.Y + this.size.Height / 2);
-					int firstMidleY = ScaleInt(firstElement.Location.Y + firstElement.Size.Height / 2);
-					firstMidleY = Math.Min(firstMidleY, parentMidleY);
-					int lastMidleY = ScaleInt(lastElement.Location.Y + lastElement.Size.Height / 2);
-					lastMidleY = Math.Max(lastMidleY, parentMidleY);
-					g.DrawLine(foregroundPen, verticalLine, firstMidleY, verticalLine, lastMidleY);
-					g.DrawLine(foregroundPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, verticalLine, parentMidleY);
-				}
-			}
-		}
 
 		public void HitTest(Point point, out DiagramBase element, out HitTestRegion region)
 		{
@@ -993,7 +944,40 @@ xmlns=""http://www.w3.org/2000/svg"">
 			Rectangle scaledElementBox = ScaleRectangle(this.elementBox);
 
 			// Draw the children lines
-			DrawLines(g, foregroundPen);
+            if (this.showChildElements)
+            {
+                Pen foregroundInheritPen = new Pen(foreground);
+                foregroundInheritPen.StartCap = LineCap.Round;
+                foregroundInheritPen.EndCap = LineCap.Round;
+
+                if (this.childElements.Count == 1)
+                {
+                    int parentMidleY = ScaleInt(this.location.Y + this.size.Height / 2);
+                    g.DrawLine(foregroundInheritPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, ScaleInt(this.childElements[0].Location.X), parentMidleY);
+                }
+                else if (this.childElements.Count > 1)
+                {
+                    DiagramBase firstElement = this.childElements[0];
+                    DiagramBase lastElement = this.childElements[this.childElements.Count - 1];
+                    int verticalLine = ScaleInt(firstElement.BoundingBox.Left);
+                    foreach (DiagramBase element in this.childElements)
+                    {
+                        if (element.InheritFrom == null)
+                        {
+                            int currentMidleY = ScaleInt(element.Location.Y + element.Size.Height / 2);
+                            g.DrawLine(foregroundInheritPen, verticalLine, currentMidleY, ScaleInt(element.Location.X), currentMidleY);
+                        }
+                    }
+                    int parentMidleY = ScaleInt(this.location.Y + this.size.Height / 2);
+                    int firstMidleY = ScaleInt(firstElement.Location.Y + firstElement.Size.Height / 2);
+                    firstMidleY = Math.Min(firstMidleY, parentMidleY);
+                    int lastMidleY = ScaleInt(lastElement.Location.Y + lastElement.Size.Height / 2);
+                    lastMidleY = Math.Max(lastMidleY, parentMidleY);
+                    g.DrawLine(foregroundInheritPen, verticalLine, firstMidleY, verticalLine, lastMidleY);
+                    g.DrawLine(foregroundInheritPen, ScaleInt(this.location.X + this.size.Width), parentMidleY, verticalLine, parentMidleY);
+                }
+            }
+
 
 			// Draw the inheritor line
 			if (this.inheritFrom != null)
@@ -1274,7 +1258,18 @@ xmlns=""http://www.w3.org/2000/svg"">
 			}
 
 			// Draw occurences small text
-			DrawOccurencesText(g, foreground);
+			if (this.maxOccurrence > 1 || this.maxOccurrence == -1)
+			{
+				StringFormat stringFormatOccurences = new StringFormat();
+				stringFormatOccurences.Alignment = StringAlignment.Far;
+				stringFormatOccurences.LineAlignment = StringAlignment.Center;
+				stringFormatOccurences.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
+				string occurences = string.Format("{0}..", this.minOccurrence) + (this.maxOccurrence == -1 ? "∞" : string.Format("{0}", this.maxOccurrence));
+				PointF pointOccurences = new PointF();
+				pointOccurences.X = this.Diagram.Scale * (this.Location.X + this.Size.Width - 10);
+				pointOccurences.Y = this.Diagram.Scale * (this.Location.Y + this.Size.Height + 10);
+				g.DrawString(occurences, this.SmallFont, foreground, pointOccurences, stringFormatOccurences);
+			}
 
 			// Draw type
 			if (this.isSimpleContent)
@@ -1674,7 +1669,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 			// Draw text
 			if (this.name.Length > 0)
 			{
-				string style = string.Format("font-family:{0};font-size:{1}pt;fill:{2};text-anchor:middle;dominant-baseline:central", this.Font.Name, this.Font.Size * fontScale, foregroundColor);
+                string style = string.Format("font-family:{0};font-size:{1}pt;fill:{2};font-weight:bold;text-anchor:middle;dominant-baseline:central", this.Font.Name, this.Font.Size * fontScale, foregroundColor);
 				SVGText(result, this.name, style, new Rectangle(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height));
 			}
 
@@ -1707,7 +1702,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 			{
 				string arrowPen = string.Format("stroke:{0};stroke-width:{1}", foregroundColor, this.Diagram.Scale * 2.0f);
 				Point basePoint = new Point(this.elementBox.Left + 1, this.elementBox.Bottom - 1);
-				Point targetPoint = basePoint + new Size(2, -2);
+				Point targetPoint = basePoint + new Size(3, -3);
 				basePoint = ScalePoint(basePoint);
 				targetPoint = ScalePoint(targetPoint);
 				SVGLine(result, arrowPen, basePoint, targetPoint);
