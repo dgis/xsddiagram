@@ -997,7 +997,23 @@ xmlns=""http://www.w3.org/2000/svg"">
 				CustomLineCap inheritCap = new CustomLineCap(null, inheritPath);
 				inheritCap.BaseInset = ScaleInt(5);
 				foregroundInheritPen.CustomStartCap = inheritCap;
-				g.DrawLine(foregroundInheritPen, new Point(ScaleInt(this.inheritFrom.Location.X), ScaleInt(this.inheritFrom.Location.Y + this.inheritFrom.Size.Height)), p1);
+				Point targetPoint = new Point(ScaleInt(this.inheritFrom.Location.X - 3), ScaleInt(this.inheritFrom.Location.Y + this.inheritFrom.Size.Height + 3));
+				g.DrawLine(foregroundInheritPen, targetPoint, p1);
+
+				Point[] pathPoint = new Point[5];
+				pathPoint[0] = targetPoint;
+				pathPoint[1] = targetPoint; pathPoint[1].X += ScaleInt(2); pathPoint[1].Y += ScaleInt(2);
+				pathPoint[2] = targetPoint; pathPoint[2].X += ScaleInt(3); pathPoint[2].Y -= ScaleInt(3);
+				pathPoint[3] = targetPoint; pathPoint[3].X -= ScaleInt(2); pathPoint[3].Y -= ScaleInt(2);
+				pathPoint[4] = targetPoint;
+
+				GraphicsPath path = new GraphicsPath();
+				path.StartFigure();
+				path.AddPolygon(pathPoint);
+				path.CloseFigure();
+				
+				Pen foregroundBoxPen = new Pen(foreground);
+				g.DrawPath(foregroundBoxPen, path);
 			}
 
 			switch (this.type)
@@ -1289,8 +1305,26 @@ xmlns=""http://www.w3.org/2000/svg"">
 			{
 				Pen arrowPen = new Pen(foreground, this.Diagram.Scale * 2.0f);
 				arrowPen.EndCap = LineCap.ArrowAnchor;
-				Point basePoint = new Point(this.elementBox.Left + 2, this.elementBox.Bottom - 2);
-				g.DrawLine(arrowPen, ScalePoint(basePoint), ScalePoint(basePoint + new Size(4, -4)));
+				//Point basePoint = new Point(this.elementBox.Left + 2, this.elementBox.Bottom - 2);
+				//g.DrawLine(arrowPen, ScalePoint(basePoint), ScalePoint(basePoint + new Size(4, -4)));
+				Point basePoint = new Point(this.elementBox.Left + 1, this.elementBox.Bottom - 1);
+				Point targetPoint = basePoint + new Size(3, -3);
+				basePoint = ScalePoint(basePoint);
+				targetPoint = ScalePoint(targetPoint);
+				g.DrawLine(arrowPen, basePoint, targetPoint);
+
+				Point[] pathPoint = new Point[5];
+				pathPoint[0] = targetPoint;
+				pathPoint[1] = targetPoint; pathPoint[1].X += ScaleInt(2); pathPoint[1].Y += ScaleInt(2);
+				pathPoint[2] = targetPoint; pathPoint[2].X += ScaleInt(3); pathPoint[2].Y -= ScaleInt(3);
+				pathPoint[3] = targetPoint; pathPoint[3].X -= ScaleInt(2); pathPoint[3].Y -= ScaleInt(2);
+				pathPoint[4] = targetPoint;
+
+				GraphicsPath path = new GraphicsPath();
+				path.StartFigure();
+				path.AddPolygon(pathPoint);
+				path.CloseFigure();
+				g.FillPath(foreground, path);
 			}
 
 			// Draw children expand box
