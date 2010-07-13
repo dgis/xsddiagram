@@ -109,7 +109,7 @@ namespace XSDDiagram
 		private void saveDiagramToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "SVH files (*.svg)|*.svg" + (isRunningOnMono ? "" : "|EMF files (*.emf)|*.emf") + "|PNG files (*.png)|*.png|All files (*.*)|*.*";
+            saveFileDialog.Filter = "SVG files (*.svg)|*.svg" + (isRunningOnMono ? "" : "|EMF files (*.emf)|*.emf") + "|PNG files (*.png)|*.png|All files (*.*)|*.*";
 			saveFileDialog.FilterIndex = 1;
 			saveFileDialog.RestoreDirectory = true;
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
