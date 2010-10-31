@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.7 Copyright © 2006-2010 Regis Cosnier, All Rights Reserved.
+Version 0.8 Copyright © 2006-2010 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -17,6 +17,7 @@ FEATURES:
 - Zoom the diagram with the mouse wheel while holding the control key
 - Registration in the Windows Explorer contextual menu
 - Drag'n drop a file from explorer
+- Command line image generation
 
 
 QUICK START:
@@ -32,8 +33,28 @@ QUICK START:
 
 COMMAND LINE USAGE: 
 
-> XSDDiagram.exe [xsd file]
+> XSDDiagram.exe [-o output.svg] [-r RootElement]* [-e N] [-z N] [file.xsd]
+
+-o specifies the output image. Only '.svg' or '.png' are allowed.
+	If present, the GUI is not shown.
+-r specifies the root element of the tree.
+	You can put several -r option = several root elements in the tree.
+-e specifies the expand level (from 0 to what you want).
+	Be carefull, the result image can be huge.
+-z specifies the zoom percentage from 10% to 1000% (only for .png image).
+	Work only with the -o option.
+
+Example 1:
+> XSDDiagram.exe -o file.svg -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
+	will generate a SVG image from a diagram with a root element
+	'TotoRoot' and expanding the tree from the root until the 3rd level.
+
+Example 2:
+> XSDDiagramConsole.exe ./folder1/toto.xsd
+	will load the xsd file in the GUI window.
+
  or drag'n drop a file on XSDDiagram.exe
+
 
 
 TODO LIST:
@@ -49,6 +70,9 @@ TODO LIST:
 
 
 CHANGES:
+
+version 0.8 (2010-10-31)
+- Add command line options to generate PNG or SVG image without the GUI window.
 
 version 0.7 (2010-07-14)
 - Inversion of the mouse wheel direction to zoom

@@ -25,14 +25,13 @@ namespace XSDDiagram
 		private Hashtable hashtableTabPageByFilename = new Hashtable();
 		private string originalTitle = "";
 		private DiagramBase contextualMenuPointedElement = null;
-		bool isRunningOnMono = IsRunningOnMono();
 
 		public MainForm()
 		{
 			InitializeComponent();
 
-			this.toolsToolStripMenuItem.Visible = !isRunningOnMono;
-			this.printDialog.UseEXDialog = !isRunningOnMono;
+			this.toolsToolStripMenuItem.Visible = !Options.IsRunningOnMono;
+			this.printDialog.UseEXDialog = !Options.IsRunningOnMono;
 
 			this.originalTitle = Text;
 
@@ -47,14 +46,6 @@ namespace XSDDiagram
 			this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
 			this.panelDiagram.VirtualSize = new Size(0, 0);
 			this.panelDiagram.DiagramControl.Paint += new PaintEventHandler(DiagramControl_Paint);
-
-			//this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
-			//toolTip.SetToolTip(panelDiagram.DiagramControl, "Dummy DiagramControl");
-		}
-
-		public static bool IsRunningOnMono()
-		{
-			return Type.GetType("Mono.Runtime") != null;
 		}
 
 		private void MainForm_Load(object sender, EventArgs e)
@@ -62,9 +53,25 @@ namespace XSDDiagram
 			this.toolStripComboBoxZoom.SelectedIndex = 8;
 			this.toolStripComboBoxAlignement.SelectedIndex = 1;
 
-			string[] options = Environment.GetCommandLineArgs();
-			if (options.Length > 1)
-				LoadSchema(options[1]);
+			if (!string.IsNullOrEmpty(Options.InputFile))
+			{
+				LoadSchema(Options.InputFile);
+				foreach (var rootElement in Options.RootElements)
+				{
+					foreach (var element in schema.Elements)
+					{
+						if (element.Name == rootElement)
+						{
+							diagram.Add(element.Tag, element.NameSpace);
+						}
+					}
+				}
+				for (int i = 0; i < Options.ExpandLevel; i++)
+				{
+					diagram.ExpandOneLevel();
+				}
+				UpdateDiagram();
+			}
 		}
 
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -97,7 +104,7 @@ namespace XSDDiagram
 		private void saveDiagramToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "SVG files (*.svg)|*.svg" + (isRunningOnMono ? "" : "|EMF files (*.emf)|*.emf") + "|PNG files (*.png)|*.png|All files (*.*)|*.*";
+			saveFileDialog.Filter = "SVG files (*.svg)|*.svg" + (Options.IsRunningOnMono ? "" : "|EMF files (*.emf)|*.emf") + "|PNG files (*.png)|*.png|All files (*.*)|*.*";
 			saveFileDialog.FilterIndex = 1;
 			saveFileDialog.RestoreDirectory = true;
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
@@ -106,7 +113,7 @@ namespace XSDDiagram
 				try
 				{
                     Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
-                    outputFilename = diagram.SaveToImage(outputFilename, g1, new Diagram.AlerteDelegate(SaveAlert));
+                    diagram.SaveToImage(outputFilename, g1, new Diagram.AlerteDelegate(SaveAlert));
 				}
 				catch (Exception ex)
 				{
@@ -288,9 +295,19 @@ namespace XSDDiagram
 				webBrowser.Dock = DockStyle.Fill;
 				webBrowser.TabIndex = 0;
 
+				string fullPath = filename;
+				try
+				{
+					new Uri(filename);
+				}
+				catch
+				{
+					fullPath = Path.GetFullPath(filename);
+				}
+
 				TabPage tabPage = new TabPage(Path.GetFileNameWithoutExtension(filename));
-				tabPage.Tag = filename;
-				tabPage.ToolTipText = filename;
+				tabPage.Tag = fullPath;
+				tabPage.ToolTipText = fullPath;
 				tabPage.Controls.Add(webBrowser);
 				tabPage.UseVisualStyleBackColor = true;
 
@@ -1008,7 +1025,7 @@ namespace XSDDiagram
 
 		private void tabControlView_Enter(object sender, EventArgs e)
 		{
-			if (tabControlView.SelectedTab.Tag != null)
+            if (tabControlView.SelectedTab != null && tabControlView.SelectedTab.Tag != null)
 			{
 				WebBrowser webBrowser = tabControlView.SelectedTab.Controls[0] as WebBrowser;
 				if (webBrowser != null)

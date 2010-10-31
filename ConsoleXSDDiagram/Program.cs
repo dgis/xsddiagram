@@ -95,7 +95,7 @@ namespace ConsoleXSDDiagram
                 Console.WriteLine("\t-o specifies the output image. Only '.svg' or '.png' are allowed.");
                 Console.WriteLine("\t-r specifies the root element of the tree (You can put several -r option = several root element in the tree).");
                 Console.WriteLine("\t-e specifies the expand level (from 0 to what you want).");
-                Console.WriteLine("\t-z specifies the zoom percentage (from 10% to 1000%).");
+                Console.WriteLine("\t-z specifies the zoom percentage from 10% to 1000% (only for .png image).");
                 Console.WriteLine("Example: > XSDDiagramConsole.exe -i ./folder1/toto.xsd -o toto-diagram.svg -r TotoRoot -e 5 -z 200");
                 Console.WriteLine("\twill generate a SVG image from a diagram with a root element 'TotoRoot' and expanding the tree from the root until the 5th level.");
 
@@ -117,7 +117,7 @@ namespace ConsoleXSDDiagram
             }
 
             Diagram diagram = new Diagram();
-            diagram.RequestAnyElement += new Diagram.RequestAnyElementEventHandler(diagram_RequestAnyElement);
+            diagram.ElementsByName = schema.ElementsByName;
             diagram.Scale = zoom / 100.0f;
 
             foreach (var element in schema.Elements)
@@ -126,6 +126,7 @@ namespace ConsoleXSDDiagram
                 {
                     if (element.Name == rootElement)
                     {
+                        Console.WriteLine("Adding '{0}' element to the diagram...", rootElement);
                         diagram.Add(element.Tag, element.NameSpace);
                     }
                 }
@@ -134,28 +135,38 @@ namespace ConsoleXSDDiagram
             Graphics graphics = form.CreateGraphics();
             graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+
             for (int i = 0; i < expandLevel; i++)
             {
+                Console.WriteLine("Expanding to level {0}...", i + 1);
                 diagram.ExpandOneLevel();
-                diagram.Layout(graphics);
             }
             diagram.Layout(graphics);
-            diagram.SaveToImage(outputFile, graphics, new Diagram.AlerteDelegate(SaveAlert));
+            Console.WriteLine("Saving image...");
+            try
+            {
+                if (diagram.SaveToImage(outputFile, graphics, new Diagram.AlerteDelegate(SaveAlert)))
+                    Console.WriteLine("The diagram is now saved in the file: {0}", outputFile);
+                else
+                    Console.WriteLine("ERROR: The diagram has not been saved!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: The diagram has not been saved!");
+                Console.WriteLine(ex.ToString());
+            }
+
             graphics.Dispose();
             form.Dispose();
         }
 
-        static void diagram_RequestAnyElement(DiagramBase diagramElement, out XMLSchema.element element, out string nameSpace)
-        {
-            element = null;
-            nameSpace = "";
-        }
-
         static bool SaveAlert(string title, string message)
         {
-            Console.WriteLine(string.Format("{0}. {1} [Yn]", title, message));
+            Console.Write(string.Format("{0}. {1} [Yn] > ", title, message));
             ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(false);
-            return consoleKeyInfo.Key == ConsoleKey.Y;
+            Console.WriteLine("");
+            Console.WriteLine("Ok, relax... It can't take time!");
+            return consoleKeyInfo.Key == ConsoleKey.Y || consoleKeyInfo.Key == ConsoleKey.Enter;
         }
     }
 }

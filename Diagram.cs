@@ -703,8 +703,9 @@ xmlns=""http://www.w3.org/2000/svg"">
 
 
         public delegate bool AlerteDelegate(string title, string message);
-        public string SaveToImage(string outputFilename, Graphics g1, AlerteDelegate alerteDelegate)
+        public bool SaveToImage(string outputFilename, Graphics g1, AlerteDelegate alerteDelegate)
         {
+            bool result = false;
             string extension = Path.GetExtension(outputFilename).ToLower();
             if (string.IsNullOrEmpty(extension)) { extension = ".svg"; outputFilename += extension; }
             if (extension.CompareTo(".emf") == 0)
@@ -723,6 +724,7 @@ xmlns=""http://www.w3.org/2000/svg"">
                     g1.ReleaseHdc(hdc);
                     metafile.Dispose();
                     g2.Dispose();
+                    result = true;
                 }
                 finally
                 {
@@ -743,6 +745,7 @@ xmlns=""http://www.w3.org/2000/svg"">
                     graphics.FillRectangle(Brushes.White, 0, 0, bbox.Width, bbox.Height);
                     this.Paint(graphics);
                     bitmap.Save(outputFilename);
+                    result = true;
                 }
             }
             else //if (extension.CompareTo(".svg") == 0)
@@ -758,6 +761,7 @@ xmlns=""http://www.w3.org/2000/svg"">
                         sw.WriteLine(svgFileContent);
                         sw.Close();
                     }
+                    result = true;
                 }
                 finally
                 {
@@ -766,7 +770,7 @@ xmlns=""http://www.w3.org/2000/svg"">
                 }
             }
             g1.Dispose();
-            return outputFilename;
+            return result;
         }
 	}
 
