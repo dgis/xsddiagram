@@ -20,14 +20,9 @@ namespace XSDDiagram
 {
 	public partial class MainForm : Form
 	{
-		private static XmlSerializer schemaSerializer = new XmlSerializer(typeof(XMLSchema.schema));
-		private Diagram diagram = new Diagram();
-		private Hashtable hashtableElementsByName = new Hashtable();
-		private Hashtable hashtableAttributesByName = new Hashtable();
-		private ArrayList listOfXsdFilename = new ArrayList();
+        private Diagram diagram = new Diagram();
+        private Schema schema = new Schema();
 		private Hashtable hashtableTabPageByFilename = new Hashtable();
-		private XSDObject firstElement = null;
-		private List<string> loadError = new List<string>();
 		private string originalTitle = "";
 		private DiagramBase contextualMenuPointedElement = null;
 		bool isRunningOnMono = IsRunningOnMono();
@@ -43,8 +38,6 @@ namespace XSDDiagram
 
 			this.toolStripComboBoxSchemaElement.Sorted = true;
 			this.toolStripComboBoxSchemaElement.Items.Add("");
-			this.hashtableElementsByName[""] = null;
-			this.hashtableAttributesByName[""] = null;
 
 			this.diagram.RequestAnyElement += new Diagram.RequestAnyElementEventHandler(diagram_RequestAnyElement);
 			this.panelDiagram.DiagramControl.ContextMenuStrip = this.contextMenuStripDiagram;
@@ -54,11 +47,6 @@ namespace XSDDiagram
 			this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
 			this.panelDiagram.VirtualSize = new Size(0, 0);
 			this.panelDiagram.DiagramControl.Paint += new PaintEventHandler(DiagramControl_Paint);
-
-			schemaSerializer.UnreferencedObject += new UnreferencedObjectEventHandler(schemaSerializer_UnreferencedObject);
-			schemaSerializer.UnknownNode += new XmlNodeEventHandler(schemaSerializer_UnknownNode);
-			schemaSerializer.UnknownElement += new XmlElementEventHandler(schemaSerializer_UnknownElement);
-			schemaSerializer.UnknownAttribute += new XmlAttributeEventHandler(schemaSerializer_UnknownAttribute);
 
 			//this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
 			//toolTip.SetToolTip(panelDiagram.DiagramControl, "Dummy DiagramControl");
@@ -114,71 +102,11 @@ namespace XSDDiagram
 			saveFileDialog.RestoreDirectory = true;
 			if (saveFileDialog.ShowDialog() == DialogResult.OK)
 			{
+                string outputFilename = saveFileDialog.FileName;
 				try
 				{
                     Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
-
-					string extension = Path.GetExtension(saveFileDialog.FileName).ToLower();
-                    if (string.IsNullOrEmpty(extension)) { extension = ".svg"; saveFileDialog.FileName += extension;  }
-                    if (extension.CompareTo(".emf") == 0)
-                    {
-                        float scaleSave = this.diagram.Scale;
-                        try
-                        {
-                            this.diagram.Scale = 1.0f;
-                            this.diagram.Layout(g1);
-                            IntPtr hdc = g1.GetHdc();
-                            Metafile metafile = new Metafile(saveFileDialog.FileName, hdc);
-                            Graphics g2 = Graphics.FromImage(metafile);
-                            g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                            this.diagram.Layout(g2);
-                            this.diagram.Paint(g2);
-                            g1.ReleaseHdc(hdc);
-                            metafile.Dispose();
-                            g2.Dispose();
-                        }
-                        finally
-                        {
-                            this.diagram.Scale = scaleSave;
-                            this.diagram.Layout(g1);
-                        }
-                    }
-                    else if (extension.CompareTo(".png") == 0)
-                    {
-                        Rectangle bbox = this.diagram.ScaleRectangle(this.diagram.BoundingBox);
-                        bool bypassAlert = true;
-                        if (bbox.Width > 10000 || bbox.Height > 10000)
-                            bypassAlert = MessageBox.Show(this, string.Format("Are you agree to generate a {0}x{1} image?", bbox.Width, bbox.Height), "Huge image generation", MessageBoxButtons.YesNo) == DialogResult.Yes;
-                        if (bypassAlert)
-                        {
-                            Bitmap bitmap = new Bitmap(bbox.Width, bbox.Height);
-                            Graphics graphics = Graphics.FromImage((Image)bitmap);
-                            graphics.FillRectangle(Brushes.White, 0, 0, bbox.Width, bbox.Height);
-                            this.diagram.Paint(graphics);
-                            bitmap.Save(saveFileDialog.FileName);
-                        }
-                    }
-                    else //if (extension.CompareTo(".svg") == 0)
-					{
-                        float scaleSave = this.diagram.Scale;
-                        try
-                        {
-                            this.diagram.Scale = 1.0f;
-                            this.diagram.Layout(g1);
-                            string svgFileContent = this.diagram.ToSVG();
-                            using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
-                            {
-                                sw.WriteLine(svgFileContent);
-                                sw.Close();
-                            }
-                        }
-                        finally
-                        {
-                            this.diagram.Scale = scaleSave;
-                            this.diagram.Layout(g1);
-                        }
-					}
-                    g1.Dispose();
+                    outputFilename = diagram.SaveToImage(outputFilename, g1, new Diagram.AlerteDelegate(SaveAlert));
 				}
 				catch (Exception ex)
 				{
@@ -187,6 +115,12 @@ namespace XSDDiagram
 				}
 			}
 		}
+
+        bool SaveAlert(string title, string message)
+        {
+            return MessageBox.Show(this, message, title, MessageBoxButtons.YesNo) == DialogResult.Yes;
+        }
+
 
 		private int currentPage = 0;
 
@@ -264,7 +198,7 @@ namespace XSDDiagram
 
 		private void toolStripButtonAddAllToDiagram_Click(object sender, EventArgs e)
 		{
-			foreach (XSDObject xsdObject in this.hashtableElementsByName.Values)
+			foreach (XSDObject xsdObject in this.schema.ElementsByName.Values)
 				if (xsdObject != null)
 					this.diagram.Add(xsdObject.Tag, xsdObject.NameSpace);
 			UpdateDiagram();
@@ -312,12 +246,6 @@ namespace XSDDiagram
 			this.panelDiagram.VirtualSize = new Size(0, 0);
 			this.panelDiagram.VirtualPoint = new Point(0, 0);
 			this.panelDiagram.Clear();
-			this.firstElement = null;
-			this.hashtableElementsByName.Clear();
-			this.hashtableElementsByName[""] = null;
-			this.hashtableAttributesByName.Clear();
-			this.hashtableAttributesByName[""] = null;
-			this.listOfXsdFilename.Clear();
 			this.hashtableTabPageByFilename.Clear();
 			this.listViewElements.Items.Clear();
 			this.toolStripComboBoxSchemaElement.Items.Clear();
@@ -327,29 +255,34 @@ namespace XSDDiagram
 			while (this.tabControlView.TabCount > 1)
 				this.tabControlView.TabPages.RemoveAt(1);
 
-			this.loadError.Clear();
 
-			ImportSchema(fileName);
+            schema.LoadSchema(fileName);
+
+            foreach (XSDObject xsdObject in schema.Elements)
+            {
+                this.listViewElements.Items.Add(new ListViewItem(new string[] { xsdObject.Name, xsdObject.Type, xsdObject.NameSpace })).Tag = xsdObject;
+                this.toolStripComboBoxSchemaElement.Items.Add(xsdObject);
+            }
 
 			Cursor = Cursors.Default;
 
-			if (this.loadError.Count > 0)
+			if (this.schema.LoadError.Count > 0)
 			{
 				ErrorReportForm errorReportForm = new ErrorReportForm();
-				errorReportForm.Errors = this.loadError;
+				errorReportForm.Errors = this.schema.LoadError;
 				errorReportForm.ShowDialog(this);
 			}
 
-			this.diagram.ElementsByName = this.hashtableElementsByName;
-			if (this.firstElement != null)
-				this.toolStripComboBoxSchemaElement.SelectedItem = this.firstElement;
+			this.diagram.ElementsByName = this.schema.ElementsByName;
+			if (this.schema.FirstElement != null)
+				this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.FirstElement;
 			else
 				this.toolStripComboBoxSchemaElement.SelectedIndex = 0;
 
 			tabControlView_Selected(null, null);
 
 			this.tabControlView.SuspendLayout();
-			foreach (string filename in this.listOfXsdFilename)
+			foreach (string filename in this.schema.XsdFilenames)
 			{
 				WebBrowser webBrowser = new WebBrowser();
 				webBrowser.Dock = DockStyle.Fill;
@@ -366,177 +299,6 @@ namespace XSDDiagram
 
 			}
 			this.tabControlView.ResumeLayout();
-		}
-
-		private void ImportSchema(string fileName)
-		{
-			FileStream fileStream = null;
-			try
-			{
-				fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-				this.loadError.Clear();
-				XMLSchema.schema schemaDOM = (XMLSchema.schema)schemaSerializer.Deserialize(fileStream);
-
-				this.listOfXsdFilename.Add(fileName);
-
-				ParseSchema(fileName, schemaDOM);
-			}
-			catch (IOException ex)
-			{
-				this.loadError.Add(ex.Message);
-			}
-			catch (NotSupportedException ex)
-			{
-				this.loadError.Add(ex.Message + " (" + fileName + ")");
-			}
-			catch (InvalidOperationException ex)
-			{
-				this.loadError.Add(ex.Message + "\r\n" + ex.InnerException.Message);
-			}
-			finally
-			{
-				if (fileStream != null)
-					fileStream.Close();
-			}
-		}
-
-		private void ParseSchema(string fileName, XMLSchema.schema schemaDOM)
-		{
-			string basePath = Path.GetDirectoryName(fileName);
-			if (schemaDOM.Items != null)
-			{
-				foreach (XMLSchema.openAttrs openAttrs in schemaDOM.Items)
-				{
-					string loadedFileName = "";
-					string schemaLocation = "";
-
-					if (openAttrs is XMLSchema.include)
-					{
-						XMLSchema.include include = openAttrs as XMLSchema.include;
-						if (include.schemaLocation != null)
-							schemaLocation = include.schemaLocation;
-					}
-					else if (openAttrs is XMLSchema.import)
-					{
-						XMLSchema.import import = openAttrs as XMLSchema.import;
-						if (import.schemaLocation != null)
-							schemaLocation = import.schemaLocation;
-					}
-
-					if (!string.IsNullOrEmpty(schemaLocation))
-					{
-						loadedFileName = basePath + Path.DirectorySeparatorChar + schemaLocation.Replace('/', Path.DirectorySeparatorChar);
-
-						string url = schemaLocation.Trim();
-						if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0)
-						{
-							Uri uri = new Uri(url);
-							if (uri.Segments.Length > 0)
-							{
-								string fileNameToImport = uri.Segments[uri.Segments.Length - 1];
-								loadedFileName = basePath + Path.DirectorySeparatorChar + fileNameToImport;
-								if (!File.Exists(loadedFileName))
-								{
-									WebClient webClient = new WebClient();
-									//webClient.Credentials = new System.Net.NetworkCredential("username", "password");
-									try
-									{
-										webClient.DownloadFile(uri, loadedFileName);
-									}
-									catch (WebException)
-									{
-										this.loadError.Add("Cannot load the dependency: " + uri.ToString());
-										loadedFileName = null;
-									}
-								}
-							}
-						}
-					}
-
-					if (!string.IsNullOrEmpty(loadedFileName))
-						ImportSchema(loadedFileName);
-				}
-			}
-
-			string nameSpace = schemaDOM.targetNamespace;
-
-			if (schemaDOM.Items1 != null)
-			{
-				foreach (XMLSchema.openAttrs openAttrs in schemaDOM.Items1)
-				{
-					if (openAttrs is XMLSchema.element)
-					{
-						XMLSchema.element element = openAttrs as XMLSchema.element;
-						XSDObject xsdObject = new XSDObject(fileName, element.name, nameSpace, "element", element);
-						this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
-
-						if (this.firstElement == null)
-							this.firstElement = xsdObject;
-
-						this.listViewElements.Items.Add(new ListViewItem(new string[] { xsdObject.Name, xsdObject.Type, xsdObject.NameSpace })).Tag = xsdObject;
-						this.toolStripComboBoxSchemaElement.Items.Add(xsdObject);
-					}
-					else if (openAttrs is XMLSchema.group)
-					{
-						XMLSchema.group group = openAttrs as XMLSchema.group;
-						XSDObject xsdObject = new XSDObject(fileName, group.name, nameSpace, "group", group);
-						this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
-
-						this.listViewElements.Items.Add(new ListViewItem(new string[] { xsdObject.Name, xsdObject.Type, xsdObject.NameSpace })).Tag = xsdObject;
-						this.toolStripComboBoxSchemaElement.Items.Add(xsdObject);
-					}
-					else if (openAttrs is XMLSchema.simpleType)
-					{
-						XMLSchema.simpleType simpleType = openAttrs as XMLSchema.simpleType;
-						XSDObject xsdObject = new XSDObject(fileName, simpleType.name, nameSpace, "simpleType", simpleType);
-						this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
-
-						this.listViewElements.Items.Add(new ListViewItem(new string[] { xsdObject.Name, xsdObject.Type, xsdObject.NameSpace })).Tag = xsdObject;
-						this.toolStripComboBoxSchemaElement.Items.Add(xsdObject);
-					}
-					else if (openAttrs is XMLSchema.complexType)
-					{
-						XMLSchema.complexType complexType = openAttrs as XMLSchema.complexType;
-						XSDObject xsdObject = new XSDObject(fileName, complexType.name, nameSpace, "complexType", complexType);
-						this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
-
-						this.listViewElements.Items.Add(new ListViewItem(new string[] { xsdObject.Name, xsdObject.Type, xsdObject.NameSpace })).Tag = xsdObject;
-						this.toolStripComboBoxSchemaElement.Items.Add(xsdObject);
-					}
-					else if (openAttrs is XMLSchema.attribute)
-					{
-						XMLSchema.attribute attribute = openAttrs as XMLSchema.attribute;
-						XSDAttribute xsdAttribute = new XSDAttribute(fileName, attribute.name, nameSpace, "attribute", attribute.@ref != null, attribute.@default, attribute.use.ToString(), attribute);
-						this.hashtableAttributesByName[xsdAttribute.FullName] = xsdAttribute;
-					}
-					else if (openAttrs is XMLSchema.attributeGroup)
-					{
-						XMLSchema.attributeGroup attributeGroup = openAttrs as XMLSchema.attributeGroup;
-						XSDAttributeGroup xsdAttributeGroup = new XSDAttributeGroup(fileName, attributeGroup.name, nameSpace, "attributeGroup", attributeGroup is XMLSchema.attributeGroupRef, attributeGroup);
-						this.hashtableAttributesByName[xsdAttributeGroup.FullName] = xsdAttributeGroup;
-					}
-				}
-			}
-		}
-
-		void schemaSerializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
-		{
-			this.loadError.Add("Unkonwn attribute (" + e.LineNumber + ", " + e.LinePosition + "): " + e.Attr.Name);
-		}
-
-		void schemaSerializer_UnknownElement(object sender, XmlElementEventArgs e)
-		{
-			this.loadError.Add("Unkonwn element (" + e.LineNumber + ", " + e.LinePosition + "): " + e.Element.Name);
-		}
-
-		void schemaSerializer_UnknownNode(object sender, XmlNodeEventArgs e)
-		{
-			this.loadError.Add("Unkonwn node (" + e.LineNumber + ", " + e.LinePosition + "): " + e.Name);
-		}
-
-		void schemaSerializer_UnreferencedObject(object sender, UnreferencedObjectEventArgs e)
-		{
-			this.loadError.Add("Unreferenced object: " + e.UnreferencedId);
 		}
 
 		void DiagramControl_MouseClick(object sender, MouseEventArgs e)
@@ -593,8 +355,8 @@ namespace XSDDiagram
 
 			if (element is DiagramBase)
 			{
-				if (this.hashtableElementsByName[element.FullName] != null)
-					this.toolStripComboBoxSchemaElement.SelectedItem = this.hashtableElementsByName[element.FullName];
+				if (this.schema.ElementsByName[element.FullName] != null)
+					this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.ElementsByName[element.FullName];
 				else
 					this.toolStripComboBoxSchemaElement.SelectedItem = null;
 
@@ -655,7 +417,7 @@ namespace XSDDiagram
 					}
 					else if (element.type != null)
 					{
-						XSDObject xsdObject = this.hashtableElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
+						XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
 						if (xsdObject != null)
 						{
 							XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
@@ -739,7 +501,7 @@ namespace XSDDiagram
 							if (annotatedContent is XMLSchema.extensionType)
 							{
 								XMLSchema.extensionType extensionType = annotatedContent as XMLSchema.extensionType;
-								XSDObject xsdExtensionType = this.hashtableElementsByName[QualifiedNameToFullName("type", extensionType.@base)] as XSDObject;
+								XSDObject xsdExtensionType = this.schema.ElementsByName[QualifiedNameToFullName("type", extensionType.@base)] as XSDObject;
 								if (xsdExtensionType != null)
 								{
 									XMLSchema.annotated annotatedExtension = xsdExtensionType.Tag as XMLSchema.annotated;
@@ -767,7 +529,7 @@ namespace XSDDiagram
 							else if (annotatedContent is XMLSchema.restrictionType)
 							{
 								XMLSchema.restrictionType restrictionType = annotatedContent as XMLSchema.restrictionType;
-								XSDObject xsdRestrictionType = this.hashtableElementsByName[QualifiedNameToFullName("type", restrictionType.@base)] as XSDObject;
+								XSDObject xsdRestrictionType = this.schema.ElementsByName[QualifiedNameToFullName("type", restrictionType.@base)] as XSDObject;
 								if (xsdRestrictionType != null)
 								{
 									XMLSchema.annotated annotatedRestriction = xsdRestrictionType.Tag as XMLSchema.annotated;
@@ -809,7 +571,7 @@ namespace XSDDiagram
 			string type = "";
 			if (attribute.@ref != null)
 			{
-				object o = this.hashtableAttributesByName[QualifiedNameToFullName("attribute", attribute.@ref)];
+				object o = this.schema.AttributesByName[QualifiedNameToFullName("attribute", attribute.@ref)];
 				if (o is XSDAttribute)
 				{
 					XSDAttribute xsdAttributeInstance = o as XSDAttribute;
@@ -881,7 +643,7 @@ namespace XSDDiagram
 		{
 			if (attributeGroup is XMLSchema.attributeGroupRef && attributeGroup.@ref != null)
 			{
-				object o = this.hashtableAttributesByName[QualifiedNameToFullName("attributeGroup", attributeGroup.@ref)];
+				object o = this.schema.AttributesByName[QualifiedNameToFullName("attributeGroup", attributeGroup.@ref)];
 				if (o is XSDAttributeGroup)
 				{
 					XSDAttributeGroup xsdAttributeGroup = o as XSDAttributeGroup;
@@ -923,7 +685,7 @@ namespace XSDDiagram
 			{
 				if (attribute.type != null)
 				{
-					XSDObject xsdObject = this.hashtableElementsByName[QualifiedNameToFullName("type", attribute.type)] as XSDObject;
+					XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", attribute.type)] as XSDObject;
 					if (xsdObject != null)
 					{
 						XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
@@ -947,7 +709,7 @@ namespace XSDDiagram
 				XMLSchema.element element = annotated as XMLSchema.element;
 				if (element != null && element.type != null)
 				{
-					XSDObject xsdObject = this.hashtableElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
+					XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
 					if (xsdObject != null)
 					{
 						XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
@@ -1192,7 +954,7 @@ namespace XSDDiagram
 		{
 			if (this.contextualMenuPointedElement != null)
 			{
-				XSDObject xsdObject = this.hashtableElementsByName[this.contextualMenuPointedElement.FullName] as XSDObject;
+				XSDObject xsdObject = this.schema.ElementsByName[this.contextualMenuPointedElement.FullName] as XSDObject;
 				if (xsdObject != null)
 				{
 					TabPage tabPage = this.hashtableTabPageByFilename[xsdObject.Filename] as TabPage;
@@ -1292,7 +1054,7 @@ namespace XSDDiagram
 			//elementsForm.Location = MousePosition; //diagramElement.Location //MousePosition;
 			//elementsForm.ListBoxElements.Items.Clear();
 			//elementsForm.ListBoxElements.Items.Insert(0, "(Cancel)");
-			//foreach (XSDObject xsdObject in this.hashtableElementsByName.Values)
+			//foreach (XSDObject xsdObject in this.schema.ElementsByName.Values)
 			//    if (xsdObject != null && xsdObject.Type == "element")
 			//        elementsForm.ListBoxElements.Items.Add(xsdObject);
 			//if (elementsForm.ShowDialog(this.diagramControl) == DialogResult.OK && (elementsForm.ListBoxElements.SelectedItem as XSDObject) != null)
@@ -1594,115 +1356,5 @@ namespace XSDDiagram
 		//    }
 		//}
 		//}
-	}
-
-	public class XSDObject
-	{
-		private string filename = "";
-		private string name = "";
-		private string nameSpace = "";
-		private string type = "";
-		private string fullNameType = "";
-		private XMLSchema.openAttrs tag = null;
-
-		public string Filename { get { return this.filename; } set { this.filename = value; } }
-		public string Name { get { return this.name; } set { this.name = value; } }
-		public string NameSpace { get { return this.nameSpace; } set { this.nameSpace = value; } }
-		public string Type { get { return this.type; } set { this.type = value; } }
-		public XMLSchema.openAttrs Tag { get { return this.tag; } set { this.tag = value; } }
-
-		public string FullName { get { return this.nameSpace + ':' + this.fullNameType + ':' + this.name; } }
-
-		public XSDObject(string filename, string name, string nameSpace, string type, XMLSchema.openAttrs tag)
-		{
-			this.filename = filename;
-			this.name = name;
-			this.nameSpace = (nameSpace == null ? "" : nameSpace);
-			this.type = type;
-			if (this.type == "simpleType" || this.type == "complexType")
-				this.fullNameType = "type";
-			else
-				this.fullNameType = this.type;
-			this.tag = tag;
-		}
-
-		public override string ToString()
-		{
-			return this.type + ": " + this.name + " (" + this.nameSpace + ")";
-		}
-	}
-
-	public class XSDAttribute
-	{
-		private string filename = "";
-		private string name = "";
-		private string nameSpace = "";
-		private string type = "";
-		private bool isReference = false;
-		private string defaultValue = "";
-		private string use = "";
-		private XMLSchema.attribute tag = null;
-
-		public string Filename { get { return this.filename; } set { this.filename = value; } }
-		public string Name { get { return this.name; } set { this.name = value; } }
-		public string NameSpace { get { return this.nameSpace; } set { this.nameSpace = value; } }
-		public string Type { get { return this.type; } set { this.type = value; } }
-		public bool IsReference { get { return this.isReference; } set { this.isReference = value; } }
-		public string DefaultValue { get { return this.defaultValue; } set { this.defaultValue = value; } }
-		public string Use { get { return this.use; } set { this.use = value; } }
-		public XMLSchema.attribute Tag { get { return this.tag; } set { this.tag = value; } }
-
-		public string FullName { get { return this.nameSpace + ":attribute:" + this.name; } }
-
-		public XSDAttribute(string filename, string name, string nameSpace, string type, bool isReference, string defaultValue, string use, XMLSchema.attribute attribute)
-		{
-			this.filename = filename;
-			this.name = name;
-			this.nameSpace = (nameSpace == null ? "" : nameSpace);
-			this.type = type;
-			this.isReference = isReference;
-			this.defaultValue = defaultValue;
-			this.use = use;
-			this.tag = attribute;
-		}
-
-		public override string ToString()
-		{
-			return this.name + " (" + this.nameSpace + ")";
-		}
-	}
-
-	public class XSDAttributeGroup
-	{
-		private string filename = "";
-		private string name = "";
-		private string nameSpace = "";
-		private string type = "";
-		private bool isReference = false;
-		private XMLSchema.attributeGroup tag = null;
-
-		public string Filename { get { return this.filename; } set { this.filename = value; } }
-		public string Name { get { return this.name; } set { this.name = value; } }
-		public string NameSpace { get { return this.nameSpace; } set { this.nameSpace = value; } }
-		public string Type { get { return this.type; } set { this.type = value; } }
-		public bool IsReference { get { return this.isReference; } set { this.isReference = value; } }
-		public XMLSchema.attributeGroup Tag { get { return this.tag; } set { this.tag = value; } }
-
-		public string FullName { get { return this.nameSpace + ":attributeGroup:" + this.name; } }
-
-		public XSDAttributeGroup(string filename, string name, string nameSpace, string type, bool isReference, XMLSchema.attributeGroup attributeGroup)
-		{
-			this.filename = filename;
-			this.name = name;
-			this.nameSpace = (nameSpace == null ? "" : nameSpace);
-			this.type = type;
-			this.isReference = isReference;
-			this.tag = attributeGroup;
-		}
-
-		public override string ToString()
-		{
-			return this.name + " (" + this.nameSpace + ")";
-		}
 	}
 }

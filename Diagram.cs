@@ -21,6 +21,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text;
+using System.IO;
+using System.Drawing.Imaging;
+using System.Windows.Forms;
 
 namespace XSDDiagram
 {
@@ -611,7 +614,7 @@ namespace XSDDiagram
 				elementBoundingBox.X = this.padding.Width;
 				elementBoundingBox.Y = currentY;
 				element.BoundingBox = elementBoundingBox;
-				element.GenerateLocation(g);
+				element.GenerateLocation();
 				currentY += element.BoundingBox.Height;
 
 				this.boundingBox = Rectangle.Union(this.boundingBox, element.BoundingBox);
@@ -696,6 +699,75 @@ xmlns=""http://www.w3.org/2000/svg"">
 			return new Rectangle((int)Math.Round(rectangle.X * this.Scale), (int)Math.Round(rectangle.Y * this.Scale),
 				(int)Math.Round(rectangle.Width * this.Scale), (int)Math.Round(rectangle.Height * this.Scale));
 		}
+
+
+
+        public delegate bool AlerteDelegate(string title, string message);
+        public string SaveToImage(string outputFilename, Graphics g1, AlerteDelegate alerteDelegate)
+        {
+            string extension = Path.GetExtension(outputFilename).ToLower();
+            if (string.IsNullOrEmpty(extension)) { extension = ".svg"; outputFilename += extension; }
+            if (extension.CompareTo(".emf") == 0)
+            {
+                float scaleSave = this.Scale;
+                try
+                {
+                    this.Scale = 1.0f;
+                    this.Layout(g1);
+                    IntPtr hdc = g1.GetHdc();
+                    Metafile metafile = new Metafile(outputFilename, hdc);
+                    Graphics g2 = Graphics.FromImage(metafile);
+                    g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                    this.Layout(g2);
+                    this.Paint(g2);
+                    g1.ReleaseHdc(hdc);
+                    metafile.Dispose();
+                    g2.Dispose();
+                }
+                finally
+                {
+                    this.Scale = scaleSave;
+                    this.Layout(g1);
+                }
+            }
+            else if (extension.CompareTo(".png") == 0)
+            {
+                Rectangle bbox = this.ScaleRectangle(this.BoundingBox);
+                bool bypassAlert = true;
+                if (alerteDelegate != null && (bbox.Width > 10000 || bbox.Height > 10000))
+                    bypassAlert = alerteDelegate("Huge image generation", string.Format("Are you agree to generate a {0}x{1} image?", bbox.Width, bbox.Height));
+                if (bypassAlert)
+                {
+                    Bitmap bitmap = new Bitmap(bbox.Width, bbox.Height);
+                    Graphics graphics = Graphics.FromImage((Image)bitmap);
+                    graphics.FillRectangle(Brushes.White, 0, 0, bbox.Width, bbox.Height);
+                    this.Paint(graphics);
+                    bitmap.Save(outputFilename);
+                }
+            }
+            else //if (extension.CompareTo(".svg") == 0)
+            {
+                float scaleSave = this.Scale;
+                try
+                {
+                    this.Scale = 1.0f;
+                    this.Layout(g1);
+                    string svgFileContent = this.ToSVG();
+                    using (StreamWriter sw = new StreamWriter(outputFilename))
+                    {
+                        sw.WriteLine(svgFileContent);
+                        sw.Close();
+                    }
+                }
+                finally
+                {
+                    this.Scale = scaleSave;
+                    this.Layout(g1);
+                }
+            }
+            g1.Dispose();
+            return outputFilename;
+        }
 	}
 
 	public class DiagramBase
@@ -812,7 +884,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 			}
 		}
 
-		public virtual void GenerateLocation(Graphics g)
+		public virtual void GenerateLocation()
 		{
 			this.location.X = this.boundingBox.X + this.padding.Width;
 
@@ -852,7 +924,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 					elementBoundingBox.X = childrenX;
 					elementBoundingBox.Y = childrenY;
 					element.BoundingBox = elementBoundingBox;
-					element.GenerateLocation(g);
+					element.GenerateLocation();
 					childrenY += element.BoundingBox.Height;
 				}
 			}

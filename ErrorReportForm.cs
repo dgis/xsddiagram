@@ -27,9 +27,9 @@ namespace XSDDiagram
 {
 	public partial class ErrorReportForm : Form
 	{
-		private List<string> errors = new List<string>();
+		private IList<string> errors = new List<string>();
 
-		public List<string> Errors { get { return this.errors; } set { this.errors = value; } }
+		public IList<string> Errors { get { return this.errors; } set { this.errors = value; } }
 
 		public ErrorReportForm()
 		{

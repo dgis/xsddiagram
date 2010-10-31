@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSDDiagram", "XSDDiagram.csproj", "{B212CAFE-B4C8-44CB-B82D-AA32B55D2719}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleXSDDiagram", "ConsoleXSDDiagram\ConsoleXSDDiagram.csproj", "{EED85083-426A-46E6-9406-40F27D48B06E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{B212CAFE-B4C8-44CB-B82D-AA32B55D2719}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B212CAFE-B4C8-44CB-B82D-AA32B55D2719}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B212CAFE-B4C8-44CB-B82D-AA32B55D2719}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EED85083-426A-46E6-9406-40F27D48B06E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EED85083-426A-46E6-9406-40F27D48B06E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EED85083-426A-46E6-9406-40F27D48B06E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EED85083-426A-46E6-9406-40F27D48B06E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
