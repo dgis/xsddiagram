@@ -34,13 +34,13 @@ namespace XSDDiagram
 			foreach (var argument in args)
 			{
 				string command = null;
-				if (argument.StartsWith("/") || argument.StartsWith("-"))
+				if (/*argument.StartsWith("/") ||*/ argument.StartsWith("-"))
 					command = argument.Substring(1);
 				else if (argument.StartsWith("--"))
 					command = argument.Substring(2);
 				if (!string.IsNullOrEmpty(command))
 				{
-					int indexOfColon = command.IndexOf(';');
+					int indexOfColon = command.IndexOf(':');
 					if (indexOfColon > 0)
 					{
 						string parameter = command.Substring(indexOfColon + 1);
