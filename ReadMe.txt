@@ -13,7 +13,7 @@ FEATURES:
 - Display the elements, the groups and the attributes
 - Show the text/HTML documentation of element and attribute when available
 - Print the diagram
-- Export the diagram to SVG, PNG and EMF (EMF only with Windows)
+- Export the diagram to SVG, PNG, JPG and EMF (EMF only with Windows)
 - Zoom the diagram with the mouse wheel while holding the control key
 - Registration in the Windows Explorer contextual menu
 - Drag'n drop a file from explorer
@@ -33,27 +33,49 @@ QUICK START:
 
 COMMAND LINE USAGE: 
 
-> XSDDiagram.exe [-o output.svg] [-r RootElement]* [-e N] [-z N] [file.xsd]
+> XSDDiagram.exe [-o output.svg] [-so EXTENSION] [-r RootElement]* [-e N] [-z N] [file.xsd]
 
--o specifies the output image. Only '.svg' or '.png' are allowed.
-	If present, the GUI is not shown.
--r specifies the root element of the tree.
-	You can put several -r option = several root elements in the tree.
--e specifies the expand level (from 0 to what you want).
+or on Windows use 'XSDDiagramConsole.exe' instead of 'XSDDiagram.exe' if you need the console:
+
+> XSDDiagramConsole.exe [-o output.svg] [-so EXTENSION] [-r RootElement]* [-e N] [-z N] [file.xsd]
+
+Options:
+
+-o FILE
+	specifies the output image. Only '.svg' or '.png' are allowed.
+	If not present, the GUI is shown.
+-so EXTENSION
+	specifies the output image is streamed through the standard
+	output. EXTENSION can be: png, jpg or svg.
+	If not present, the GUI is shown.
+-r ELEMENT
+	specifies the root element of the tree.
+	You can put several -r options = several root elements in the tree.
+-e N
+	specifies the expand level (from 0 to what you want).
 	Be carefull, the result image can be huge.
--z specifies the zoom percentage from 10% to 1000% (only for .png image).
-	Work only with the -o option.
+-z N
+	specifies the zoom percentage from 10% to 1000% (only for .png image).
+	Work only with the '-o', '-os png' or '-os jpg' option.
 
 Example 1:
-> XSDDiagram.exe -o file.svg -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
-	will generate a SVG image from a diagram with a root element
+> XSDDiagramConsole.exe -o file.png -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
+	will generate a PNG image from a diagram with a root element
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
 Example 2:
-> XSDDiagramConsole.exe ./folder1/toto.xsd
+> XSDDiagram.exe ./folder1/toto.xsd
 	will load the xsd file in the GUI window.
 
- or drag'n drop a file on XSDDiagram.exe
+Example 3:
+> XSDDiagram.exe -r TotoRoot -e 2 ./folder1/toto.xsd
+	will load the xsd file in the GUI window with a root element
+	'TotoRoot' and expanding the tree from the root until the 2nd level.
+
+Example 4:
+> XSDDiagramConsole.exe -os svg -r TotoRoot -e 3 ./folder1/toto.xsd
+	will write a SVG image in the standard output from a diagram with a root element
+	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
 
 
@@ -72,7 +94,8 @@ TODO LIST:
 CHANGES:
 
 version 0.8 (2010-10-31)
-- Add command line options to generate PNG or SVG image without the GUI window.
+- Add support for JPG.
+- Add command line options to generate PNG, JPG or SVG image without the GUI window.
 
 version 0.7 (2010-07-14)
 - Inversion of the mouse wheel direction to zoom

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("XSDDiagramConsole")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("XSD Diagram Console")]
+[assembly: AssemblyDescription("XSD Diagram is a free Xml Schema Definition diagram viewer")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("XSDDiagramConsole")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("XSD Diagram")]
+[assembly: AssemblyCopyright("Copyright © 2006-2010 Regis Cosnier, All Rights Reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

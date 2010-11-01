@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("XSD Diagram")]
-[assembly: AssemblyCopyright("Copyright ©  2006-2010")]
+[assembly: AssemblyCopyright("Copyright © 2006-2010 Regis Cosnier, All Rights Reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

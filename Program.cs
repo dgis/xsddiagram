@@ -20,16 +20,21 @@ namespace XSDDiagram
 		static string usage = @"XSD Diagram, version {0}
 Usage: {1} [-o output.svg] [-so EXTENSION] [-r RootElement]* [-e N] [-z N] [file.xsd]
 
--o FILE specifies the output image. Only '.svg' or '.png' are allowed.
+-o FILE
+	specifies the output image. Only '.svg' or '.png' are allowed.
 	If not present, the GUI is shown.
--so EXTENSION specifies the output image is streamed through the standard
+-so EXTENSION
+	specifies the output image is streamed through the standard
 	output. EXTENSION can be: png, jpg, svg or emf (emf on Windows only).
 	If not present, the GUI is shown.
--r ELEMENT specifies the root element of the tree.
-	You can put several -r option = several root elements in the tree.
--e N specifies the expand level (from 0 to what you want).
+-r ELEMENT
+	specifies the root element of the tree.
+	You can put several -r options = several root elements in the tree.
+-e N
+	specifies the expand level (from 0 to what you want).
 	Be carefull, the result image can be huge.
--z N specifies the zoom percentage from 10% to 1000% (only for .png image).
+-z N
+	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
 
 Example 1:

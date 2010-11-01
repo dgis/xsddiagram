@@ -777,7 +777,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 		{
 			string extension = Path.GetExtension(outputFilename).ToLower();
 			if (string.IsNullOrEmpty(extension)) { extension = ".svg"; outputFilename += extension; }
-			using (FileStream stream = File.OpenWrite(outputFilename))
+			using (FileStream stream = File.Create(outputFilename))
             {
 				return SaveToImage(stream, extension, g1, alerteDelegate);
             }
