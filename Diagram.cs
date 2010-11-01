@@ -703,75 +703,155 @@ xmlns=""http://www.w3.org/2000/svg"">
 
 
         public delegate bool AlerteDelegate(string title, string message);
-        public bool SaveToImage(string outputFilename, Graphics g1, AlerteDelegate alerteDelegate)
-        {
-            bool result = false;
-            string extension = Path.GetExtension(outputFilename).ToLower();
-            if (string.IsNullOrEmpty(extension)) { extension = ".svg"; outputFilename += extension; }
-            if (extension.CompareTo(".emf") == 0)
+		//public bool SaveToImage(string outputFilename, Graphics g1, AlerteDelegate alerteDelegate)
+		//{
+		//    bool result = false;
+		//    string extension = Path.GetExtension(outputFilename).ToLower();
+		//    if (string.IsNullOrEmpty(extension)) { extension = ".svg"; outputFilename += extension; }
+		//    if (extension.CompareTo(".emf") == 0)
+		//    {
+		//        float scaleSave = this.Scale;
+		//        try
+		//        {
+		//            this.Scale = 1.0f;
+		//            this.Layout(g1);
+		//            IntPtr hdc = g1.GetHdc();
+		//            Metafile metafile = new Metafile(outputFilename, hdc);
+		//            Graphics g2 = Graphics.FromImage(metafile);
+		//            g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+		//            this.Layout(g2);
+		//            this.Paint(g2);
+		//            g1.ReleaseHdc(hdc);
+		//            metafile.Dispose();
+		//            g2.Dispose();
+		//            result = true;
+		//        }
+		//        finally
+		//        {
+		//            this.Scale = scaleSave;
+		//            this.Layout(g1);
+		//        }
+		//    }
+		//    else if (extension.CompareTo(".png") == 0)
+		//    {
+		//        Rectangle bbox = this.ScaleRectangle(this.BoundingBox);
+		//        bool bypassAlert = true;
+		//        if (alerteDelegate != null && (bbox.Width > 10000 || bbox.Height > 10000))
+		//            bypassAlert = alerteDelegate("Huge image generation", string.Format("Do you agree to generate a {0}x{1} image?", bbox.Width, bbox.Height));
+		//        if (bypassAlert)
+		//        {
+		//            Bitmap bitmap = new Bitmap(bbox.Width, bbox.Height);
+		//            Graphics graphics = Graphics.FromImage((Image)bitmap);
+		//            graphics.FillRectangle(Brushes.White, 0, 0, bbox.Width, bbox.Height);
+		//            this.Paint(graphics);
+		//            bitmap.Save(outputFilename);
+		//            result = true;
+		//        }
+		//    }
+		//    else //if (extension.CompareTo(".svg") == 0)
+		//    {
+		//        float scaleSave = this.Scale;
+		//        try
+		//        {
+		//            this.Scale = 1.0f;
+		//            this.Layout(g1);
+		//            string svgFileContent = this.ToSVG();
+		//            using (StreamWriter sw = new StreamWriter(outputFilename))
+		//            {
+		//                sw.WriteLine(svgFileContent);
+		//                sw.Close();
+		//            }
+		//            result = true;
+		//        }
+		//        finally
+		//        {
+		//            this.Scale = scaleSave;
+		//            this.Layout(g1);
+		//        }
+		//    }
+		//    g1.Dispose();
+		//    return result;
+		//}
+
+		public bool SaveToImage(string outputFilename, Graphics g1, AlerteDelegate alerteDelegate)
+		{
+			string extension = Path.GetExtension(outputFilename).ToLower();
+			if (string.IsNullOrEmpty(extension)) { extension = ".svg"; outputFilename += extension; }
+			using (FileStream stream = File.OpenWrite(outputFilename))
             {
-                float scaleSave = this.Scale;
-                try
-                {
-                    this.Scale = 1.0f;
-                    this.Layout(g1);
-                    IntPtr hdc = g1.GetHdc();
-                    Metafile metafile = new Metafile(outputFilename, hdc);
-                    Graphics g2 = Graphics.FromImage(metafile);
-                    g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                    this.Layout(g2);
-                    this.Paint(g2);
-                    g1.ReleaseHdc(hdc);
-                    metafile.Dispose();
-                    g2.Dispose();
-                    result = true;
-                }
-                finally
-                {
-                    this.Scale = scaleSave;
-                    this.Layout(g1);
-                }
+				return SaveToImage(stream, extension, g1, alerteDelegate);
             }
-            else if (extension.CompareTo(".png") == 0)
-            {
-                Rectangle bbox = this.ScaleRectangle(this.BoundingBox);
-                bool bypassAlert = true;
-                if (alerteDelegate != null && (bbox.Width > 10000 || bbox.Height > 10000))
-                    bypassAlert = alerteDelegate("Huge image generation", string.Format("Are you agree to generate a {0}x{1} image?", bbox.Width, bbox.Height));
-                if (bypassAlert)
-                {
-                    Bitmap bitmap = new Bitmap(bbox.Width, bbox.Height);
-                    Graphics graphics = Graphics.FromImage((Image)bitmap);
-                    graphics.FillRectangle(Brushes.White, 0, 0, bbox.Width, bbox.Height);
-                    this.Paint(graphics);
-                    bitmap.Save(outputFilename);
-                    result = true;
-                }
-            }
-            else //if (extension.CompareTo(".svg") == 0)
-            {
-                float scaleSave = this.Scale;
-                try
-                {
-                    this.Scale = 1.0f;
-                    this.Layout(g1);
-                    string svgFileContent = this.ToSVG();
-                    using (StreamWriter sw = new StreamWriter(outputFilename))
-                    {
-                        sw.WriteLine(svgFileContent);
-                        sw.Close();
-                    }
-                    result = true;
-                }
-                finally
-                {
-                    this.Scale = scaleSave;
-                    this.Layout(g1);
-                }
-            }
-            g1.Dispose();
-            return result;
-        }
+		}
+		public bool SaveToImage(Stream stream, string extension, Graphics g1, AlerteDelegate alerteDelegate)
+		{
+			bool result = false;
+			if (extension.CompareTo(".emf") == 0)
+			{
+				float scaleSave = this.Scale;
+				try
+				{
+					this.Scale = 1.0f;
+					this.Layout(g1);
+					IntPtr hdc = g1.GetHdc();
+					Metafile metafile = new Metafile(stream, hdc);
+					Graphics g2 = Graphics.FromImage(metafile);
+					g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+					this.Layout(g2);
+					this.Paint(g2);
+					g1.ReleaseHdc(hdc);
+					metafile.Dispose();
+					g2.Dispose();
+					result = true;
+				}
+				finally
+				{
+					this.Scale = scaleSave;
+					this.Layout(g1);
+				}
+			}
+			else if (extension.CompareTo(".png") == 0 || extension.CompareTo(".jpg") == 0 || extension.CompareTo(".jpeg") == 0)
+			{
+				Rectangle bbox = this.ScaleRectangle(this.BoundingBox);
+				bool bypassAlert = true;
+				if (alerteDelegate != null && (bbox.Width > 10000 || bbox.Height > 10000))
+					bypassAlert = alerteDelegate("Huge image generation", string.Format("Do you agree to generate a {0}x{1} image?", bbox.Width, bbox.Height));
+				if (bypassAlert)
+				{
+					Bitmap bitmap = new Bitmap(bbox.Width, bbox.Height);
+					Graphics graphics = Graphics.FromImage((Image)bitmap);
+					graphics.FillRectangle(Brushes.White, 0, 0, bbox.Width, bbox.Height);
+					this.Paint(graphics);
+					if (extension.CompareTo(".png") == 0)
+						bitmap.Save(stream, ImageFormat.Png);
+					else
+						bitmap.Save(stream, ImageFormat.Jpeg);
+					result = true;
+				}
+			}
+			else //if (extension.CompareTo(".svg") == 0)
+			{
+				float scaleSave = this.Scale;
+				try
+				{
+					this.Scale = 1.0f;
+					this.Layout(g1);
+					string svgFileContent = this.ToSVG();
+					using (StreamWriter sw = new StreamWriter(stream))
+					{
+						sw.WriteLine(svgFileContent);
+						sw.Close();
+					}
+					result = true;
+				}
+				finally
+				{
+					this.Scale = scaleSave;
+					this.Layout(g1);
+				}
+			}
+			g1.Dispose();
+			return result;
+		}
 	}
 
 	public class DiagramBase

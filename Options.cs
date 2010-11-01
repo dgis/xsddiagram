@@ -8,6 +8,8 @@ namespace XSDDiagram
 		public static string[] Arguments { get; private set; }
 		public static string InputFile { get; private set; }
 		public static string OutputFile { get; private set; }
+		public static bool OutputOnStdOut { get; private set; }
+		public static string OutputOnStdOutExtension { get; private set; }
 		public static IList<string> RootElements { get; private set; }
 		public static int ExpandLevel { get; private set; }
 		public static float Zoom { get; private set; }
@@ -18,6 +20,8 @@ namespace XSDDiagram
 		{
 			InputFile = null;
 			OutputFile = null;
+			OutputOnStdOut = false;
+			OutputOnStdOutExtension = "png";
 			RootElements = new List<string>();
 			ExpandLevel = 0;
 			Zoom = 100.0f;
@@ -64,6 +68,12 @@ namespace XSDDiagram
 				{
 					if (currentArgument < arguments.Count)
 						OutputFile = args[currentArgument++];
+				}
+				else if (string.Compare("-os", argument, true) == 0)
+				{
+					OutputOnStdOut = true;
+					if (currentArgument < arguments.Count)
+						OutputOnStdOutExtension = args[currentArgument++];
 				}
 				else if (string.Compare("-r", argument, true) == 0)
 				{

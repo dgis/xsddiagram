@@ -5,71 +5,88 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Reflection;
+using System.IO;
 
 namespace XSDDiagram
 {
-	static class Program
+	public static class Program
 	{
-        [DllImport("kernel32")]
-        static extern IntPtr GetConsoleWindow();
+		//[DllImport("kernel32")]
+		//static extern IntPtr GetConsoleWindow();
 
-        [DllImport("kernel32")]
-        static extern bool AllocConsole();
+		//[DllImport("kernel32")]
+		//static extern bool AllocConsole();
 
-        static string usage = @"Usage: XSDDiagram.exe [-o output.svg] [-r RootElement]* [-e N] [-z N] [file.xsd]
+		static string usage = @"XSD Diagram, version {0}
+Usage: {1} [-o output.svg] [-so EXTENSION] [-r RootElement]* [-e N] [-z N] [file.xsd]
 
--o specifies the output image. Only '.svg' or '.png' are allowed.
+-o FILE specifies the output image. Only '.svg' or '.png' are allowed.
 	If not present, the GUI is shown.
--r specifies the root element of the tree.
+-so EXTENSION specifies the output image is streamed through the standard
+	output. EXTENSION can be: png, jpg, svg or emf (emf on Windows only).
+	If not present, the GUI is shown.
+-r ELEMENT specifies the root element of the tree.
 	You can put several -r option = several root elements in the tree.
--e specifies the expand level (from 0 to what you want).
+-e N specifies the expand level (from 0 to what you want).
 	Be carefull, the result image can be huge.
--z specifies the zoom percentage from 10% to 1000% (only for .png image).
-	Work only with the -o option.
+-z N specifies the zoom percentage from 10% to 1000% (only for .png image).
+	Work only with the '-o', '-os png' or '-os jpg' option.
 
 Example 1:
-> XSDDiagram.exe -o file.svg -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
-	will generate a SVG image from a diagram with a root element
+> XSDDiagram.exe -o file.png -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
+	will generate a PNG image from a diagram with a root element
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
 Example 2:
 > XSDDiagramConsole.exe ./folder1/toto.xsd
-	will load the xsd file in the GUI window.";
+	will load the xsd file in the GUI window.
+
+Example 3:
+> XSDDiagram.exe -r TotoRoot -e 2 ./folder1/toto.xsd
+	will load the xsd file in the GUI window with a root element
+	'TotoRoot' and expanding the tree from the root until the 2nd level.
+
+Example 4:
+> XSDDiagram.exe -os svg -r TotoRoot -e 3 ./folder1/toto.xsd
+	will write a SVG image in the standard output from a diagram with a root element
+	'TotoRoot' and expanding the tree from the root until the 3rd level.
+";
 
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
-		static void Main()
+		public static void Main()
 		{
-			if (Options.RequestHelp || !string.IsNullOrEmpty(Options.OutputFile))
+			bool streamToOutput = !string.IsNullOrEmpty(Options.OutputFile) || Options.OutputOnStdOut;
+			if (Options.RequestHelp || streamToOutput)
             {
-                IntPtr hConsole = GetConsoleWindow();
-                if (hConsole == IntPtr.Zero)
-                {
-                    bool result = AllocConsole();
-                }
+				//if(!Options.IsRunningOnMono)
+				//{
+				//    if (GetConsoleWindow() == IntPtr.Zero)
+				//        ; // AllocConsole();
+				//}
 
-				if (Options.RequestHelp || string.IsNullOrEmpty(Options.InputFile) || string.IsNullOrEmpty(Options.OutputFile) ||
+				if (Options.RequestHelp || string.IsNullOrEmpty(Options.InputFile) || !streamToOutput ||
 					Options.RootElements.Count == 0 || Options.ExpandLevel < 0 || Options.Zoom < 10.0 || Options.Zoom > 1000.0)
                 {
 					string version = typeof(Program).Assembly.GetName().Version.ToString();
-					Console.WriteLine("XSD Diagram, version {0}\n{1}", version, usage);
+					Log(usage, version, Path.GetFileName(Environment.GetCommandLineArgs()[0]));
 
                     return;
                 }
 
-				Console.WriteLine("Loading the file: {0}", Options.InputFile);
+				Log("Loading the file: {0}\n", Options.InputFile);
 
                 Schema schema = new Schema();
 				schema.LoadSchema(Options.InputFile);
 
                 if (schema.LoadError.Count > 0)
                 {
-                    Console.WriteLine("There are errors while loading:");
+					Log("There are errors while loading:\n");
                     foreach (var error in schema.LoadError)
                     {
-                        Console.WriteLine(error);
+                        Log(error);
                     }
                 }
 
@@ -83,7 +100,7 @@ Example 2:
 					{
                         if (element.Name == rootElement)
                         {
-                            Console.WriteLine("Adding '{0}' element to the diagram...", rootElement);
+							Log("Adding '{0}' element to the diagram...\n", rootElement);
                             diagram.Add(element.Tag, element.NameSpace);
                         }
                     }
@@ -95,22 +112,31 @@ Example 2:
 
 				for (int i = 0; i < Options.ExpandLevel; i++)
                 {
-                    Console.WriteLine("Expanding to level {0}...", i + 1);
+					Log("Expanding to level {0}...\n", i + 1);
                     diagram.ExpandOneLevel();
                 }
                 diagram.Layout(graphics);
-                Console.WriteLine("Saving image...");
+				Log("Saving image...\n");
                 try
                 {
-					if (diagram.SaveToImage(Options.OutputFile, graphics, new Diagram.AlerteDelegate(SaveAlert)))
-						Console.WriteLine("The diagram is now saved in the file: {0}", Options.OutputFile);
+					bool result = false;
+
+					if (Options.OutputOnStdOut)
+					{
+						Stream stream = Console.OpenStandardOutput();
+						result = diagram.SaveToImage(stream, "." + Options.OutputOnStdOutExtension.ToLower(), graphics, new Diagram.AlerteDelegate(ByPassSaveAlert));
+						stream.Flush();
+					}
+					else
+						result = diagram.SaveToImage(Options.OutputFile, graphics, new Diagram.AlerteDelegate(SaveAlert));
+					if (result)
+						Log("The diagram is now saved in the file: {0}\n", Options.OutputFile);
                     else
-                        Console.WriteLine("ERROR: The diagram has not been saved!");
+						Log("ERROR: The diagram has not been saved!\n");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("ERROR: The diagram has not been saved!");
-                    Console.WriteLine(ex.ToString());
+					Log("ERROR: The diagram has not been saved. {0}\n", ex.Message);
                 }
 
                 graphics.Dispose();
@@ -119,7 +145,10 @@ Example 2:
             else
             {
 				if (Options.RequestHelp)
-                    MessageBox.Show(usage);
+				{
+					string version = typeof(Program).Assembly.GetName().Version.ToString();
+					MessageBox.Show(string.Format(usage, version, Environment.GetCommandLineArgs()[0]));
+				}
 
                 Application.ThreadException += HandleThreadException;
                 Application.EnableVisualStyles();
@@ -128,13 +157,30 @@ Example 2:
             }
         }
 
+		static void Log(string format, params object[] arg)
+		{
+			if (Options.OutputOnStdOut)
+				return;
+			Console.Write(format, arg);
+		}
+
+		static bool ByPassSaveAlert(string title, string message)
+		{
+			return true;
+		}
+
         static bool SaveAlert(string title, string message)
         {
-            Console.Write(string.Format("{0}. {1} [Yn] > ", title, message));
+			Log(string.Format("{0}. {1} [Yn] >", title, message));
             ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(false);
-            Console.WriteLine("");
-            Console.WriteLine("Ok, relax... It can take time!");
-            return consoleKeyInfo.Key == ConsoleKey.Y || consoleKeyInfo.Key == ConsoleKey.Enter;
+			Log("\n");
+			if (consoleKeyInfo.Key == ConsoleKey.Y || consoleKeyInfo.Key == ConsoleKey.Enter)
+			{
+				Log("Ok, relax... It can take time!\n");
+				return true;
+			}
+			else
+				return false;
         }
 
 		static void HandleThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
