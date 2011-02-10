@@ -1,5 +1,5 @@
 //    XSDDiagram - A XML Schema Definition file viewer
-//    Copyright (C) 2006  Regis COSNIER
+//    Copyright (C) 2006-2011  Regis COSNIER
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -17,10 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace XSDDiagram
