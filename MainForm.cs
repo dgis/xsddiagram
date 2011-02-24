@@ -478,50 +478,50 @@ namespace XSDDiagram
 					listAttributes.AddRange(ShowAttributes(complexType, nameSpace));
 				}
                 //RC++ Original code
-                //else
-                //{
-                //}
+                else
+                {
+                }
 
-                //this.listViewAttributes.Items.Clear();
-                //foreach (XSDAttribute attribute in listAttributes)
-                //    this.listViewAttributes.Items.Add(new ListViewItem(new string[] { attribute.Name, attribute.Type, attribute.Use, attribute.DefaultValue })).Tag = attribute;
+                this.listViewAttributes.Items.Clear();
+                foreach (XSDAttribute attribute in listAttributes)
+                    this.listViewAttributes.Items.Add(new ListViewItem(new string[] { attribute.Name, attribute.Type, attribute.Use, attribute.DefaultValue })).Tag = attribute;
                 //RC--
 
-                //Adrian++
-                //This part i modify
-                else if (annotated is XMLSchema.simpleType)
-                {
-                    XMLSchema.attribute attr = new XMLSchema.attribute();
-                    XMLSchema.localSimpleType def = new XMLSchema.localSimpleType();
-                    def.Item = (annotated as XMLSchema.simpleType).Item;
-                    attr.simpleType = def;
-                    string type = "";
-                    if (def.Item is XMLSchema.restriction) type = (def.Item as XMLSchema.restriction).@base.Name;
-                    XSDAttribute XSDattr = new XSDAttribute("filename", (annotated as XMLSchema.simpleType).name, "namespace", type, false, "", "", attr);
-                    listAttributes.Add(XSDattr);
+				////Adrian++
+				////This part i modify
+				//else if (annotated is XMLSchema.simpleType)
+				//{
+				//    XMLSchema.attribute attr = new XMLSchema.attribute();
+				//    XMLSchema.localSimpleType def = new XMLSchema.localSimpleType();
+				//    def.Item = (annotated as XMLSchema.simpleType).Item;
+				//    attr.simpleType = def;
+				//    string type = "";
+				//    if (def.Item is XMLSchema.restriction) type = (def.Item as XMLSchema.restriction).@base.Name;
+				//    XSDAttribute XSDattr = new XSDAttribute("filename", (annotated as XMLSchema.simpleType).name, "namespace", type, false, "", "", attr);
+				//    listAttributes.Add(XSDattr);
 
-                }
-                //This part i modify
-                this.listViewAttributes.Items.Clear();
-                listAttributes.Reverse();
-                foreach (XSDAttribute attribute in listAttributes)
-                {
-                    string s = "";
-                    if (attribute.Tag.simpleType != null && attribute.Tag.simpleType.Item is XMLSchema.restriction)
-                    {
-                        XMLSchema.restriction r = attribute.Tag.simpleType.Item as XMLSchema.restriction;
-                        if (r.Items != null)
-                        {
-                            for (int i = 0; i < r.Items.Length; i++)
-                            {
-                                s += r.ItemsElementName[i].ToString() + "(" + r.Items[i].id + " " + r.Items[i].value + ");";
-                            }
-                        }
-                    }
+				//}
+				////This part i modify
+				//this.listViewAttributes.Items.Clear();
+				//listAttributes.Reverse();
+				//foreach (XSDAttribute attribute in listAttributes)
+				//{
+				//    string s = "";
+				//    if (attribute.Tag.simpleType != null && attribute.Tag.simpleType.Item is XMLSchema.restriction)
+				//    {
+				//        XMLSchema.restriction r = attribute.Tag.simpleType.Item as XMLSchema.restriction;
+				//        if (r.Items != null)
+				//        {
+				//            for (int i = 0; i < r.Items.Length; i++)
+				//            {
+				//                s += r.ItemsElementName[i].ToString() + "(" + r.Items[i].id + " " + r.Items[i].value + ");";
+				//            }
+				//        }
+				//    }
 
-                    this.listViewAttributes.Items.Add(new ListViewItem(new string[] { attribute.Name, attribute.Type, attribute.Use, attribute.DefaultValue, s })).Tag = attribute;
-                }
-                //Adrian--
+				//    this.listViewAttributes.Items.Add(new ListViewItem(new string[] { attribute.Name, attribute.Type, attribute.Use, attribute.DefaultValue, s })).Tag = attribute;
+				//}
+				////Adrian--
 			}
 		}
 
