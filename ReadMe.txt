@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.8 Copyright 2006-2010 Regis Cosnier, All Rights Reserved.
+Version 0.9 Copyright © 2006-2011 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -93,6 +93,10 @@ TODO LIST:
 
 CHANGES:
 
+version 0.9 (2011-05-17)
+- Allow to expand restriction type (Thanks to Hermann).
+- Fix an unicode issue with infinity character when building xsd diagram on linux.
+
 version 0.8 (2010-10-31)
 - Add support for JPG.
 - Add command line options to generate PNG, JPG or SVG image without the GUI window.
@@ -151,7 +155,7 @@ version 0.1 (2006-09-14)
 
 LICENSE:
 
-Copyright (c) 2006-2010 Regis COSNIER, All Rights Reserved.
+Copyright (c) 2006-2011 Regis COSNIER, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
