@@ -54,6 +54,7 @@ namespace XSDDiagram
 		public Hashtable ElementsByName { get { return this.hashtableElementsByName; } set { this.hashtableElementsByName = value; } }
 		public List<DiagramBase> RootElements { get { return this.rootElements; } }
 
+        private XMLSchema.any fakeAny = null;
 
 		public delegate void RequestAnyElementEventHandler(DiagramBase diagramElement, out XMLSchema.element element, out string nameSpace);
 		public event RequestAnyElementEventHandler RequestAnyElement;
@@ -208,9 +209,22 @@ namespace XSDDiagram
 
 		public DiagramBase AddAny(DiagramBase parentDiagramElement, XMLSchema.any childElement, string nameSpace)
 		{
+            bool isDisabled = false;
+            if (childElement == null)
+            {
+                isDisabled = true;
+                if (fakeAny == null)
+                {
+                    fakeAny = new XMLSchema.any();
+                    fakeAny.minOccurs = "0";
+                    fakeAny.maxOccurs = "unbounded";
+                }
+                childElement = fakeAny;
+            }
 			if (childElement != null)
 			{
 				DiagramBase childDiagramElement = new DiagramBase();
+                childDiagramElement.IsDisabled = isDisabled;
 				childDiagramElement.Diagram = this;
 				childDiagramElement.TabSchema = childElement;
 				childDiagramElement.Name = "any  " + childElement.@namespace;
@@ -326,10 +340,11 @@ namespace XSDDiagram
 						isSimpleType = complexTypeElement.mixed;
 						if (complexTypeElement.Items[i] is XMLSchema.complexContent)
 						{
-							hasChildren = false;
+                            //hasChildren = false;
 							XMLSchema.complexContent complexContent = complexTypeElement.Items[i] as XMLSchema.complexContent;
 							if (complexContent.Item is XMLSchema.extensionType)
 							{
+                                hasChildren = false;
 								XMLSchema.extensionType extensionType = complexContent.Item as XMLSchema.extensionType;
 								if (extensionType.all != null || extensionType.group != null || extensionType.choice != null || extensionType.sequence != null)
 									hasChildren = true;
@@ -345,6 +360,11 @@ namespace XSDDiagram
 									}
 								}
 							}
+                            //else if (complexContent.Item is XMLSchema.complexRestrictionType)
+                            //{
+                            //    XMLSchema.complexRestrictionType complexRestrictionType = complexContent.Item as XMLSchema.complexRestrictionType;
+
+                            //}
 						}
 						return;
 					}
@@ -420,19 +440,22 @@ namespace XSDDiagram
 		{
 			if (complexTypeElement.Items != null)
 			{
-				for (int i = 0; i < complexTypeElement.Items.Length; i++)
+                XMLSchema.annotated[] items = complexTypeElement.Items;
+                XMLSchema.ItemsChoiceType4[] itemsChoiceType = complexTypeElement.ItemsElementName;
+
+				for (int i = 0; i < items.Length; i++)
 				{
-					if (complexTypeElement.Items[i] is XMLSchema.group)
+					if (items[i] is XMLSchema.group)
 					{
-						XMLSchema.group group = complexTypeElement.Items[i] as XMLSchema.group;
-						DiagramBase diagramCompositors = AddCompositors(parentDiagramElement, group, (DiagramBase.GroupTypeEnum)Enum.Parse(typeof(DiagramBase.GroupTypeEnum), complexTypeElement.ItemsElementName[i].ToString()), parentDiagramElement.NameSpace);
+						XMLSchema.group group = items[i] as XMLSchema.group;
+                        DiagramBase diagramCompositors = AddCompositors(parentDiagramElement, group, (DiagramBase.GroupTypeEnum)Enum.Parse(typeof(DiagramBase.GroupTypeEnum), itemsChoiceType[i].ToString()), parentDiagramElement.NameSpace);
 						parentDiagramElement.ShowChildElements = true;
 						if (diagramCompositors != null)
 							ExpandChildren(diagramCompositors);
 					}
-					else if (complexTypeElement.Items[i] is XMLSchema.complexContent)
+					else if (items[i] is XMLSchema.complexContent)
 					{
-						XMLSchema.complexContent complexContent = complexTypeElement.Items[i] as XMLSchema.complexContent;
+						XMLSchema.complexContent complexContent = items[i] as XMLSchema.complexContent;
 						if (complexContent.Item is XMLSchema.extensionType)
 						{
 							XMLSchema.extensionType extensionType = complexContent.Item as XMLSchema.extensionType;
@@ -475,12 +498,26 @@ namespace XSDDiagram
 						{
 							XMLSchema.restrictionType restrictionType = complexContent.Item as XMLSchema.restrictionType;
 							XSDObject xsdObject = this.hashtableElementsByName[restrictionType.@base.Namespace + ":type:" + restrictionType.@base.Name] as XSDObject;
-							if(xsdObject != null)
-							{
-								XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
-								ExpandAnnotated(parentDiagramElement, annotated, restrictionType.@base.Namespace);
-							}
-						}
+                            if (xsdObject != null)
+                            {
+                                XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
+                                ExpandAnnotated(parentDiagramElement, annotated, restrictionType.@base.Namespace);
+                            }
+                            else
+                            {
+                                for (int j = 0; j < items.Length; j++)
+                                {
+                                    if (restrictionType.Items[j] is XMLSchema.group)
+                                    {
+                                        XMLSchema.group group = restrictionType.Items[j] as XMLSchema.group;
+                                        DiagramBase diagramCompositors = AddCompositors(parentDiagramElement, group, (DiagramBase.GroupTypeEnum)Enum.Parse(typeof(DiagramBase.GroupTypeEnum), restrictionType.ItemsElementName[j].ToString()), parentDiagramElement.NameSpace);
+                                        parentDiagramElement.ShowChildElements = true;
+                                        if (diagramCompositors != null)
+                                            ExpandChildren(diagramCompositors);
+                                    }
+                                }
+                            }
+                        }
 					}
 				}
 			}
@@ -533,40 +570,44 @@ namespace XSDDiagram
 				DiagramBase diagramCompositors = parentDiagramElement;
 				XMLSchema.group group = diagramCompositors.TabSchema as XMLSchema.group;
 
-				if (group.Items != null)
-				{
-					for (int i = 0; i < group.Items.Length; i++)
-					{
-						switch (group.ItemsElementName[i])
-						{
-							case XMLSchema.ItemsChoiceType2.element:
-								if (group.Items[i] is XMLSchema.element)
-									AddElement(diagramCompositors, group.Items[i] as XMLSchema.element, diagramCompositors.NameSpace);
-								break;
-							case XMLSchema.ItemsChoiceType2.any:
-								if (group.Items[i] is XMLSchema.any)
-									AddAny(diagramCompositors, group.Items[i] as XMLSchema.any, diagramCompositors.NameSpace);
-								break;
-							case XMLSchema.ItemsChoiceType2.group:
-								if (group.Items[i] is XMLSchema.group)
-									AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramBase.GroupTypeEnum.group, diagramCompositors.NameSpace);
-								break;
-							case XMLSchema.ItemsChoiceType2.all:
-								if (group.Items[i] is XMLSchema.group)
-									AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramBase.GroupTypeEnum.all, diagramCompositors.NameSpace);
-								break;
-							case XMLSchema.ItemsChoiceType2.choice:
-								if (group.Items[i] is XMLSchema.group)
-									AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramBase.GroupTypeEnum.choice, diagramCompositors.NameSpace);
-								break;
-							case XMLSchema.ItemsChoiceType2.sequence:
-								if (group.Items[i] is XMLSchema.group)
-									AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramBase.GroupTypeEnum.sequence, diagramCompositors.NameSpace);
-								break;
-						}
-					}
-					parentDiagramElement.ShowChildElements = true;
-				}
+                if (group.Items != null)
+                {
+                    for (int i = 0; i < group.Items.Length; i++)
+                    {
+                        switch (group.ItemsElementName[i])
+                        {
+                            case XMLSchema.ItemsChoiceType2.element:
+                                if (group.Items[i] is XMLSchema.element)
+                                    AddElement(diagramCompositors, group.Items[i] as XMLSchema.element, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.any:
+                                if (group.Items[i] is XMLSchema.any)
+                                    AddAny(diagramCompositors, group.Items[i] as XMLSchema.any, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.group:
+                                if (group.Items[i] is XMLSchema.group)
+                                    AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramBase.GroupTypeEnum.group, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.all:
+                                if (group.Items[i] is XMLSchema.group)
+                                    AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramBase.GroupTypeEnum.all, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.choice:
+                                if (group.Items[i] is XMLSchema.group)
+                                    AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramBase.GroupTypeEnum.choice, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.sequence:
+                                if (group.Items[i] is XMLSchema.group)
+                                    AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramBase.GroupTypeEnum.sequence, diagramCompositors.NameSpace);
+                                break;
+                        }
+                    }
+                    parentDiagramElement.ShowChildElements = true;
+                }
+                else
+                {
+                    AddAny(diagramCompositors, null, diagramCompositors.NameSpace);
+                }
 			}
 		}
 
@@ -869,6 +910,7 @@ xmlns=""http://www.w3.org/2000/svg"">
 		protected GroupTypeEnum groupType;
 		protected bool isReference;
 		protected bool isSimpleContent;
+        protected bool isDisabled;
 		protected int minOccurrence = -1;
 		protected int maxOccurrence = -1;
 		protected bool hasChildElements = false;
@@ -894,8 +936,9 @@ xmlns=""http://www.w3.org/2000/svg"">
 		public TypeEnum Type { get { return this.type; } set { this.type = value; } }
 		public GroupTypeEnum GroupType { get { return this.groupType; } set { this.groupType = value; } }
 		public bool IsReference { get { return this.isReference; } set { this.isReference = value; } }
-		public bool IsSimpleContent { get { return this.isSimpleContent; } set { this.isSimpleContent = value; } }
-		public int MinOccurrence { get { return this.minOccurrence; } set { this.minOccurrence = value; } }
+        public bool IsSimpleContent { get { return this.isSimpleContent; } set { this.isSimpleContent = value; } }
+        public bool IsDisabled { get { return this.isDisabled; } set { this.isDisabled = value; } }
+        public int MinOccurrence { get { return this.minOccurrence; } set { this.minOccurrence = value; } }
 		public int MaxOccurrence { get { return this.maxOccurrence; } set { this.maxOccurrence = value; } }
 		public bool HasChildElements { get { return this.hasChildElements; } set { this.hasChildElements = value; } }
 		public bool ShowChildElements { get { return this.showChildElements; } set { this.showChildElements = value; } }
@@ -1068,8 +1111,13 @@ xmlns=""http://www.w3.org/2000/svg"">
 		{
 			//System.Diagnostics.Trace.WriteLine("DiagramElement.Paint\n\tName: " + this.name);
 
-			SolidBrush background = new SolidBrush(Color.White);
-			SolidBrush foreground = new SolidBrush(Color.Black);
+            Brush background = new SolidBrush(Color.White);
+            SolidBrush foreground = new SolidBrush(Color.Black);
+            if (IsDisabled)
+            {
+                background = new HatchBrush(HatchStyle.BackwardDiagonal, Color.Gray, Color.White);
+                foreground = new SolidBrush(Color.Gray);
+            }
 			Pen foregroundPen = new Pen(foreground);
 			float[] dashPattern = new float[] { Math.Max(2f, ScaleInt(5)), Math.Max(1f, ScaleInt(2)) };
 
@@ -1433,8 +1481,9 @@ xmlns=""http://www.w3.org/2000/svg"">
 				stringFormatOccurences.Alignment = StringAlignment.Far;
 				stringFormatOccurences.LineAlignment = StringAlignment.Center;
 				stringFormatOccurences.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
-				string occurences = string.Format("{0}..", this.minOccurrence) + (this.maxOccurrence == -1 ? "∞" : string.Format("{0}", this.maxOccurrence));
-				PointF pointOccurences = new PointF();
+                //string occurences = string.Format("{0}..", this.minOccurrence) + (this.maxOccurrence == -1 ? "\u0066∞" : string.Format("{0}", this.maxOccurrence));
+                string occurences = string.Format("{0}..", this.minOccurrence) + (this.maxOccurrence == -1 ? "\u221E" : string.Format("{0}", this.maxOccurrence));
+                PointF pointOccurences = new PointF();
 				pointOccurences.X = this.Diagram.Scale * (this.Location.X + this.Size.Width - 10);
 				pointOccurences.Y = this.Diagram.Scale * (this.Location.Y + this.Size.Height + 10);
 				g.DrawString(occurences, this.SmallFont, foreground, pointOccurences, stringFormatOccurences);
