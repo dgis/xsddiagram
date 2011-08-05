@@ -16,7 +16,6 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -29,8 +28,10 @@ namespace XSDDiagram
         private static XmlSerializer schemaSerializer = new XmlSerializer(typeof(XMLSchema.schema));
 
         private List<XSDObject> elements = new List<XSDObject>();
-        private Hashtable hashtableElementsByName = new Hashtable();
-        private Hashtable hashtableAttributesByName = new Hashtable();
+        private Dictionary<string, XSDObject> hashtableElementsByName = 
+            new Dictionary<string, XSDObject>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, object> hashtableAttributesByName = new Dictionary<string, object>(
+            StringComparer.OrdinalIgnoreCase);
         private XSDObject firstElement = null;
         private List<string> loadError = new List<string>();
         private List<string> listOfXsdFilename = new List<string>();
@@ -47,8 +48,8 @@ namespace XSDDiagram
         }
 
         public IList<XSDObject> Elements { get { return elements; } }
-        public Hashtable ElementsByName { get { return hashtableElementsByName; } }
-        public Hashtable AttributesByName { get { return hashtableAttributesByName; } }
+        public IDictionary<string, XSDObject> ElementsByName { get { return hashtableElementsByName; } }
+        public IDictionary<string, object> AttributesByName { get { return hashtableAttributesByName; } }
         public XSDObject FirstElement { get { return firstElement; } set { firstElement = value; } }
         public IList<string> LoadError { get { return loadError; } }
         public IList<string> XsdFilenames { get { return listOfXsdFilename; } }
@@ -64,8 +65,7 @@ namespace XSDDiagram
             this.loadError.Clear();
             this.listOfXsdFilename.Clear();
 
-            ImportSchema(fileName);
-
+            ImportSchema(fileName);           
         }
 
         private void ImportSchema(string fileName)
@@ -248,7 +248,17 @@ namespace XSDDiagram
         public string Filename { get { return this.filename; } set { this.filename = value; } }
         public string Name { get { return this.name; } set { this.name = value; } }
         public string NameSpace { get { return this.nameSpace; } set { this.nameSpace = value; } }
-        public string Type { get { return this.type; } set { this.type = value; } }
+        public string Type 
+        { 
+            get 
+            { 
+                return this.type; 
+            } 
+            set 
+            { 
+                this.type = value; 
+            } 
+        }
         public XMLSchema.openAttrs Tag { get { return this.tag; } set { this.tag = value; } }
 
         public string FullName { get { return this.nameSpace + ':' + this.fullNameType + ':' + this.name; } }
@@ -286,7 +296,17 @@ namespace XSDDiagram
         public string Filename { get { return this.filename; } set { this.filename = value; } }
         public string Name { get { return this.name; } set { this.name = value; } }
         public string NameSpace { get { return this.nameSpace; } set { this.nameSpace = value; } }
-        public string Type { get { return this.type; } set { this.type = value; } }
+        public string Type 
+        { 
+            get 
+            { 
+                return this.type; 
+            } 
+            set 
+            { 
+                this.type = value; 
+            } 
+        }
         public bool IsReference { get { return this.isReference; } set { this.isReference = value; } }
         public string DefaultValue { get { return this.defaultValue; } set { this.defaultValue = value; } }
         public string Use { get { return this.use; } set { this.use = value; } }

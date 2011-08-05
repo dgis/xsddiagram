@@ -1,0 +1,784 @@
+//    XSDDiagram - A XML Schema Definition file viewer
+//    Copyright (C) 2006-2011  Regis COSNIER
+//
+//    This program is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation; either version 2 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program; if not, write to the Free Software
+//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+using System;
+using System.Drawing;
+using System.Collections.Generic;
+
+namespace XSDDiagram.Rendering
+{
+	public sealed class Diagram
+    {
+        #region Private Fields
+
+        private bool  _showBoundingBox;
+		private Size  _size;
+		private Size  _padding;
+        private float _scale;
+
+        private Font _font;
+        private Font _smallFont;
+
+		private Rectangle         _boundingBox;
+		private DiagramAlignement _alignement;
+
+        private List<DiagramItem> _rootElements;
+        private IDictionary<string, XSDObject> _elementsByName;
+
+        private XMLSchema.any     _fakeAny;
+
+        #endregion
+
+        #region Constructors and Destructor
+
+        public Diagram()
+        {
+            _scale                   = 1.0f;
+            _size                    = new Size(100, 100);
+            _padding                 = new Size(10, 10);
+            _boundingBox             = Rectangle.Empty;
+            _alignement              = DiagramAlignement.Center;
+            _rootElements            = new List<DiagramItem>();
+            _elementsByName = new Dictionary<string, XSDObject>(
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        #endregion
+
+        #region Public Properties
+
+        public Size Size { get { return _size; } set { _size = value; } }
+		public Size Padding { get { return _padding; } set { _padding = value; } }
+		public Rectangle BoundingBox { get { return _boundingBox; } }
+		public float Scale { get { return _scale; } set { _scale = value; } }
+		public DiagramAlignement Alignement { get { return _alignement; } set { _alignement = value; } }
+		public bool ShowBoundingBox { get { return _showBoundingBox; } set { _showBoundingBox = value; } }
+
+		public Font Font { get { return _font; } set { _font = value; } }
+		public Font SmallFont { get { return _smallFont; } set { _smallFont = value; } }
+
+        public IDictionary<string, XSDObject> ElementsByName { get { return _elementsByName; } set { _elementsByName = value; } }
+		public List<DiagramItem> RootElements { get { return _rootElements; } }
+
+        #endregion
+
+        #region Public Events
+
+        public delegate void RequestAnyElementEventHandler(DiagramItem diagramElement, 
+            out XMLSchema.element element, out string nameSpace);
+
+		public event RequestAnyElementEventHandler RequestAnyElement;
+
+        #endregion
+
+        #region Public Methods
+
+        public DiagramItem Add(XMLSchema.openAttrs childElement, string nameSpace)
+		{
+			if (childElement is XMLSchema.element)
+				return AddElement(childElement as XMLSchema.element, nameSpace);
+			else if (childElement is XMLSchema.group)
+				return AddCompositors(childElement as XMLSchema.group, nameSpace);
+			else if (childElement is XMLSchema.complexType)
+				return AddComplexType(childElement as XMLSchema.complexType, nameSpace);
+
+			return null;
+		}
+
+		public DiagramItem AddElement(XMLSchema.element childElement, string nameSpace)
+		{
+			return AddElement(null, childElement, nameSpace);
+		}
+
+		public DiagramItem AddElement(DiagramItem parentDiagramElement, XMLSchema.element childElement, string nameSpace)
+		{
+			if (childElement != null)
+			{
+				DiagramItem childDiagramElement = new DiagramItem();
+
+				XMLSchema.element referenceElement = null;
+				if (childElement.@ref != null)
+				{
+					if (!childElement.@ref.IsEmpty)
+					{
+						childDiagramElement.IsReference = true;
+
+						XSDObject objectReferred = _elementsByName[childElement.@ref.Namespace + ":element:" + childElement.@ref.Name];
+						if (objectReferred != null)
+						{
+							XMLSchema.element elementReferred = objectReferred.Tag as XMLSchema.element;
+							if (elementReferred != null)
+							{
+								referenceElement = childElement;
+								childElement = elementReferred;
+							}
+						}
+						else
+							childElement.name = childElement.@ref.Name;
+					}
+				}
+
+				childDiagramElement.Diagram = this;
+				childDiagramElement.TabSchema = childElement;
+				childDiagramElement.Name = childElement.name != null ? childElement.name : "";
+				childDiagramElement.NameSpace = nameSpace;
+				childDiagramElement.ItemType = DiagramItemType.element;
+				try { childDiagramElement.MinOccurrence = int.Parse(referenceElement != null ? referenceElement.minOccurs : childElement.minOccurs); }
+				catch { childDiagramElement.MinOccurrence = -1; }
+				try { childDiagramElement.MaxOccurrence = int.Parse(referenceElement != null ? referenceElement.maxOccurs : childElement.maxOccurs); }
+				catch { childDiagramElement.MaxOccurrence = -1; }
+
+				bool hasChildren;
+				bool isSimpleType;
+				GetChildrenInfo(childElement, out hasChildren, out isSimpleType);
+				childDiagramElement.HasChildElements = hasChildren;
+				childDiagramElement.IsSimpleContent = isSimpleType;
+
+                if (parentDiagramElement == null)
+                {
+                    _rootElements.Add(childDiagramElement);
+                }
+                else
+                {
+                    childDiagramElement.Parent = parentDiagramElement;
+                    parentDiagramElement.ChildElements.Add(childDiagramElement);
+                }
+
+				if (childElement.@abstract)
+				{
+					string abstractElementFullName = childDiagramElement.FullName;
+					foreach(XSDObject xsdObject in _elementsByName.Values)
+					{
+						if (xsdObject != null && xsdObject.Tag is XMLSchema.element)
+						{
+							XMLSchema.element element = xsdObject.Tag as XMLSchema.element;
+							if (element.substitutionGroup != null)
+							{
+								string elementFullName = element.substitutionGroup.Namespace + ":element:" + element.substitutionGroup.Name;
+								if (elementFullName == abstractElementFullName)
+								{
+									DiagramItem diagramBase = AddElement(parentDiagramElement, element, xsdObject.NameSpace);
+									if (diagramBase != null)
+										diagramBase.InheritFrom = childDiagramElement;
+								}
+							}
+						}
+					}
+				}
+
+				return childDiagramElement;
+			}
+
+			return null;
+		}
+
+		public DiagramItem AddComplexType(XMLSchema.complexType childElement, 
+            string nameSpace)
+		{
+			return AddComplexType(null, childElement, false, nameSpace);
+		}
+
+		public DiagramItem AddComplexType(DiagramItem parentDiagramElement, 
+            XMLSchema.complexType childElement, string nameSpace)
+		{
+			return AddComplexType(parentDiagramElement, childElement, 
+                false, nameSpace);
+		}
+
+		public DiagramItem AddComplexType(DiagramItem parentDiagramElement, 
+            XMLSchema.complexType childElement, bool isReference, 
+            string nameSpace)
+		{
+			if (childElement != null)
+			{
+				DiagramItem childDiagramElement = new DiagramItem();
+				childDiagramElement.Diagram = this;
+				childDiagramElement.TabSchema = childElement;
+				childDiagramElement.Name = childElement.name != null ? childElement.name : "";
+				childDiagramElement.NameSpace = nameSpace;
+				childDiagramElement.ItemType = DiagramItemType.type;
+				childDiagramElement.MinOccurrence = 1;
+				childDiagramElement.MaxOccurrence = 1;
+				childDiagramElement.IsReference = isReference;
+				childDiagramElement.IsSimpleContent = false;
+				childDiagramElement.HasChildElements = false;
+
+				if (childElement.Items != null)
+				{
+					for (int i = 0; i < childElement.Items.Length; i++)
+					{
+						if (childElement.Items[i] is XMLSchema.group ||
+							childElement.Items[i] is XMLSchema.complexType ||
+							childElement.Items[i] is XMLSchema.complexContent)
+						{
+							childDiagramElement.HasChildElements = true;
+							break;
+						}
+					}
+				}
+
+				if (parentDiagramElement == null)
+					_rootElements.Add(childDiagramElement);
+				else
+				{
+					childDiagramElement.Parent = parentDiagramElement;
+					parentDiagramElement.ChildElements.Add(childDiagramElement);
+				}
+
+				return childDiagramElement;
+			}
+			return null;
+		}
+
+		public DiagramItem AddAny(DiagramItem parentDiagramElement, 
+            XMLSchema.any childElement, string nameSpace)
+		{
+            bool isDisabled = false;
+            if (childElement == null)
+            {
+                isDisabled = true;
+                if (_fakeAny == null)
+                {
+                    _fakeAny = new XMLSchema.any();
+                    _fakeAny.minOccurs = "0";
+                    _fakeAny.maxOccurs = "unbounded";
+                }
+                childElement = _fakeAny;
+            }
+			if (childElement != null)
+			{
+				DiagramItem childDiagramElement = new DiagramItem();
+                childDiagramElement.IsDisabled = isDisabled;
+				childDiagramElement.Diagram = this;
+				childDiagramElement.TabSchema = childElement;
+				childDiagramElement.Name = "any  " + childElement.@namespace;
+				childDiagramElement.NameSpace = nameSpace;
+				childDiagramElement.ItemType = DiagramItemType.group;  //DiagramBase.TypeEnum.element;
+				try { childDiagramElement.MinOccurrence = int.Parse(childElement.minOccurs); }
+				catch { childDiagramElement.MinOccurrence = -1; }
+				try { childDiagramElement.MaxOccurrence = int.Parse(childElement.maxOccurs); }
+				catch { childDiagramElement.MaxOccurrence = -1; }
+				childDiagramElement.IsReference = false;
+				childDiagramElement.IsSimpleContent = false;
+				childDiagramElement.HasChildElements = false; // true;
+
+                if (parentDiagramElement == null)
+                {
+                    _rootElements.Add(childDiagramElement);
+                }
+                else
+                {
+                    childDiagramElement.Parent = parentDiagramElement;
+                    parentDiagramElement.ChildElements.Add(childDiagramElement);
+                }
+
+				return childDiagramElement;
+			}
+
+			return null;
+		}
+
+		public DiagramItem AddCompositors(XMLSchema.group childElement, 
+            string nameSpace)
+		{
+			return AddCompositors(null, childElement, 
+                DiagramItemGroupType.Group, nameSpace);
+		}
+
+		public DiagramItem AddCompositors(DiagramItem parentDiagramElement, 
+            XMLSchema.group childElement, string nameSpace)
+		{
+			return AddCompositors(parentDiagramElement, 
+                childElement, DiagramItemGroupType.Group, nameSpace);
+		}
+
+		public DiagramItem AddCompositors(DiagramItem parentDiagramElement, 
+            XMLSchema.group childGroup, DiagramItemGroupType type, 
+            string nameSpace)
+		{
+			if (childGroup != null)
+			{
+				DiagramItem childDiagramGroup = new DiagramItem();
+				childDiagramGroup.ItemType = DiagramItemType.group;
+				if (childGroup.@ref != null)
+				{
+					childDiagramGroup.IsReference = true;
+					childDiagramGroup.Name = childGroup.@ref.Name != null ? childGroup.@ref.Name : "";
+					childDiagramGroup.NameSpace = childGroup.@ref.Namespace != null ? childGroup.@ref.Namespace : "";
+                    XSDObject grpObject = _elementsByName[childDiagramGroup.FullName];
+                    XMLSchema.group group = grpObject.Tag as XMLSchema.group;
+                    if (group != null)
+                        childGroup = group;
+				}
+				else if (type == DiagramItemGroupType.Group)
+				{
+					childDiagramGroup.Name = childGroup.name != null ? childGroup.name : "";
+					childDiagramGroup.NameSpace = nameSpace;
+				}
+				else
+				{
+					childDiagramGroup.NameSpace = nameSpace;
+				}
+
+				childDiagramGroup.Diagram = this;
+				childDiagramGroup.TabSchema = childGroup;
+				try { childDiagramGroup.MinOccurrence = int.Parse(childGroup.minOccurs); }
+				catch { childDiagramGroup.MinOccurrence = -1; }
+				try { childDiagramGroup.MaxOccurrence = int.Parse(childGroup.maxOccurs); }
+				catch { childDiagramGroup.MaxOccurrence = -1; }
+				childDiagramGroup.HasChildElements = true;
+				childDiagramGroup.GroupType = type;
+
+				if (parentDiagramElement == null)
+					_rootElements.Add(childDiagramGroup);
+				else
+				{
+					childDiagramGroup.Parent = parentDiagramElement;
+					parentDiagramElement.ChildElements.Add(childDiagramGroup);
+				}
+
+				return childDiagramGroup;
+			}
+			return null;
+		}
+
+		public void Remove(DiagramItem element)
+		{
+			if (element.Parent == null)
+				_rootElements.Remove(element);
+			else
+			{
+				element.Parent.ChildElements.Remove(element);
+				if (element.Parent.ChildElements.Count == 0)
+					element.Parent.ShowChildElements = false;
+			}
+		}
+
+		public void RemoveAll()
+		{
+			_rootElements.Clear();
+		}
+
+		public void ExpandOneLevel()
+		{
+			foreach (DiagramItem item in _rootElements)
+			{
+                this.ExpandOneLevel(item);
+
+                if (item.HasChildElements && item.ChildElements.Count == 0)
+                {
+                    this.ExpandChildren(item);
+                }
+			}
+		}
+
+		public void Clear()
+		{
+			_rootElements.Clear();
+		}
+
+		public void Layout(Graphics g)
+		{
+ 			string fontName = "Arial"; // "Verdana"; // "Arial";
+
+            if (_font != null)
+            {
+                _font.Dispose();
+            }
+            if (_smallFont != null)
+            {
+                _smallFont.Dispose();
+            }
+
+			_font      = new Font(fontName, 10.0f * (float)Math.Pow(_scale, 2.0), FontStyle.Bold, GraphicsUnit.Pixel);
+			_smallFont = new Font(fontName, 9.0f * (float)Math.Pow(_scale, 2.0), GraphicsUnit.Pixel);
+
+			foreach (DiagramItem element in _rootElements)
+				element.GenerateMeasure(g);
+
+			_boundingBox = new Rectangle(0, 0, 100, 0);
+
+			int currentY = _padding.Height;
+			foreach (DiagramItem element in _rootElements)
+			{
+				Rectangle elementBoundingBox = element.BoundingBox;
+				elementBoundingBox.X = _padding.Width;
+				elementBoundingBox.Y = currentY;
+				element.BoundingBox = elementBoundingBox;
+				element.GenerateLocation();
+				currentY += element.BoundingBox.Height;
+
+				_boundingBox = Rectangle.Union(_boundingBox, element.BoundingBox);
+			}
+        }
+
+        public void HitTest(Point point, out DiagramItem element, out DiagramHitTestRegion region)
+		{
+			element = null;
+			region = DiagramHitTestRegion.None;
+
+			foreach (DiagramItem childElement in _rootElements)
+			{
+				DiagramItem resultElement;
+				DiagramHitTestRegion resultRegion;
+				childElement.HitTest(point, out resultElement, out resultRegion);
+				if (resultRegion != DiagramHitTestRegion.None)
+				{
+					element = resultElement;
+					region = resultRegion;
+					break;
+				}
+			}
+		}
+
+		public int ScaleInt(int integer) 
+        { 
+            return (int)(integer * this.Scale); 
+        }
+		
+        public Point ScalePoint(Point point)
+		{
+			return new Point((int)Math.Round(point.X * this.Scale), 
+                (int)Math.Round(point.Y * this.Scale));
+		}
+		
+        public Size ScaleSize(Size point)
+		{
+			return new Size((int)Math.Round(point.Width * this.Scale), 
+                (int)Math.Round(point.Height * this.Scale));
+		}
+
+		public Rectangle ScaleRectangle(Rectangle rectangle)
+		{
+			return new Rectangle((int)Math.Round(rectangle.X * this.Scale), 
+                (int)Math.Round(rectangle.Y * this.Scale),
+				(int)Math.Round(rectangle.Width * this.Scale), 
+                (int)Math.Round(rectangle.Height * this.Scale));
+		}
+
+		public void ExpandChildren(DiagramItem parentDiagramElement)
+		{
+			if (parentDiagramElement.ItemType == DiagramItemType.element || parentDiagramElement.ItemType == DiagramItemType.type)
+			{
+				DiagramItem diagramElement = parentDiagramElement;
+				if (diagramElement.TabSchema is XMLSchema.element)
+				{
+					XMLSchema.element element = diagramElement.TabSchema as XMLSchema.element;
+
+					if (element.Item is XMLSchema.complexType)
+					{
+						XMLSchema.complexType complexTypeElement = element.Item as XMLSchema.complexType;
+						ExpandComplexType(diagramElement, complexTypeElement);
+					}
+					else if (element.type != null)
+					{
+						XMLSchema.annotated annotated = (_elementsByName[element.type.Namespace + ":type:" + element.type.Name]).Tag as XMLSchema.annotated;
+						ExpandAnnotated(diagramElement, annotated, element.type.Namespace);
+					}
+				}
+				else if (diagramElement.TabSchema is XMLSchema.any)
+				{
+					//XMLSchema.any any = diagramElement.TabSchema as XMLSchema.any;
+
+					if (RequestAnyElement != null)
+					{
+						XMLSchema.element requestElement;
+						string requestNameSpace;
+						RequestAnyElement(diagramElement, out requestElement, out requestNameSpace);
+						if(requestElement != null)
+						{
+							AddElement(diagramElement, requestElement, requestNameSpace);
+							diagramElement.ShowChildElements = true;
+						}
+					}
+				}
+				else if (diagramElement.TabSchema is XMLSchema.complexType)
+				{
+					XMLSchema.complexType complexTypeElement = diagramElement.TabSchema as XMLSchema.complexType;
+					ExpandComplexType(diagramElement, complexTypeElement);
+				}
+			}
+			else if (parentDiagramElement.ItemType == DiagramItemType.group)
+			{
+				DiagramItem diagramCompositors = parentDiagramElement;
+				XMLSchema.group group = diagramCompositors.TabSchema as XMLSchema.group;
+
+                if (group.Items != null)
+                {
+                    for (int i = 0; i < group.Items.Length; i++)
+                    {
+                        switch (group.ItemsElementName[i])
+                        {
+                            case XMLSchema.ItemsChoiceType2.element:
+                                if (group.Items[i] is XMLSchema.element)
+                                    AddElement(diagramCompositors, group.Items[i] as XMLSchema.element, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.any:
+                                if (group.Items[i] is XMLSchema.any)
+                                    AddAny(diagramCompositors, group.Items[i] as XMLSchema.any, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.group:
+                                if (group.Items[i] is XMLSchema.group)
+                                    AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramItemGroupType.Group, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.all:
+                                if (group.Items[i] is XMLSchema.group)
+                                    AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramItemGroupType.All, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.choice:
+                                if (group.Items[i] is XMLSchema.group)
+                                    AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramItemGroupType.Choice, diagramCompositors.NameSpace);
+                                break;
+                            case XMLSchema.ItemsChoiceType2.sequence:
+                                if (group.Items[i] is XMLSchema.group)
+                                    AddCompositors(diagramCompositors, group.Items[i] as XMLSchema.group, DiagramItemGroupType.Sequence, diagramCompositors.NameSpace);
+                                break;
+                        }
+                    }
+                    parentDiagramElement.ShowChildElements = true;
+                }
+                else
+                {
+                    AddAny(diagramCompositors, null, diagramCompositors.NameSpace);
+                }
+			}
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void GetChildrenInfo(XMLSchema.complexType complexTypeElement, 
+            out bool hasChildren, out bool isSimpleType)
+		{
+			bool hasSimpleContent = false;
+			if (complexTypeElement.Items != null)
+			{
+				for (int i = 0; i < complexTypeElement.Items.Length; i++)
+				{
+					if (complexTypeElement.Items[i] is XMLSchema.group ||
+						complexTypeElement.Items[i] is XMLSchema.complexType ||
+						complexTypeElement.Items[i] is XMLSchema.complexContent)
+					{
+						hasChildren = true;
+						isSimpleType = complexTypeElement.mixed;
+						if (complexTypeElement.Items[i] is XMLSchema.complexContent)
+						{
+                            //hasChildren = false;
+							XMLSchema.complexContent complexContent = complexTypeElement.Items[i] as XMLSchema.complexContent;
+							if (complexContent.Item is XMLSchema.extensionType)
+							{
+                                hasChildren = false;
+								XMLSchema.extensionType extensionType = complexContent.Item as XMLSchema.extensionType;
+								if (extensionType.all != null || extensionType.group != null || extensionType.choice != null || extensionType.sequence != null)
+									hasChildren = true;
+								else if (extensionType.@base != null)
+								{
+									XSDObject xsdObject = _elementsByName[extensionType.@base.Namespace + ":type:" + extensionType.@base.Name];
+									if (xsdObject != null)
+									{
+										if (xsdObject.Tag is XMLSchema.complexType)
+										{
+											GetChildrenInfo(xsdObject.Tag as XMLSchema.complexType, out hasChildren, out isSimpleType);
+										}
+									}
+								}
+							}
+                            //else if (complexContent.Item is XMLSchema.complexRestrictionType)
+                            //{
+                            //    XMLSchema.complexRestrictionType complexRestrictionType = complexContent.Item as XMLSchema.complexRestrictionType;
+
+                            //}
+						}
+						return;
+					}
+					else if (complexTypeElement.Items[i] is XMLSchema.simpleContent)
+					{
+						hasSimpleContent = true;
+					}
+				}
+			}
+			hasChildren = false;
+			isSimpleType = (hasSimpleContent ? true : complexTypeElement.mixed);
+		}
+
+		private void GetChildrenInfo(XMLSchema.element childElement, 
+            out bool hasChildren, out bool isSimpleType)
+		{
+			if (childElement.Item is XMLSchema.complexType)
+			{
+				XMLSchema.complexType complexTypeElement = childElement.Item as XMLSchema.complexType;
+				GetChildrenInfo(complexTypeElement, out hasChildren, out isSimpleType);
+				return;
+				//if (complexTypeElement.Items != null)
+				//{
+				//    for (int i = 0; i < complexTypeElement.Items.Length; i++)
+				//    {
+				//        if (complexTypeElement.Items[i] is XMLSchema.group ||
+				//            complexTypeElement.Items[i] is XMLSchema.complexType ||
+				//            complexTypeElement.Items[i] is XMLSchema.complexContent)
+				//        {
+				//            return true;
+				//        }
+				//    }
+				//}
+			}
+			else if (childElement.type != null)
+			{
+				if (_elementsByName.ContainsKey(childElement.type.Namespace + ":type:" + childElement.type.Name))
+				{
+					XMLSchema.annotated annotated = (_elementsByName[childElement.type.Namespace + ":type:" + childElement.type.Name]).Tag as XMLSchema.annotated;
+					if (annotated is XMLSchema.simpleType)
+					{
+						hasChildren = false;
+						isSimpleType = true;
+					}
+					else
+						GetChildrenInfo(annotated as XMLSchema.complexType, out hasChildren, out isSimpleType);
+					return;
+				}
+			}
+			hasChildren = false;
+			isSimpleType = true;
+		}
+
+		private void ExpandAnnotated(DiagramItem parentDiagramElement, 
+            XMLSchema.annotated annotated, string nameSpace)
+		{
+			if (annotated is XMLSchema.element)
+			{
+				AddElement(parentDiagramElement, annotated as XMLSchema.element, nameSpace);
+				parentDiagramElement.ShowChildElements = true;
+			}
+			else if (annotated is XMLSchema.group)
+			{
+				AddCompositors(parentDiagramElement, annotated as XMLSchema.group, nameSpace);
+				parentDiagramElement.ShowChildElements = true;
+			}
+			else if (annotated is XMLSchema.complexType)
+			{
+				ExpandComplexType(parentDiagramElement, annotated as XMLSchema.complexType);
+				parentDiagramElement.ShowChildElements = true;
+			}
+		}
+
+		private void ExpandComplexType(DiagramItem parentDiagramElement, 
+            XMLSchema.complexType complexTypeElement)
+		{
+			if (complexTypeElement.Items != null)
+			{
+                XMLSchema.annotated[] items = complexTypeElement.Items;
+                XMLSchema.ItemsChoiceType4[] itemsChoiceType = complexTypeElement.ItemsElementName;
+
+				for (int i = 0; i < items.Length; i++)
+				{
+					if (items[i] is XMLSchema.group)
+					{
+						XMLSchema.group group = items[i] as XMLSchema.group;
+                        DiagramItem diagramCompositors = AddCompositors(parentDiagramElement, 
+                            group, (DiagramItemGroupType)Enum.Parse(typeof(DiagramItemGroupType), itemsChoiceType[i].ToString(), true), parentDiagramElement.NameSpace);
+						parentDiagramElement.ShowChildElements = true;
+						if (diagramCompositors != null)
+							ExpandChildren(diagramCompositors);
+					}
+					else if (items[i] is XMLSchema.complexContent)
+					{
+						XMLSchema.complexContent complexContent = items[i] as XMLSchema.complexContent;
+						if (complexContent.Item is XMLSchema.extensionType)
+						{
+							XMLSchema.extensionType extensionType = complexContent.Item as XMLSchema.extensionType;
+
+							XSDObject xsdObject = _elementsByName[extensionType.@base.Namespace + ":type:" + extensionType.@base.Name];
+							if (xsdObject != null)
+							{
+								XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
+								ExpandAnnotated(parentDiagramElement, annotated, extensionType.@base.Namespace);
+							}
+
+							XMLSchema.group group = extensionType.group as XMLSchema.group;
+							if (group != null)
+							{
+								DiagramItem diagramCompositors = AddCompositors(parentDiagramElement, group, DiagramItemGroupType.Group, extensionType.@base.Namespace);
+								parentDiagramElement.ShowChildElements = true;
+								if (diagramCompositors != null)
+									ExpandChildren(diagramCompositors);
+							}
+
+							XMLSchema.group groupSequence = extensionType.sequence as XMLSchema.group;
+							if (groupSequence != null)
+							{
+								DiagramItem diagramCompositors = AddCompositors(parentDiagramElement, groupSequence, DiagramItemGroupType.Sequence, extensionType.@base.Namespace);
+								parentDiagramElement.ShowChildElements = true;
+								if (diagramCompositors != null)
+									ExpandChildren(diagramCompositors);
+							}
+
+							XMLSchema.group groupChoice = extensionType.choice as XMLSchema.group;
+							if (groupChoice != null)
+							{
+								DiagramItem diagramCompositors = AddCompositors(parentDiagramElement, groupChoice, DiagramItemGroupType.Choice, extensionType.@base.Namespace);
+								parentDiagramElement.ShowChildElements = true;
+								if (diagramCompositors != null)
+									ExpandChildren(diagramCompositors);
+							}
+						}
+						else if (complexContent.Item is XMLSchema.restrictionType)
+						{
+							XMLSchema.restrictionType restrictionType = complexContent.Item as XMLSchema.restrictionType;
+							XSDObject xsdObject = _elementsByName[restrictionType.@base.Namespace + ":type:" + restrictionType.@base.Name];
+                            if (xsdObject != null)
+                            {
+                                XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
+                                ExpandAnnotated(parentDiagramElement, annotated, restrictionType.@base.Namespace);
+                            }
+                            else
+                            {
+                                for (int j = 0; j < items.Length; j++)
+                                {
+                                    if (restrictionType.Items[j] is XMLSchema.group)
+                                    {
+                                        XMLSchema.group group = restrictionType.Items[j] as XMLSchema.group;
+                                        DiagramItem diagramCompositors = AddCompositors(parentDiagramElement, group,
+                                            (DiagramItemGroupType)Enum.Parse(typeof(DiagramItemGroupType), restrictionType.ItemsElementName[j].ToString(), true), parentDiagramElement.NameSpace);
+                                        parentDiagramElement.ShowChildElements = true;
+                                        if (diagramCompositors != null)
+                                            ExpandChildren(diagramCompositors);
+                                    }
+                                }
+                            }
+                        }
+					}
+				}
+			}
+		}
+
+        private void ExpandOneLevel(DiagramItem parentItem)
+        {
+            foreach (DiagramItem item in parentItem.ChildElements)
+            {
+                this.ExpandOneLevel(item);
+
+                if (item.HasChildElements && item.ChildElements.Count == 0)
+                {
+                    this.ExpandChildren(item);
+                }
+            }
+        }
+
+        #endregion
+    }
+}

@@ -20,6 +20,8 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
+using XSDDiagram.Rendering;
+
 namespace XSDDiagram
 {
 	public static class Program
@@ -139,14 +141,18 @@ Example 4:
                 {
 					bool result = false;
 
-					if (Options.OutputOnStdOut)
-					{
-						Stream stream = Console.OpenStandardOutput();
-						result = diagram.SaveToImage(stream, "." + Options.OutputOnStdOutExtension.ToLower(), graphics, new Diagram.AlerteDelegate(ByPassSaveAlert));
-						stream.Flush();
-					}
-					else
-						result = diagram.SaveToImage(Options.OutputFile, graphics, new Diagram.AlerteDelegate(SaveAlert));
+                    DiagramExporter exporter = new DiagramExporter(diagram);
+                    if (Options.OutputOnStdOut)
+                    {
+                        Stream stream = Console.OpenStandardOutput();
+                        result = exporter.Export(stream, "." + Options.OutputOnStdOutExtension.ToLower(), graphics, new DiagramAlertHandler(ByPassSaveAlert));
+                        stream.Flush();
+                    }
+                    else
+                    {
+                        result = exporter.Export(Options.OutputFile, graphics, new DiagramAlertHandler(SaveAlert));
+                    }
+
 					if (result)
 						Log("The diagram is now saved in the file: {0}\n", Options.OutputFile);
                     else

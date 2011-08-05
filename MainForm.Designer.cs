@@ -7,19 +7,6 @@ namespace XSDDiagram
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing && (components != null))
-			{
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
-
 		#region Windows Form Designer generated code
 
 		/// <summary>
@@ -110,10 +97,6 @@ namespace XSDDiagram
 			this.addAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.removeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.expandOneLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.pageSetupDialog = new System.Windows.Forms.PageSetupDialog();
-			this.printDocument = new System.Drawing.Printing.PrintDocument();
-			this.printDialog = new System.Windows.Forms.PrintDialog();
-			this.printPreviewDialog = new System.Windows.Forms.PrintPreviewDialog();
 			this.textBoxElementPath = new System.Windows.Forms.TextBox();
 			this.toolTip = new System.Windows.Forms.ToolTip(this.components);
 			this.menuStripMain.SuspendLayout();
@@ -934,33 +917,6 @@ namespace XSDDiagram
 			this.expandOneLevelToolStripMenuItem.Text = "&Expand One Level";
 			this.expandOneLevelToolStripMenuItem.Click += new System.EventHandler(this.expandOneLevelToolStripMenuItem_Click);
 			// 
-			// pageSetupDialog
-			// 
-			this.pageSetupDialog.Document = this.printDocument;
-			// 
-			// printDocument
-			// 
-			this.printDocument.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.printDocument_PrintPage);
-			this.printDocument.EndPrint += new System.Drawing.Printing.PrintEventHandler(this.printDocument_EndPrint);
-			this.printDocument.BeginPrint += new System.Drawing.Printing.PrintEventHandler(this.printDocument_BeginPrint);
-			// 
-			// printDialog
-			// 
-			this.printDialog.Document = this.printDocument;
-			// 
-			// printPreviewDialog
-			// 
-			this.printPreviewDialog.AutoScrollMargin = new System.Drawing.Size(0, 0);
-			this.printPreviewDialog.AutoScrollMinSize = new System.Drawing.Size(0, 0);
-			this.printPreviewDialog.ClientSize = new System.Drawing.Size(400, 300);
-			this.printPreviewDialog.Document = this.printDocument;
-			this.printPreviewDialog.Enabled = true;
-			this.printPreviewDialog.Icon = ((System.Drawing.Icon)(resources.GetObject("printPreviewDialog.Icon")));
-			this.printPreviewDialog.Name = "printPreviewDialog";
-			this.printPreviewDialog.ShowIcon = false;
-			this.printPreviewDialog.UseAntiAlias = true;
-			this.printPreviewDialog.Visible = false;
-			// 
 			// textBoxElementPath
 			// 
 			this.textBoxElementPath.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -1040,10 +996,6 @@ namespace XSDDiagram
 		private System.Windows.Forms.ToolStripComboBox toolStripComboBoxZoom;
 		private System.Windows.Forms.ToolStripMenuItem saveDiagramToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
-		private System.Windows.Forms.PageSetupDialog pageSetupDialog;
-		private System.Drawing.Printing.PrintDocument printDocument;
-		private System.Windows.Forms.PrintDialog printDialog;
-		private System.Windows.Forms.PrintPreviewDialog printPreviewDialog;
 		private System.Windows.Forms.ToolStripMenuItem pageToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem printPreviewToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem printToolStripMenuItem;
