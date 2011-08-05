@@ -8,8 +8,8 @@
     <ProjectGuid>{6D3DACE7-D51B-4259-883A-6899BF4D52E2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XsdDiagrams</RootNamespace>
-    <AssemblyName>XsdDiagrams</AssemblyName>
+    <RootNamespace>XSDDiagrams</RootNamespace>
+    <AssemblyName>XSDDiagrams</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkSubset>

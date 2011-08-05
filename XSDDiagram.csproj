@@ -234,9 +234,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="XsdDiagrams\XsdDiagrams.csproj">
+    <ProjectReference Include="XsdDiagrams\XSDDiagrams.csproj">
       <Project>{6D3DACE7-D51B-4259-883A-6899BF4D52E2}</Project>
-      <Name>XsdDiagrams</Name>
+      <Name>XSDDiagrams</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
