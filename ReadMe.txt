@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.9 Copyright © 2006-2011 Regis Cosnier, All Rights Reserved.
+Version 0.10 Copyright (c) 2006-2011 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -8,7 +8,7 @@ according to the terms of the GNU General Public License (GPL).
 
 FEATURES:
 
-- GPL
+- GPL (Part of the source code are dual licensed with LGPL and MS-PL)
 - Need of the Microsoft Framework.NET 2.0 (if not already install) or Mono
 - Display the elements, the groups and the attributes
 - Show the text/HTML documentation of element and attribute when available
@@ -92,6 +92,9 @@ TODO LIST:
 
 
 CHANGES:
+
+version 0.10
+- Add the XSD Diagrams core library, thanks to Paul's refactoring !
 
 version 0.9 (2011-05-17)
 - Allow to expand restriction type (Thanks to Hermann).

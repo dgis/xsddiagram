@@ -376,8 +376,11 @@ namespace XSDDiagram
 
 			if (element is DiagramItem)
 			{
-				if (this.schema.ElementsByName[element.FullName] != null)
-					this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.ElementsByName[element.FullName];
+                //if (this.schema.ElementsByName[element.FullName] != null)
+                //	this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.ElementsByName[element.FullName];
+                XSDObject xsdObject;
+                if (this.schema.ElementsByName.TryGetValue(element.FullName, out xsdObject) && xsdObject != null)
+                    this.toolStripComboBoxSchemaElement.SelectedItem = xsdObject;
 				else
 					this.toolStripComboBoxSchemaElement.SelectedItem = null;
 
@@ -438,8 +441,10 @@ namespace XSDDiagram
 					}
 					else if (element.type != null)
 					{
-						XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
-						if (xsdObject != null)
+                        //XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
+                        //if (xsdObject != null)
+                        XSDObject xsdObject;
+                        if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", element.type), out xsdObject) && xsdObject != null)
 						{
 							XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
 							if (annotatedElement is XMLSchema.complexType)
@@ -560,9 +565,11 @@ namespace XSDDiagram
 							if (annotatedContent is XMLSchema.extensionType)
 							{
 								XMLSchema.extensionType extensionType = annotatedContent as XMLSchema.extensionType;
-								XSDObject xsdExtensionType = this.schema.ElementsByName[QualifiedNameToFullName("type", extensionType.@base)] as XSDObject;
-								if (xsdExtensionType != null)
-								{
+                                //XSDObject xsdExtensionType = this.schema.ElementsByName[QualifiedNameToFullName("type", extensionType.@base)] as XSDObject;
+                                //if (xsdExtensionType != null)
+                                XSDObject xsdExtensionType;
+                                if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", extensionType.@base), out xsdExtensionType) && xsdExtensionType != null)
+                                {
 									XMLSchema.annotated annotatedExtension = xsdExtensionType.Tag as XMLSchema.annotated;
 									if (annotatedExtension != null)
 									{
@@ -588,9 +595,11 @@ namespace XSDDiagram
 							else if (annotatedContent is XMLSchema.restrictionType)
 							{
 								XMLSchema.restrictionType restrictionType = annotatedContent as XMLSchema.restrictionType;
-								XSDObject xsdRestrictionType = this.schema.ElementsByName[QualifiedNameToFullName("type", restrictionType.@base)] as XSDObject;
-								if (xsdRestrictionType != null)
-								{
+                                //XSDObject xsdRestrictionType = this.schema.ElementsByName[QualifiedNameToFullName("type", restrictionType.@base)] as XSDObject;
+                                //if (xsdRestrictionType != null)
+                                XSDObject xsdRestrictionType;
+                                if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", restrictionType.@base), out xsdRestrictionType) && xsdRestrictionType != null)
+                                {
 									XMLSchema.annotated annotatedRestriction = xsdRestrictionType.Tag as XMLSchema.annotated;
 									if (annotatedRestriction != null)
 									{
@@ -744,9 +753,11 @@ namespace XSDDiagram
 			{
 				if (attribute.type != null)
 				{
-					XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", attribute.type)] as XSDObject;
-					if (xsdObject != null)
-					{
+                    //XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", attribute.type)] as XSDObject;
+                    //if (xsdObject != null)
+                    XSDObject xsdObject;
+                    if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", attribute.type), out xsdObject) && xsdObject != null)
+                    {
 						XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
 						if (annotatedElement is XMLSchema.simpleType)
 							ShowEnumerate(annotatedElement as XMLSchema.simpleType);
@@ -768,9 +779,11 @@ namespace XSDDiagram
 				XMLSchema.element element = annotated as XMLSchema.element;
 				if (element != null && element.type != null)
 				{
-					XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
-					if (xsdObject != null)
-					{
+                    //XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
+                    //if (xsdObject != null)
+                    XSDObject xsdObject;
+                    if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", element.type), out xsdObject) && xsdObject != null)
+                    {
 						XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
 						if (annotatedElement is XMLSchema.simpleType)
 							ShowEnumerate(annotatedElement as XMLSchema.simpleType);
@@ -1018,7 +1031,7 @@ namespace XSDDiagram
 				if (resultRegion == DiagramHitTestRegion.Element) // && resultElement.Parent == null)
 				{
 					this.contextualMenuPointedElement = resultElement;
-					this.gotoXSDFileToolStripMenuItem.Enabled = true;
+                    this.gotoXSDFileToolStripMenuItem.Enabled = this.schema.ElementsByName.ContainsKey(this.contextualMenuPointedElement.FullName);
 					this.removeFromDiagramToolStripMenuItem.Enabled = true;
 				}
 			}
@@ -1028,8 +1041,10 @@ namespace XSDDiagram
 		{
 			if (this.contextualMenuPointedElement != null)
 			{
-				XSDObject xsdObject = this.schema.ElementsByName[this.contextualMenuPointedElement.FullName] as XSDObject;
-				if (xsdObject != null)
+				//XSDObject xsdObject = this.schema.ElementsByName[this.contextualMenuPointedElement.FullName] as XSDObject;
+                //if (xsdObject != null)
+				XSDObject xsdObject;
+                if (this.schema.ElementsByName.TryGetValue(this.contextualMenuPointedElement.FullName, out xsdObject) && xsdObject != null)
 				{
 					TabPage tabPage = this.hashtableTabPageByFilename[xsdObject.Filename];
 					if (tabPage != null)

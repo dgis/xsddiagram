@@ -218,7 +218,7 @@ namespace XSDDiagram
 		private void vScrollBar_ValueChanged(object sender, EventArgs e)
 		{
 			this.virtualPoint = new Point(this.hScrollBar.Value, this.vScrollBar.Value);
-			System.Diagnostics.Trace.WriteLine("h: " + this.hScrollBar.Value + " (min: " + this.hScrollBar.Minimum + ", max: " + this.hScrollBar.Maximum + "), v: " + this.vScrollBar.Value + " (min: " + this.vScrollBar.Minimum + ", max: " + this.vScrollBar.Maximum + ")");
+			//System.Diagnostics.Trace.WriteLine("h: " + this.hScrollBar.Value + " (min: " + this.hScrollBar.Minimum + ", max: " + this.hScrollBar.Maximum + "), v: " + this.vScrollBar.Value + " (min: " + this.vScrollBar.Minimum + ", max: " + this.vScrollBar.Maximum + ")");
 			this.diagramControl.Invalidate(this.diagramControl.ClientRectangle);
 		}
 
