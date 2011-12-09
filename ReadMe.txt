@@ -95,6 +95,8 @@ CHANGES:
 
 version 0.10
 - Add the XSD Diagrams core library, thanks to Paul's refactoring !
+- Add the XML validation operation using the currently loaded XSD schema in the Tools menu.
+- When the WebBrowser is not available, use a TextBox instead (For Mono without WebBrowser support).
 
 version 0.9 (2011-05-17)
 - Allow to expand restriction type (Thanks to Hermann).

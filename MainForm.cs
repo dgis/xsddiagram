@@ -34,6 +34,8 @@ using System.Xml.Serialization;
 // > xsd.exe XMLSchema.xsd /classes /l:cs /n:XMLSchema /order
 
 using XSDDiagram.Rendering;
+using System.Xml.Schema;
+using System.Diagnostics;
 
 namespace XSDDiagram
 {
@@ -46,6 +48,10 @@ namespace XSDDiagram
         private Dictionary<string, TabPage> hashtableTabPageByFilename = new Dictionary<string, TabPage>();
 		private string originalTitle = "";
 		private DiagramItem contextualMenuPointedElement = null;
+        private string currentLoadedSchemaFilename = "";
+
+        private TextBox textBoxAnnotation;
+        private WebBrowser webBrowserDocumentation;
 
 		public MainForm()
 		{
@@ -247,11 +253,11 @@ namespace XSDDiagram
 				Text = this.originalTitle;
 		}
 
-		private void LoadSchema(string fileName)
+		private void LoadSchema(string schemaFilename)
 		{
 			Cursor = Cursors.WaitCursor;
 
-			UpdateTitle(fileName);
+			UpdateTitle(schemaFilename);
 
 			this.diagram.Clear();
 			this.panelDiagram.VirtualSize = new Size(0, 0);
@@ -267,7 +273,7 @@ namespace XSDDiagram
 				this.tabControlView.TabPages.RemoveAt(1);
 
 
-            schema.LoadSchema(fileName);
+            schema.LoadSchema(schemaFilename);
 
             foreach (XSDObject xsdObject in schema.Elements)
             {
@@ -295,24 +301,30 @@ namespace XSDDiagram
 			this.tabControlView.SuspendLayout();
 			foreach (string filename in this.schema.XsdFilenames)
 			{
-				WebBrowser webBrowser = new WebBrowser();
-				webBrowser.Dock = DockStyle.Fill;
-				webBrowser.TabIndex = 0;
-
-				string fullPath = filename;
-				try
-				{
-					new Uri(filename);
-				}
-				catch
-				{
-					fullPath = Path.GetFullPath(filename);
-				}
-
+                string fullPath = filename;
+                Control browser = null;
+                try
+                {
+                    browser = new WebBrowser();
+                }
+                catch
+                {
+                    browser = new System.Windows.Forms.TextBox() { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Both };
+                }
+                browser.Dock = DockStyle.Fill;
+                browser.TabIndex = 0;
+                try
+                {
+                    new Uri(filename);
+                }
+                catch
+                {
+                    fullPath = Path.GetFullPath(filename);
+                }
 				TabPage tabPage = new TabPage(Path.GetFileNameWithoutExtension(filename));
 				tabPage.Tag = fullPath;
 				tabPage.ToolTipText = fullPath;
-				tabPage.Controls.Add(webBrowser);
+                tabPage.Controls.Add(browser);
 				tabPage.UseVisualStyleBackColor = true;
 
 				this.tabControlView.TabPages.Add(tabPage);
@@ -320,6 +332,8 @@ namespace XSDDiagram
 
 			}
 			this.tabControlView.ResumeLayout();
+
+            currentLoadedSchemaFilename = schemaFilename;
 		}
 
 		void DiagramControl_MouseClick(object sender, MouseEventArgs e)
@@ -821,11 +835,47 @@ namespace XSDDiagram
 
 		private void ShowDocumentation(XMLSchema.annotation annotation)
 		{
+            if (this.textBoxAnnotation == null)
+            {
+                // 
+                // webBrowserDocumentation
+                // 
+                try
+                {
+                    this.webBrowserDocumentation = new System.Windows.Forms.WebBrowser();
+                    this.webBrowserDocumentation.Dock = System.Windows.Forms.DockStyle.Fill;
+                    this.webBrowserDocumentation.Location = new System.Drawing.Point(0, 0);
+                    this.webBrowserDocumentation.MinimumSize = new System.Drawing.Size(20, 20);
+                    this.webBrowserDocumentation.Name = "webBrowserDocumentation";
+                    this.webBrowserDocumentation.Size = new System.Drawing.Size(214, 117);
+                    this.webBrowserDocumentation.TabIndex = 1;
+                    this.splitContainerDiagramElement.Panel2.Controls.Add(this.webBrowserDocumentation);
+
+                }
+                catch
+                {
+                    this.webBrowserDocumentation = null;
+                }
+                // 
+                // textBoxAnnotation
+                // 
+                this.textBoxAnnotation = new System.Windows.Forms.TextBox();
+                this.textBoxAnnotation.Dock = System.Windows.Forms.DockStyle.Fill;
+                this.textBoxAnnotation.Location = new System.Drawing.Point(0, 0);
+                this.textBoxAnnotation.Multiline = true;
+                this.textBoxAnnotation.Name = "textBoxAnnotation";
+                this.textBoxAnnotation.ReadOnly = true;
+                this.textBoxAnnotation.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+                this.textBoxAnnotation.Size = new System.Drawing.Size(214, 117);
+                this.textBoxAnnotation.TabIndex = 0;
+                this.splitContainerDiagramElement.Panel2.Controls.Add(this.textBoxAnnotation);
+            }
 			if (annotation == null)
 			{
 				this.textBoxAnnotation.Text = "";
 				this.textBoxAnnotation.Visible = true;
-				this.webBrowserDocumentation.Visible = false;
+                if (this.webBrowserDocumentation != null)
+    				this.webBrowserDocumentation.Visible = false;
 
 				return;
 			}
@@ -853,13 +903,22 @@ namespace XSDDiagram
 						//text = string.Join("\r\n", textLines);
 						this.textBoxAnnotation.Text = text;
 						this.textBoxAnnotation.Visible = true;
-						this.webBrowserDocumentation.Visible = false;
+                        if (this.webBrowserDocumentation != null)
+                            this.webBrowserDocumentation.Visible = false;
 					}
 					else if (documentation.source != null)
 					{
-						this.textBoxAnnotation.Visible = false;
-						this.webBrowserDocumentation.Visible = true;
-						this.webBrowserDocumentation.Navigate(documentation.source);
+                        if (this.webBrowserDocumentation != null)
+                        {
+                            this.textBoxAnnotation.Visible = false;
+                            this.webBrowserDocumentation.Visible = true;
+                            this.webBrowserDocumentation.Navigate(documentation.source);
+                        }
+                        else
+                        {
+                            this.textBoxAnnotation.Text = documentation.source;
+                            this.textBoxAnnotation.Visible = true;
+                        }
 					}
 					break;
 				}
@@ -1074,14 +1133,51 @@ namespace XSDDiagram
 			if (tabControlView.SelectedTab.Tag != null)
 			{
 				WebBrowser webBrowser = tabControlView.SelectedTab.Controls[0] as WebBrowser;
-				if (webBrowser != null)
-				{
-					string url = tabControlView.SelectedTab.Tag as string;
-					//if (webBrowser.Url == null || webBrowser.Url != new Uri(url))
-					if(webBrowser.Document == null)
-						webBrowser.Navigate(url);
-					webBrowser.Select();
-				}
+                if (webBrowser != null)
+                {
+                    string url = tabControlView.SelectedTab.Tag as string;
+                    //if (webBrowser.Url == null || webBrowser.Url != new Uri(url))
+                    if (webBrowser.Document == null)
+                        webBrowser.Navigate(url);
+                    webBrowser.Select();
+                }
+                else
+                {
+                    TextBox textBrowser = tabControlView.SelectedTab.Controls[0] as TextBox;
+                    if (textBrowser != null)
+                    {
+                        string url = tabControlView.SelectedTab.Tag as string;
+                        if (string.IsNullOrEmpty(textBrowser.Text))
+                        {
+                            try
+                            {
+                                //HttpWebRequest webRequestObject = (HttpWebRequest)WebRequest.Create(url);
+                                ////WebRequestObject.UserAgent = ".NET Framework/2.0";
+                                ////WebRequestObject.Referer = "http://www.example.com/";
+                                //WebResponse response = webRequestObject.GetResponse();
+                                //Stream webStream = response.GetResponseStream();
+                                //StreamReader reader = new StreamReader(webStream);
+                                //textBrowser.Text = reader.ReadToEnd();
+                                //reader.Close();
+                                //webStream.Close();
+                                //response.Close();
+
+                                WebClient client = new WebClient();
+                                client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+                                Stream data = client.OpenRead(url);
+                                StreamReader reader = new StreamReader(data);
+                                textBrowser.Text = reader.ReadToEnd().Replace("\r\n", "\n").Replace("\n", "\r\n");
+                                data.Close();
+                                reader.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                                textBrowser.Text = ex.Message;
+                            }
+                        }
+                        textBrowser.Select();
+                    }
+                }
 			}
 		}
 
@@ -1089,7 +1185,7 @@ namespace XSDDiagram
 		{
 			if (tabControlView.SelectedTab.Tag != null)
 			{
-				WebBrowser webBrowser = tabControlView.SelectedTab.Controls[0] as WebBrowser;
+                Control webBrowser = tabControlView.SelectedTab.Controls[0] as Control;
 				if (webBrowser != null)
 					webBrowser.Select();
 			}
@@ -1099,7 +1195,7 @@ namespace XSDDiagram
 		{
             if (tabControlView.SelectedTab != null && tabControlView.SelectedTab.Tag != null)
 			{
-				WebBrowser webBrowser = tabControlView.SelectedTab.Controls[0] as WebBrowser;
+                Control webBrowser = tabControlView.SelectedTab.Controls[0] as Control;
 				if (webBrowser != null)
 					webBrowser.Focus();
 			}
@@ -1425,6 +1521,79 @@ namespace XSDDiagram
 			//}
 			//e.DrawText();
 		}
+
+        private void validateXMLFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 2;
+            openFileDialog.RestoreDirectory = true;
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    Cursor = Cursors.WaitCursor;
+
+                    validationErrorMessages.Clear();
+
+                    StreamReader streamReader = new StreamReader(openFileDialog.FileName);
+                    string xmlSource = streamReader.ReadToEnd();
+                    streamReader.Close();
+
+                    XmlDocument x = new XmlDocument();
+                    x.LoadXml(xmlSource);
+
+                    XmlReaderSettings settings = new XmlReaderSettings();
+                    settings.CloseInput = true;
+                    settings.ValidationType = ValidationType.Schema;
+                    settings.ProhibitDtd = false;
+                    settings.ValidationEventHandler += new ValidationEventHandler(ValidationHandler);
+                    settings.ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings |
+                                                XmlSchemaValidationFlags.ProcessIdentityConstraints |
+                                                XmlSchemaValidationFlags.ProcessInlineSchema |
+                                                XmlSchemaValidationFlags.ProcessSchemaLocation |
+                                                XmlSchemaValidationFlags.AllowXmlAttributes;
+                    //settings.Schemas.Add("http://www.collada.org/2005/11/COLLADASchema", currentLoadedSchemaFilename);
+                    //settings.Schemas.Add(null, currentLoadedSchemaFilename); // = sc;
+                    List<string> schemas = new List<string>(schema.XsdFilenames);
+                    schemas.Reverse();
+                    foreach (string schemaFilename in schemas)
+                        settings.Schemas.Add(null, schemaFilename);
+
+                    StringReader r = new StringReader(xmlSource);
+                    using (XmlReader validatingReader = XmlReader.Create(r, settings))
+                    {
+                        while (validatingReader.Read()) { /* just loop through document */ }
+                    }
+
+                    Cursor = Cursors.Default;
+
+                    ErrorReportForm errorReportForm = new ErrorReportForm();
+                    errorReportForm.Errors = validationErrorMessages;
+                    errorReportForm.ShowDialog(this);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Cannot validate: " + ex.Message);
+                }
+
+                Cursor = Cursors.Default;
+            }
+        }
+
+        static List<string> validationErrorMessages = new List<string>();
+
+        public static void ValidationHandler(object sender, ValidationEventArgs e)
+        {
+            //if (e.Severity == XmlSeverityType.Error || e.Severity == XmlSeverityType.Warning)
+            validationErrorMessages.Add(string.Format("{4}: [{3}] Line: {0}, Position: {1} \"{2}\"",
+                e.Exception.LineNumber, e.Exception.LinePosition, e.Exception.Message, validationErrorMessages.Count, e.Severity));
+        }
+
+        private void toolsToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
+        {
+            validateXMLFileToolStripMenuItem.Enabled = (schema != null && schema.XsdFilenames.Count != 0);
+        }
 
 		//void DiagramControl_MouseMove(object sender, MouseEventArgs e)
 		//{
