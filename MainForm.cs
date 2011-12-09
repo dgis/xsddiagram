@@ -33,22 +33,25 @@ using System.Xml.Serialization;
 // To generate the XMLSchema.cs file:
 // > xsd.exe XMLSchema.xsd /classes /l:cs /n:XMLSchema /order
 
+using XSDDiagram.Rendering;
+
 namespace XSDDiagram
 {
 	public partial class MainForm : Form
 	{
+        private DiagramPrinter _diagramPrinter;
+
         private Diagram diagram = new Diagram();
         private Schema schema = new Schema();
-		private Hashtable hashtableTabPageByFilename = new Hashtable();
+        private Dictionary<string, TabPage> hashtableTabPageByFilename = new Dictionary<string, TabPage>();
 		private string originalTitle = "";
-		private DiagramBase contextualMenuPointedElement = null;
+		private DiagramItem contextualMenuPointedElement = null;
 
 		public MainForm()
 		{
 			InitializeComponent();
 
 			this.toolsToolStripMenuItem.Visible = !Options.IsRunningOnMono;
-			this.printDialog.UseEXDialog = !Options.IsRunningOnMono;
 
 			this.originalTitle = Text;
 
@@ -64,6 +67,30 @@ namespace XSDDiagram
 			this.panelDiagram.VirtualSize = new Size(0, 0);
 			this.panelDiagram.DiagramControl.Paint += new PaintEventHandler(DiagramControl_Paint);
 		}
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (components != null)
+                {
+                    components.Dispose();
+                    components = null;
+                }
+
+                if (_diagramPrinter != null)
+                {
+                    _diagramPrinter.Dispose();
+                    _diagramPrinter = null;
+                }
+            }
+
+            base.Dispose(disposing);
+        }
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
@@ -129,8 +156,10 @@ namespace XSDDiagram
                 string outputFilename = saveFileDialog.FileName;
 				try
 				{
+                    DiagramExporter exporter = new DiagramExporter(diagram);
                     Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
-                    diagram.SaveToImage(outputFilename, g1, new Diagram.AlerteDelegate(SaveAlert));
+                    exporter.Export(outputFilename, g1, new DiagramAlertHandler(SaveAlert));
+                    g1.Dispose();
 				}
 				catch (Exception ex)
 				{
@@ -144,49 +173,6 @@ namespace XSDDiagram
         {
             return MessageBox.Show(this, message, title, MessageBoxButtons.YesNo) == DialogResult.Yes;
         }
-
-
-		private int currentPage = 0;
-
-		private void printDocument_BeginPrint(object sender, System.Drawing.Printing.PrintEventArgs e)
-		{
-			this.currentPage = 0;
-		}
-
-		private void printDocument_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
-		{
-			this.diagram.Layout(e.Graphics);
-
-			Size bbSize = this.diagram.BoundingBox.Size + this.diagram.Padding + this.diagram.Padding;
-			Size totalSize = new Size((int)(bbSize.Width * this.diagram.Scale), (int)(bbSize.Height * this.diagram.Scale));
-
-			int columnNumber = 1 + totalSize.Width / e.MarginBounds.Width;
-			int rowNumber = 1 + totalSize.Height / e.MarginBounds.Height;
-			int pageNumber = columnNumber * rowNumber;
-
-			int row, column = Math.DivRem(currentPage, rowNumber, out row);
-
-			Rectangle clipping = new Rectangle(new Point(column * e.MarginBounds.Width, row * e.MarginBounds.Height),
-				new Size((column + 1) * e.MarginBounds.Width, (row + 1) * e.MarginBounds.Height));
-
-			//MONOFIX e.Graphics.Clip = new Region(e.MarginBounds);
-
-			//Point virtualPoint = this.panelDiagram.VirtualPoint;
-			e.Graphics.TranslateTransform(-(float)(clipping.Left - e.MarginBounds.Left), -(float)(clipping.Top - e.MarginBounds.Top));
-
-			this.diagram.Paint(e.Graphics, clipping);
-
-			if (this.currentPage < pageNumber - 1)
-			{
-				this.currentPage++;
-				e.HasMorePages = true;
-			}
-		}
-
-		private void printDocument_EndPrint(object sender, System.Drawing.Printing.PrintEventArgs e)
-		{
-
-		}
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -235,7 +221,8 @@ namespace XSDDiagram
 			e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 			e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
-			this.diagram.Paint(e.Graphics, new Rectangle(virtualPoint, this.panelDiagram.DiagramControl.ClientRectangle.Size));
+            DiagramGdiRenderer.Draw(diagram, e.Graphics, 
+                new Rectangle(virtualPoint, this.panelDiagram.DiagramControl.ClientRectangle.Size));
 		}
 
 		private void UpdateDiagram()
@@ -340,12 +327,12 @@ namespace XSDDiagram
 			Point location = e.Location;
 			location.Offset(this.panelDiagram.VirtualPoint);
 
-			DiagramBase resultElement;
-			DiagramBase.HitTestRegion resultRegion;
+			DiagramItem resultElement;
+			DiagramHitTestRegion resultRegion;
 			this.diagram.HitTest(location, out resultElement, out resultRegion);
-			if (resultRegion != DiagramBase.HitTestRegion.None)
+			if (resultRegion != DiagramHitTestRegion.None)
 			{
-				if (resultRegion == DiagramBase.HitTestRegion.ChildExpandButton)
+				if (resultRegion == DiagramHitTestRegion.ChildExpandButton)
 				{
 					if (resultElement.HasChildElements)
 					{
@@ -361,7 +348,7 @@ namespace XSDDiagram
 						this.panelDiagram.ScrollTo(this.diagram.ScalePoint(resultElement.Location), true);
 					}
 				}
-				else if (resultRegion == DiagramBase.HitTestRegion.Element)
+				else if (resultRegion == DiagramHitTestRegion.Element)
 				{
 					if ((ModifierKeys & (Keys.Control | Keys.Shift)) == (Keys.Control | Keys.Shift)) // For Debug
 					{
@@ -376,7 +363,7 @@ namespace XSDDiagram
 			}
 		}
 
-		private void SelectDiagramElement(DiagramBase element)
+		private void SelectDiagramElement(DiagramItem element)
 		{
 			this.textBoxElementPath.Text = "";
 			if (element == null)
@@ -387,20 +374,23 @@ namespace XSDDiagram
 				return;
 			}
 
-			if (element is DiagramBase)
+			if (element is DiagramItem)
 			{
-				if (this.schema.ElementsByName[element.FullName] != null)
-					this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.ElementsByName[element.FullName];
+                //if (this.schema.ElementsByName[element.FullName] != null)
+                //	this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.ElementsByName[element.FullName];
+                XSDObject xsdObject;
+                if (this.schema.ElementsByName.TryGetValue(element.FullName, out xsdObject) && xsdObject != null)
+                    this.toolStripComboBoxSchemaElement.SelectedItem = xsdObject;
 				else
 					this.toolStripComboBoxSchemaElement.SelectedItem = null;
 
 				SelectSchemaElement(element);
 
 				string path = '/' + element.Name;
-				DiagramBase parentElement = element.Parent;
+				DiagramItem parentElement = element.Parent;
 				while (parentElement != null)
 				{
-					if (parentElement.Type == DiagramBase.TypeEnum.element && !string.IsNullOrEmpty(parentElement.Name))
+					if (parentElement.ItemType == DiagramItemType.element && !string.IsNullOrEmpty(parentElement.Name))
 						path = '/' + parentElement.Name + path;
 					parentElement = parentElement.Parent;
 				}
@@ -418,7 +408,7 @@ namespace XSDDiagram
 			SelectSchemaElement(xsdObject.Tag, xsdObject.NameSpace);
 		}
 
-		private void SelectSchemaElement(DiagramBase diagramBase)
+		private void SelectSchemaElement(DiagramItem diagramBase)
 		{
 			SelectSchemaElement(diagramBase.TabSchema, diagramBase.NameSpace);
 		}
@@ -451,8 +441,10 @@ namespace XSDDiagram
 					}
 					else if (element.type != null)
 					{
-						XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
-						if (xsdObject != null)
+                        //XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
+                        //if (xsdObject != null)
+                        XSDObject xsdObject;
+                        if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", element.type), out xsdObject) && xsdObject != null)
 						{
 							XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
 							if (annotatedElement is XMLSchema.complexType)
@@ -573,9 +565,11 @@ namespace XSDDiagram
 							if (annotatedContent is XMLSchema.extensionType)
 							{
 								XMLSchema.extensionType extensionType = annotatedContent as XMLSchema.extensionType;
-								XSDObject xsdExtensionType = this.schema.ElementsByName[QualifiedNameToFullName("type", extensionType.@base)] as XSDObject;
-								if (xsdExtensionType != null)
-								{
+                                //XSDObject xsdExtensionType = this.schema.ElementsByName[QualifiedNameToFullName("type", extensionType.@base)] as XSDObject;
+                                //if (xsdExtensionType != null)
+                                XSDObject xsdExtensionType;
+                                if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", extensionType.@base), out xsdExtensionType) && xsdExtensionType != null)
+                                {
 									XMLSchema.annotated annotatedExtension = xsdExtensionType.Tag as XMLSchema.annotated;
 									if (annotatedExtension != null)
 									{
@@ -601,9 +595,11 @@ namespace XSDDiagram
 							else if (annotatedContent is XMLSchema.restrictionType)
 							{
 								XMLSchema.restrictionType restrictionType = annotatedContent as XMLSchema.restrictionType;
-								XSDObject xsdRestrictionType = this.schema.ElementsByName[QualifiedNameToFullName("type", restrictionType.@base)] as XSDObject;
-								if (xsdRestrictionType != null)
-								{
+                                //XSDObject xsdRestrictionType = this.schema.ElementsByName[QualifiedNameToFullName("type", restrictionType.@base)] as XSDObject;
+                                //if (xsdRestrictionType != null)
+                                XSDObject xsdRestrictionType;
+                                if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", restrictionType.@base), out xsdRestrictionType) && xsdRestrictionType != null)
+                                {
 									XMLSchema.annotated annotatedRestriction = xsdRestrictionType.Tag as XMLSchema.annotated;
 									if (annotatedRestriction != null)
 									{
@@ -757,9 +753,11 @@ namespace XSDDiagram
 			{
 				if (attribute.type != null)
 				{
-					XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", attribute.type)] as XSDObject;
-					if (xsdObject != null)
-					{
+                    //XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", attribute.type)] as XSDObject;
+                    //if (xsdObject != null)
+                    XSDObject xsdObject;
+                    if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", attribute.type), out xsdObject) && xsdObject != null)
+                    {
 						XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
 						if (annotatedElement is XMLSchema.simpleType)
 							ShowEnumerate(annotatedElement as XMLSchema.simpleType);
@@ -781,9 +779,11 @@ namespace XSDDiagram
 				XMLSchema.element element = annotated as XMLSchema.element;
 				if (element != null && element.type != null)
 				{
-					XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
-					if (xsdObject != null)
-					{
+                    //XSDObject xsdObject = this.schema.ElementsByName[QualifiedNameToFullName("type", element.type)] as XSDObject;
+                    //if (xsdObject != null)
+                    XSDObject xsdObject;
+                    if (this.schema.ElementsByName.TryGetValue(QualifiedNameToFullName("type", element.type), out xsdObject) && xsdObject != null)
+                    {
 						XMLSchema.annotated annotatedElement = xsdObject.Tag as XMLSchema.annotated;
 						if (annotatedElement is XMLSchema.simpleType)
 							ShowEnumerate(annotatedElement as XMLSchema.simpleType);
@@ -961,7 +961,13 @@ namespace XSDDiagram
 		{
 			try
 			{
-				this.pageSetupDialog.ShowDialog(this);
+                if (_diagramPrinter == null)
+                {
+                    _diagramPrinter = new DiagramPrinter();
+                }
+                _diagramPrinter.Diagram = diagram;
+
+                _diagramPrinter.PageSetup();
 			}
 			catch (Exception ex)
 			{
@@ -973,7 +979,13 @@ namespace XSDDiagram
 		{
 			try
 			{
-				this.printPreviewDialog.ShowDialog(this);
+                if (_diagramPrinter == null)
+                {
+                    _diagramPrinter = new DiagramPrinter();
+                }
+                _diagramPrinter.Diagram = diagram;
+
+                _diagramPrinter.PrintPreview();
 			}
 			catch (Exception ex)
 			{
@@ -985,10 +997,13 @@ namespace XSDDiagram
 		{
 			try
 			{
-				if (this.printDialog.ShowDialog(this) == DialogResult.OK)
-				{
-					printDocument.Print();
-				}
+                if (_diagramPrinter == null)
+                {
+                    _diagramPrinter = new DiagramPrinter();
+                }
+                _diagramPrinter.Diagram = diagram;
+
+                _diagramPrinter.Print(true, Options.IsRunningOnMono);
 			}
 			catch (Exception ex)
 			{
@@ -1008,15 +1023,15 @@ namespace XSDDiagram
 
 			Point contextualMenuMousePosition = this.panelDiagram.DiagramControl.PointToClient(MousePosition);
 			contextualMenuMousePosition.Offset(this.panelDiagram.VirtualPoint);
-			DiagramBase resultElement;
-			DiagramBase.HitTestRegion resultRegion;
+			DiagramItem resultElement;
+			DiagramHitTestRegion resultRegion;
 			this.diagram.HitTest(contextualMenuMousePosition, out resultElement, out resultRegion);
-			if (resultRegion != DiagramBase.HitTestRegion.None)
+			if (resultRegion != DiagramHitTestRegion.None)
 			{
-				if (resultRegion == DiagramBase.HitTestRegion.Element) // && resultElement.Parent == null)
+				if (resultRegion == DiagramHitTestRegion.Element) // && resultElement.Parent == null)
 				{
 					this.contextualMenuPointedElement = resultElement;
-					this.gotoXSDFileToolStripMenuItem.Enabled = true;
+                    this.gotoXSDFileToolStripMenuItem.Enabled = this.schema.ElementsByName.ContainsKey(this.contextualMenuPointedElement.FullName);
 					this.removeFromDiagramToolStripMenuItem.Enabled = true;
 				}
 			}
@@ -1026,10 +1041,12 @@ namespace XSDDiagram
 		{
 			if (this.contextualMenuPointedElement != null)
 			{
-				XSDObject xsdObject = this.schema.ElementsByName[this.contextualMenuPointedElement.FullName] as XSDObject;
-				if (xsdObject != null)
+				//XSDObject xsdObject = this.schema.ElementsByName[this.contextualMenuPointedElement.FullName] as XSDObject;
+                //if (xsdObject != null)
+				XSDObject xsdObject;
+                if (this.schema.ElementsByName.TryGetValue(this.contextualMenuPointedElement.FullName, out xsdObject) && xsdObject != null)
 				{
-					TabPage tabPage = this.hashtableTabPageByFilename[xsdObject.Filename] as TabPage;
+					TabPage tabPage = this.hashtableTabPageByFilename[xsdObject.Filename];
 					if (tabPage != null)
 						this.tabControlView.SelectedTab = tabPage;
 				}
@@ -1041,7 +1058,7 @@ namespace XSDDiagram
 		{
 			if (this.contextualMenuPointedElement != null)
 			{
-				DiagramBase parentDiagram = this.contextualMenuPointedElement.Parent;
+				DiagramItem parentDiagram = this.contextualMenuPointedElement.Parent;
 				this.diagram.Remove(this.contextualMenuPointedElement);
 				UpdateDiagram();
 				if (parentDiagram != null)
@@ -1110,14 +1127,14 @@ namespace XSDDiagram
 		{
 			switch (this.toolStripComboBoxAlignement.SelectedItem as string)
 			{
-				case "Top": this.diagram.Alignement = DiagramBase.Alignement.Near; break;
-				case "Center": this.diagram.Alignement = DiagramBase.Alignement.Center; break;
-				case "Bottom": this.diagram.Alignement = DiagramBase.Alignement.Far; break;
+				case "Top": this.diagram.Alignement = DiagramAlignement.Near; break;
+				case "Center": this.diagram.Alignement = DiagramAlignement.Center; break;
+				case "Bottom": this.diagram.Alignement = DiagramAlignement.Far; break;
 			}
 			UpdateDiagram();
 		}
 
-		void diagram_RequestAnyElement(DiagramBase diagramElement, out XMLSchema.element element, out string nameSpace)
+		void diagram_RequestAnyElement(DiagramItem diagramElement, out XMLSchema.element element, out string nameSpace)
 		{
 			element = null;
 			nameSpace = "";

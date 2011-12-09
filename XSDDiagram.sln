@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSDDiagram", "XSDDiagram.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSDDiagramConsole", "XSDDiagramConsole\XSDDiagramConsole.csproj", "{1D732DFD-D631-4BFB-8057-C34B9327A08F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSDDiagrams", "XsdDiagrams\XSDDiagrams.csproj", "{6D3DACE7-D51B-4259-883A-6899BF4D52E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,12 @@ Global
 		{1D732DFD-D631-4BFB-8057-C34B9327A08F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1D732DFD-D631-4BFB-8057-C34B9327A08F}.Release|x86.ActiveCfg = Release|x86
 		{1D732DFD-D631-4BFB-8057-C34B9327A08F}.Release|x86.Build.0 = Release|x86
+		{6D3DACE7-D51B-4259-883A-6899BF4D52E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D3DACE7-D51B-4259-883A-6899BF4D52E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D3DACE7-D51B-4259-883A-6899BF4D52E2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6D3DACE7-D51B-4259-883A-6899BF4D52E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D3DACE7-D51B-4259-883A-6899BF4D52E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D3DACE7-D51B-4259-883A-6899BF4D52E2}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,16 +1,16 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("XSD Diagram")]
-[assembly: AssemblyDescription("XSD Diagram is a free Xml Schema Definition diagram viewer")]
+[assembly: AssemblyTitle("XSD Diagrams core library")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("XSD Diagram")]
-[assembly: AssemblyCopyright("Copyright © 2006-2011 Regis Cosnier, All Rights Reserved.")]
+[assembly: AssemblyProduct("XSD Diagrams")]
+[assembly: AssemblyCopyright("Copyright © 2011 Regis Cosnier, All Rights Reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d9e98494-5509-488f-b4a7-36c4a2ea9071")]
+[assembly: Guid("94cad763-d1e2-4c14-b46d-3056febd7c29")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -29,5 +29,8 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
+// You can specify all the values or you can default the Build and Revision Numbers 
+// by using the '*' as shown below:
+// [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.10.0.0")]
 [assembly: AssemblyFileVersion("0.10.0.0")]
