@@ -132,10 +132,19 @@ namespace XSDDiagram.Rendering
 				childDiagramElement.Name = childElement.name != null ? childElement.name : "";
 				childDiagramElement.NameSpace = nameSpace;
 				childDiagramElement.ItemType = DiagramItemType.element;
-				try { childDiagramElement.MinOccurrence = int.Parse(referenceElement != null ? referenceElement.minOccurs : childElement.minOccurs); }
-				catch { childDiagramElement.MinOccurrence = -1; }
-				try { childDiagramElement.MaxOccurrence = int.Parse(referenceElement != null ? referenceElement.maxOccurs : childElement.maxOccurs); }
-				catch { childDiagramElement.MaxOccurrence = -1; }
+				int occurrence;
+				if (int.TryParse(referenceElement != null ? referenceElement.minOccurs : childElement.minOccurs, out occurrence))
+					childDiagramElement.MinOccurrence = occurrence;
+				else
+					childDiagramElement.MinOccurrence = -1;
+				//try { childDiagramElement.MinOccurrence = int.Parse(referenceElement != null ? referenceElement.minOccurs : childElement.minOccurs); }
+				//catch { childDiagramElement.MinOccurrence = -1; }
+				if (int.TryParse(referenceElement != null ? referenceElement.maxOccurs : childElement.maxOccurs, out occurrence))
+					childDiagramElement.MaxOccurrence = occurrence;
+				else
+					childDiagramElement.MaxOccurrence = -1;
+				//try { childDiagramElement.MaxOccurrence = int.Parse(referenceElement != null ? referenceElement.maxOccurs : childElement.maxOccurs); }
+				//catch { childDiagramElement.MaxOccurrence = -1; }
 
 				bool hasChildren;
 				bool isSimpleType;
@@ -263,10 +272,20 @@ namespace XSDDiagram.Rendering
 				childDiagramElement.Name = "any  " + childElement.@namespace;
 				childDiagramElement.NameSpace = nameSpace;
 				childDiagramElement.ItemType = DiagramItemType.group;  //DiagramBase.TypeEnum.element;
-				try { childDiagramElement.MinOccurrence = int.Parse(childElement.minOccurs); }
-				catch { childDiagramElement.MinOccurrence = -1; }
-				try { childDiagramElement.MaxOccurrence = int.Parse(childElement.maxOccurs); }
-				catch { childDiagramElement.MaxOccurrence = -1; }
+				int occurrence;
+				if (int.TryParse(childElement.minOccurs, out occurrence))
+					childDiagramElement.MinOccurrence = occurrence;
+				else
+					childDiagramElement.MinOccurrence = -1;
+				//try { childDiagramElement.MinOccurrence = int.Parse(childElement.minOccurs); }
+				//catch { childDiagramElement.MinOccurrence = -1; }
+				if (int.TryParse(childElement.maxOccurs, out occurrence))
+					childDiagramElement.MaxOccurrence = occurrence;
+				else
+					childDiagramElement.MaxOccurrence = -1;
+				//try { childDiagramElement.MaxOccurrence = int.Parse(childElement.maxOccurs); }
+				//catch { childDiagramElement.MaxOccurrence = -1; }
+
 				childDiagramElement.IsReference = false;
 				childDiagramElement.IsSimpleContent = false;
 				childDiagramElement.HasChildElements = false; // true;
@@ -331,10 +350,19 @@ namespace XSDDiagram.Rendering
 
 				childDiagramGroup.Diagram = this;
 				childDiagramGroup.TabSchema = childGroup;
-				try { childDiagramGroup.MinOccurrence = int.Parse(childGroup.minOccurs); }
-				catch { childDiagramGroup.MinOccurrence = -1; }
-				try { childDiagramGroup.MaxOccurrence = int.Parse(childGroup.maxOccurs); }
-				catch { childDiagramGroup.MaxOccurrence = -1; }
+				int occurrence;
+				if (int.TryParse(childGroup.minOccurs, out occurrence))
+					childDiagramGroup.MinOccurrence = occurrence;
+				else
+					childDiagramGroup.MinOccurrence = -1;
+				//try { childDiagramGroup.MinOccurrence = int.Parse(childGroup.minOccurs); }
+				//catch { childDiagramGroup.MinOccurrence = -1; }
+				if (int.TryParse(childGroup.maxOccurs, out occurrence))
+					childDiagramGroup.MaxOccurrence = occurrence;
+				else
+					childDiagramGroup.MaxOccurrence = -1;
+				//try { childDiagramGroup.MaxOccurrence = int.Parse(childGroup.maxOccurs); }
+				//catch { childDiagramGroup.MaxOccurrence = -1; }
 				childDiagramGroup.HasChildElements = true;
 				childDiagramGroup.GroupType = type;
 

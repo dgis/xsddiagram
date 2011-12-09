@@ -62,7 +62,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\XSDDiagram.csproj">
+    <ProjectReference Include="..\XSDDiagram2008.csproj">
       <Project>{B212CAFE-B4C8-44CB-B82D-AA32B55D2719}</Project>
       <Name>XSDDiagram</Name>
     </ProjectReference>

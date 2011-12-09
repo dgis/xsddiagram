@@ -234,7 +234,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="XsdDiagrams\XSDDiagrams.csproj">
+    <ProjectReference Include="XsdDiagrams\XSDDiagrams2008.csproj">
       <Project>{6D3DACE7-D51B-4259-883A-6899BF4D52E2}</Project>
       <Name>XSDDiagrams</Name>
     </ProjectReference>
