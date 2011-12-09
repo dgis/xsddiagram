@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Parsing\Schema.cs" />
     <Compile Include="Parsing\XmlSchema.cs" />
+    <Compile Include="Parsing\XMLSchemaEx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\Diagram.cs" />
     <Compile Include="Rendering\DiagramAlignement.cs" />

@@ -52,6 +52,7 @@ namespace XSDDiagram
 
         private TextBox textBoxAnnotation;
         private WebBrowser webBrowserDocumentation;
+		private bool webBrowserSupported = true;
 
 		public MainForm()
 		{
@@ -72,6 +73,18 @@ namespace XSDDiagram
 			this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
 			this.panelDiagram.VirtualSize = new Size(0, 0);
 			this.panelDiagram.DiagramControl.Paint += new PaintEventHandler(DiagramControl_Paint);
+
+			if (Options.IsRunningOnMono)
+			{
+				try
+				{
+					new WebBrowser().Navigate("about:blank");
+				}
+				catch
+				{
+					webBrowserSupported = false;
+				}
+			}
 		}
 
         /// <summary>
@@ -303,14 +316,10 @@ namespace XSDDiagram
 			{
                 string fullPath = filename;
                 Control browser = null;
-                try
-                {
+				if(webBrowserSupported)
                     browser = new WebBrowser();
-                }
-                catch
-                {
+                else
                     browser = new System.Windows.Forms.TextBox() { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Both };
-                }
                 browser.Dock = DockStyle.Fill;
                 browser.TabIndex = 0;
                 try
@@ -840,7 +849,7 @@ namespace XSDDiagram
                 // 
                 // webBrowserDocumentation
                 // 
-                try
+                if(webBrowserSupported)
                 {
                     this.webBrowserDocumentation = new System.Windows.Forms.WebBrowser();
                     this.webBrowserDocumentation.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -850,12 +859,9 @@ namespace XSDDiagram
                     this.webBrowserDocumentation.Size = new System.Drawing.Size(214, 117);
                     this.webBrowserDocumentation.TabIndex = 1;
                     this.splitContainerDiagramElement.Panel2.Controls.Add(this.webBrowserDocumentation);
-
                 }
-                catch
-                {
+                else
                     this.webBrowserDocumentation = null;
-                }
                 // 
                 // textBoxAnnotation
                 // 
