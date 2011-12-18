@@ -82,11 +82,13 @@ Example 4:
 TODO LIST:
 
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
+	o The optional display of attributes inside the diagram
+- Columns in the element/attributes tabs for restrictions (length/pattern/enumerations) 
 - Element selection in the diagram + move from one element to another with the arrow key
 - Multi-selection (i.e.: to remove several element at once)
 - Save the current UI state (open file/diagram/zoom/...)
 - Download xsd by specifying an Url instead of loading it from the file system
-- XML sample (skeleton) generation
+- XML sample (skeleton) generation (the ability to generate random test XML files complying with the open schema)
 - Download .dtd dependency file
 - On Linux, the horizontal and vertical scrollbars don't appear correctly.
 
