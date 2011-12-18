@@ -62,13 +62,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\XSDDiagram2008.csproj">
-      <Project>{B212CAFE-B4C8-44CB-B82D-AA32B55D2719}</Project>
-      <Name>XSDDiagram</Name>
-    </ProjectReference>
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="..\XSDDiagram2008.csproj">
+      <Project>{B212CAFE-B4C8-44CB-B82D-AA32B55D2719}</Project>
+      <Name>XSDDiagram2008</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

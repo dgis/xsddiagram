@@ -93,7 +93,7 @@ TODO LIST:
 
 CHANGES:
 
-version 0.10
+version 0.10 (2011-12-18)
 - Add the XSD Diagrams core library, thanks to Paul's refactoring !
 - Add the XML validation operation using the currently loaded XSD schema in the Tools menu.
 - When the WebBrowser is not available, use a TextBox instead (For Mono without WebBrowser support).

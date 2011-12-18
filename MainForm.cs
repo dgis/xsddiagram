@@ -1546,13 +1546,14 @@ namespace XSDDiagram
                     string xmlSource = streamReader.ReadToEnd();
                     streamReader.Close();
 
-                    XmlDocument x = new XmlDocument();
-                    x.LoadXml(xmlSource);
+					//XmlDocument x = new XmlDocument();
+					//x.LoadXml(xmlSource);
 
                     XmlReaderSettings settings = new XmlReaderSettings();
                     settings.CloseInput = true;
                     settings.ValidationType = ValidationType.Schema;
                     settings.ProhibitDtd = false;
+					settings.XmlResolver = null;
                     settings.ValidationEventHandler += new ValidationEventHandler(ValidationHandler);
                     settings.ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings |
                                                 XmlSchemaValidationFlags.ProcessIdentityConstraints |
@@ -1563,8 +1564,18 @@ namespace XSDDiagram
                     //settings.Schemas.Add(null, currentLoadedSchemaFilename); // = sc;
                     List<string> schemas = new List<string>(schema.XsdFilenames);
                     schemas.Reverse();
-                    foreach (string schemaFilename in schemas)
-                        settings.Schemas.Add(null, schemaFilename);
+					foreach (string schemaFilename in schemas)
+					{
+						try
+						{
+							settings.Schemas.Add(null, schemaFilename);
+						}
+						catch (Exception ex)
+						{
+							validationErrorMessages.Add(string.Format("Error while parsing {0}, Message: {1}",
+								schemaFilename, ex.Message));
+						}
+					}
 
                     StringReader r = new StringReader(xmlSource);
                     using (XmlReader validatingReader = XmlReader.Create(r, settings))
@@ -1580,11 +1591,20 @@ namespace XSDDiagram
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Cannot validate: " + ex.Message);
-                }
+					Cursor = Cursors.Default;
 
-                Cursor = Cursors.Default;
-            }
+					validationErrorMessages.Add(string.Format("Error while validating {0}, Message: {1}",
+						openFileDialog.FileName, ex.Message));
+					//MessageBox.Show("Cannot validate: " + ex.Message);
+					ErrorReportForm errorReportForm = new ErrorReportForm();
+					errorReportForm.Errors = validationErrorMessages;
+					errorReportForm.ShowDialog(this);
+                }
+				Cursor = Cursors.Default;
+
+				if (validationErrorMessages.Count == 0)
+					MessageBox.Show("No issue found");
+			}
         }
 
         static List<string> validationErrorMessages = new List<string>();

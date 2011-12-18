@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Xml.Serialization;
+using System.Text.RegularExpressions;
 
 namespace XSDDiagram
 {
@@ -136,14 +137,27 @@ namespace XSDDiagram
                                     //webClient.Credentials = new System.Net.NetworkCredential("username", "password");
                                     try
                                     {
-                                        webClient.DownloadFile(uri, loadedFileName);
-                                    }
-                                    catch (WebException)
-                                    {
-                                        this.loadError.Add("Cannot load the dependency: " + uri.ToString());
-                                        loadedFileName = null;
-                                    }
-                                }
+										//webClient.DownloadFile(uri, loadedFileName);
+										string importedXsdFile = webClient.DownloadString(uri);
+
+										string importedXsdFileWithoutDTD = new Regex(@"<!DOCTYPE[^>]*>", RegexOptions.Singleline | RegexOptions.IgnoreCase).Replace(importedXsdFile, String.Empty);
+
+										using (StreamWriter outfile = new StreamWriter(loadedFileName))
+										{
+											outfile.Write(importedXsdFileWithoutDTD);
+										}
+									}
+									//catch (WebException)
+									//{
+									//    this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
+									//    loadedFileName = null;
+									//}
+									catch (Exception ex)
+									{
+										this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
+										loadedFileName = null;
+									}
+								}
                             }
                         }
                     }
