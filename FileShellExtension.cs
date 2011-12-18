@@ -15,7 +15,9 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+using System;
 using System.Diagnostics;
+using System.Windows.Forms;
 using Microsoft.Win32;
 
 namespace XSDDiagram
@@ -29,18 +31,25 @@ namespace XSDDiagram
 			string regPath = string.Format(@"{0}\shell\{1}",
 										   fileType, shellKeyName);
 
-			// add context menu to the registry
-			using (RegistryKey key =
-				   Registry.ClassesRoot.CreateSubKey(regPath))
+			try
 			{
-				key.SetValue(null, menuText);
-			}
+				// add context menu to the registry
+				using (RegistryKey key =
+					   Registry.ClassesRoot.CreateSubKey(regPath))
+				{
+					key.SetValue(null, menuText);
+				}
 
-			// add command that is invoked to the registry
-			using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(
-				string.Format(@"{0}\command", regPath)))
+				// add command that is invoked to the registry
+				using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(
+					string.Format(@"{0}\command", regPath)))
+				{
+					key.SetValue(null, menuCommand);
+				}
+			}
+			catch (Exception ex)
 			{
-				key.SetValue(null, menuCommand);
+				MessageBox.Show("Error while registring: " + ex.Message + "\r\nYou may have to run this application as administrator!");
 			}
 		}
 
@@ -53,8 +62,15 @@ namespace XSDDiagram
 			string regPath = string.Format(@"{0}\shell\{1}",
 										   fileType, shellKeyName);
 
-			// remove context menu from the registry
-			Registry.ClassesRoot.DeleteSubKeyTree(regPath);
+			try
+			{
+				// remove context menu from the registry
+				Registry.ClassesRoot.DeleteSubKeyTree(regPath);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Error while unregistring: " + ex.Message);
+			}
 		}
 	}
 }

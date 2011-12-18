@@ -94,9 +94,11 @@ TODO LIST:
 CHANGES:
 
 version 0.10 (2011-12-18)
+- Refactor within a core library "XSDDiagrams.dll" under the LGPL/MS-PL license.
 - Add the XSD Diagrams core library, thanks to Paul's refactoring !
 - Add the XML validation operation using the currently loaded XSD schema in the Tools menu.
 - When the WebBrowser is not available, use a TextBox instead (For Mono without WebBrowser support).
+- Mono version 2.10 does not work anymore with XML deserialization :-(
 
 version 0.9 (2011-05-17)
 - Allow to expand restriction type (Thanks to Hermann).
