@@ -15,6 +15,7 @@ FEATURES:
 - Print the diagram
 - Export the diagram to SVG, PNG, JPG and EMF (EMF only with Windows)
 - Zoom the diagram with the mouse wheel while holding the control key
+- XML validation based on the loaded XSD file
 - Registration in the Windows Explorer contextual menu
 - Drag'n drop a file from explorer
 - Command line image generation
