@@ -30,6 +30,7 @@ namespace XSDDiagram
 		public static IList<string> RootElements { get; private set; }
 		public static int ExpandLevel { get; private set; }
 		public static float Zoom { get; private set; }
+		public static bool ForceHugeImageGeneration { get; private set; }
 		public static bool RequestHelp { get; private set; }
 		public static bool IsRunningOnMono { get; private set; }
 
@@ -42,6 +43,7 @@ namespace XSDDiagram
 			RootElements = new List<string>();
 			ExpandLevel = 0;
 			Zoom = 100.0f;
+			ForceHugeImageGeneration = false;
 			RequestHelp = false;
 			IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
 
@@ -118,6 +120,10 @@ namespace XSDDiagram
 						}
 						catch { }
 					}
+				}
+				else if (string.Compare("-y", argument, true) == 0)
+				{
+					ForceHugeImageGeneration = true;
 				}
 				else
 					InputFile = argument;

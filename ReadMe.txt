@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.10 Copyright (c) 2006-2011 Regis Cosnier, All Rights Reserved.
+Version 0.11 Copyright (c) 2006-2012 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -58,6 +58,8 @@ Options:
 -z N
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
+-y
+	Force huge image generation without user prompt.
 
 Example 1:
 > XSDDiagramConsole.exe -o file.png -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
@@ -95,6 +97,10 @@ TODO LIST:
 
 
 CHANGES:
+
+version 0.11 (2012-07-22)
+- Remove the "Order" attributes in the source file XmlSchema.cs which are imcompatible with mono > 2.6!
+- Add the option "-y" to force huge image generation without user prompt.
 
 version 0.10 (2011-12-18)
 - Refactor within a core library "XSDDiagrams.dll" under the LGPL/MS-PL license.
@@ -165,7 +171,7 @@ version 0.1 (2006-09-14)
 
 LICENSE:
 
-Copyright (c) 2006-2011 Regis COSNIER, All Rights Reserved.
+Copyright (c) 2006-2012 Regis COSNIER, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).

@@ -196,6 +196,12 @@ Example 4:
         static bool SaveAlert(string title, string message)
         {
 			Log(string.Format("{0}. {1} [Yn] >", title, message));
+			if(Options.ForceHugeImageGeneration)
+			{
+				Log("\nYes\n");
+				return true;
+			}
+			
             ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(false);
 			Log("\n");
 			if (consoleKeyInfo.Key == ConsoleKey.Y || consoleKeyInfo.Key == ConsoleKey.Enter)

@@ -48,7 +48,7 @@ namespace XSDDiagram
         private Dictionary<string, TabPage> hashtableTabPageByFilename = new Dictionary<string, TabPage>();
 		private string originalTitle = "";
 		private DiagramItem contextualMenuPointedElement = null;
-        private string currentLoadedSchemaFilename = "";
+        //private string currentLoadedSchemaFilename = "";
 
         private TextBox textBoxAnnotation;
         private WebBrowser webBrowserDocumentation;
@@ -342,7 +342,7 @@ namespace XSDDiagram
 			}
 			this.tabControlView.ResumeLayout();
 
-            currentLoadedSchemaFilename = schemaFilename;
+            //currentLoadedSchemaFilename = schemaFilename;
 		}
 
 		void DiagramControl_MouseClick(object sender, MouseEventArgs e)
@@ -1558,8 +1558,8 @@ namespace XSDDiagram
                     settings.ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings |
                                                 XmlSchemaValidationFlags.ProcessIdentityConstraints |
                                                 XmlSchemaValidationFlags.ProcessInlineSchema |
-                                                XmlSchemaValidationFlags.ProcessSchemaLocation |
-                                                XmlSchemaValidationFlags.AllowXmlAttributes;
+                                                XmlSchemaValidationFlags.ProcessSchemaLocation
+												; //| XmlSchemaValidationFlags.AllowXmlAttributes;
                     //settings.Schemas.Add("http://www.collada.org/2005/11/COLLADASchema", currentLoadedSchemaFilename);
                     //settings.Schemas.Add(null, currentLoadedSchemaFilename); // = sc;
                     List<string> schemas = new List<string>(schema.XsdFilenames);
