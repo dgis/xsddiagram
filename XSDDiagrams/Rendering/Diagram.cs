@@ -48,8 +48,7 @@ namespace XSDDiagram.Rendering
             _boundingBox             = Rectangle.Empty;
             _alignement              = DiagramAlignement.Center;
             _rootElements            = new List<DiagramItem>();
-            _elementsByName = new Dictionary<string, XSDObject>(
-                StringComparer.OrdinalIgnoreCase);
+            _elementsByName = new Dictionary<string, XSDObject>(StringComparer.OrdinalIgnoreCase);
         }
 
         #endregion
@@ -112,8 +111,8 @@ namespace XSDDiagram.Rendering
 					{
 						childDiagramElement.IsReference = true;
 
-						XSDObject objectReferred = _elementsByName[childElement.@ref.Namespace + ":element:" + childElement.@ref.Name];
-						if (objectReferred != null)
+                        XSDObject objectReferred = null;
+                        if(_elementsByName.TryGetValue(childElement.@ref.Namespace + ":element:" + childElement.@ref.Name, out objectReferred) && objectReferred != null)
 						{
 							XMLSchema.element elementReferred = objectReferred.Tag as XMLSchema.element;
 							if (elementReferred != null)
@@ -333,10 +332,13 @@ namespace XSDDiagram.Rendering
 					childDiagramGroup.IsReference = true;
 					childDiagramGroup.Name = childGroup.@ref.Name != null ? childGroup.@ref.Name : "";
 					childDiagramGroup.NameSpace = childGroup.@ref.Namespace != null ? childGroup.@ref.Namespace : "";
-                    XSDObject grpObject = _elementsByName[childDiagramGroup.FullName];
-                    XMLSchema.group group = grpObject.Tag as XMLSchema.group;
-                    if (group != null)
-                        childGroup = group;
+                    XSDObject grpObject = null;
+                    if (_elementsByName.TryGetValue(childDiagramGroup.FullName, out grpObject) && grpObject != null)
+                    {
+                        XMLSchema.group group = grpObject.Tag as XMLSchema.group;
+                        if (group != null)
+                            childGroup = group;
+                    }
 				}
 				else if (type == DiagramItemGroupType.Group)
 				{
@@ -509,8 +511,12 @@ namespace XSDDiagram.Rendering
 					}
 					else if (element.type != null)
 					{
-						XMLSchema.annotated annotated = (_elementsByName[element.type.Namespace + ":type:" + element.type.Name]).Tag as XMLSchema.annotated;
-						ExpandAnnotated(diagramElement, annotated, element.type.Namespace);
+                        XSDObject objectAnnotated = null;
+                        if(_elementsByName.TryGetValue(element.type.Namespace + ":type:" + element.type.Name, out objectAnnotated) && objectAnnotated != null)
+                        {
+                            XMLSchema.annotated annotated = objectAnnotated.Tag as XMLSchema.annotated;
+                            ExpandAnnotated(diagramElement, annotated, element.type.Namespace);
+                        }
 					}
 				}
 				else if (diagramElement.TabSchema is XMLSchema.any)
@@ -611,13 +617,12 @@ namespace XSDDiagram.Rendering
 									hasChildren = true;
 								else if (extensionType.@base != null)
 								{
-									XSDObject xsdObject = _elementsByName[extensionType.@base.Namespace + ":type:" + extensionType.@base.Name];
-									if (xsdObject != null)
+                                    XSDObject xsdObject = null;
+                                    if(_elementsByName.TryGetValue(extensionType.@base.Namespace + ":type:" + extensionType.@base.Name, out xsdObject) && xsdObject != null)
 									{
-										if (xsdObject.Tag is XMLSchema.complexType)
-										{
-											GetChildrenInfo(xsdObject.Tag as XMLSchema.complexType, out hasChildren, out isSimpleType);
-										}
+                                        XMLSchema.complexType baseComplexType = xsdObject.Tag as XMLSchema.complexType;
+										if (baseComplexType != null)
+                                            GetChildrenInfo(baseComplexType, out hasChildren, out isSimpleType);
 									}
 								}
 							}
@@ -662,9 +667,11 @@ namespace XSDDiagram.Rendering
 			}
 			else if (childElement.type != null)
 			{
-				if (_elementsByName.ContainsKey(childElement.type.Namespace + ":type:" + childElement.type.Name))
+                XSDObject xsdObject = null;
+                if(_elementsByName.TryGetValue(childElement.type.Namespace + ":type:" + childElement.type.Name, out xsdObject) && xsdObject != null)
+				//if (_elementsByName.ContainsKey(childElement.type.Namespace + ":type:" + childElement.type.Name))
 				{
-					XMLSchema.annotated annotated = (_elementsByName[childElement.type.Namespace + ":type:" + childElement.type.Name]).Tag as XMLSchema.annotated;
+                    XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
 					if (annotated is XMLSchema.simpleType)
 					{
 						hasChildren = false;
@@ -725,8 +732,8 @@ namespace XSDDiagram.Rendering
 						{
 							XMLSchema.extensionType extensionType = complexContent.Item as XMLSchema.extensionType;
 
-							XSDObject xsdObject = _elementsByName[extensionType.@base.Namespace + ":type:" + extensionType.@base.Name];
-							if (xsdObject != null)
+							XSDObject xsdObject = null;
+                            if(_elementsByName.TryGetValue(extensionType.@base.Namespace + ":type:" + extensionType.@base.Name, out xsdObject) && xsdObject != null)
 							{
 								XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
 								ExpandAnnotated(parentDiagramElement, annotated, extensionType.@base.Namespace);
@@ -762,8 +769,8 @@ namespace XSDDiagram.Rendering
 						else if (complexContent.Item is XMLSchema.restrictionType)
 						{
 							XMLSchema.restrictionType restrictionType = complexContent.Item as XMLSchema.restrictionType;
-							XSDObject xsdObject = _elementsByName[restrictionType.@base.Namespace + ":type:" + restrictionType.@base.Name];
-                            if (xsdObject != null)
+							XSDObject xsdObject = null;
+                            if(_elementsByName.TryGetValue(restrictionType.@base.Namespace + ":type:" + restrictionType.@base.Name, out xsdObject) && xsdObject != null)
                             {
                                 XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
                                 ExpandAnnotated(parentDiagramElement, annotated, restrictionType.@base.Namespace);

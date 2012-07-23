@@ -101,6 +101,7 @@ CHANGES:
 version 0.11 (2012-07-22)
 - Remove the "Order" attributes in the source file XmlSchema.cs which are imcompatible with mono > 2.6!
 - Add the option "-y" to force huge image generation without user prompt.
+- Fix some hashtable to dictionary issues due to the previous refactoring.
 
 version 0.10 (2011-12-18)
 - Refactor within a core library "XSDDiagrams.dll" under the LGPL/MS-PL license.

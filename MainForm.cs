@@ -662,8 +662,9 @@ namespace XSDDiagram
 			string type = "";
 			if (attribute.@ref != null)
 			{
-				object o = this.schema.AttributesByName[QualifiedNameToFullName("attribute", attribute.@ref)];
-				if (o is XSDAttribute)
+                object o = null;
+                this.schema.AttributesByName.TryGetValue(QualifiedNameToFullName("attribute", attribute.@ref), out o);
+                if (o is XSDAttribute)
 				{
 					XSDAttribute xsdAttributeInstance = o as XSDAttribute;
 					ParseAttribute(nameSpace, listAttributes, xsdAttributeInstance.Tag, isRestriction);
@@ -734,8 +735,9 @@ namespace XSDDiagram
 		{
 			if (attributeGroup is XMLSchema.attributeGroupRef && attributeGroup.@ref != null)
 			{
-				object o = this.schema.AttributesByName[QualifiedNameToFullName("attributeGroup", attributeGroup.@ref)];
-				if (o is XSDAttributeGroup)
+                object o = null;
+                this.schema.AttributesByName.TryGetValue(QualifiedNameToFullName("attributeGroup", attributeGroup.@ref), out o);
+                if (o is XSDAttributeGroup)
 				{
 					XSDAttributeGroup xsdAttributeGroup = o as XSDAttributeGroup;
 					XMLSchema.attributeGroup attributeGroupInstance = xsdAttributeGroup.Tag;
@@ -1111,8 +1113,8 @@ namespace XSDDiagram
 				XSDObject xsdObject;
                 if (this.schema.ElementsByName.TryGetValue(this.contextualMenuPointedElement.FullName, out xsdObject) && xsdObject != null)
 				{
-					TabPage tabPage = this.hashtableTabPageByFilename[xsdObject.Filename];
-					if (tabPage != null)
+                    TabPage tabPage = null;
+                    if (this.hashtableTabPageByFilename.TryGetValue(xsdObject.Filename, out tabPage) && tabPage != null)
 						this.tabControlView.SelectedTab = tabPage;
 				}
 			}
