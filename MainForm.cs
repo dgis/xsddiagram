@@ -522,7 +522,8 @@ namespace XSDDiagram
                 foreach (XSDAttribute attribute in listAttributes)
                 {
                     string s = "";
-                    if (attribute.Tag.simpleType != null && attribute.Tag.simpleType.Item is XMLSchema.restriction)
+                    //dgis fix github issue 2 (attribute.Tag == null ???)
+                    if (attribute.Tag != null && attribute.Tag.simpleType != null && attribute.Tag.simpleType.Item is XMLSchema.restriction)
                     {
                         XMLSchema.restriction r = attribute.Tag.simpleType.Item as XMLSchema.restriction;
                         if (r.Items != null)

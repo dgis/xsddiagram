@@ -777,16 +777,21 @@ namespace XSDDiagram.Rendering
                             }
                             else
                             {
-                                for (int j = 0; j < items.Length; j++)
+                                //dgis fix github issue 2
+                                if(restrictionType.Items != null)
                                 {
-                                    if (restrictionType.Items[j] is XMLSchema.group)
+                                    //for (int j = 0; j < items.Length; j++)
+                                    for (int j = 0; j < restrictionType.Items.Length; j++)
                                     {
-                                        XMLSchema.group group = restrictionType.Items[j] as XMLSchema.group;
-                                        DiagramItem diagramCompositors = AddCompositors(parentDiagramElement, group,
-                                            (DiagramItemGroupType)Enum.Parse(typeof(DiagramItemGroupType), restrictionType.ItemsElementName[j].ToString(), true), parentDiagramElement.NameSpace);
-                                        parentDiagramElement.ShowChildElements = true;
-                                        if (diagramCompositors != null)
-                                            ExpandChildren(diagramCompositors);
+                                        if (restrictionType.Items[j] is XMLSchema.group)
+                                        {
+                                            XMLSchema.group group = restrictionType.Items[j] as XMLSchema.group;
+                                            DiagramItem diagramCompositors = AddCompositors(parentDiagramElement, group,
+                                                (DiagramItemGroupType)Enum.Parse(typeof(DiagramItemGroupType), restrictionType.ItemsElementName[j].ToString(), true), parentDiagramElement.NameSpace);
+                                            parentDiagramElement.ShowChildElements = true;
+                                            if (diagramCompositors != null)
+                                                ExpandChildren(diagramCompositors);
+                                        }
                                     }
                                 }
                             }
