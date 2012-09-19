@@ -84,6 +84,7 @@ Example 4:
 
 TODO LIST:
 
+- Add the attributes to the element in the diagram (suggested by bob)
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
 	o The optional display of attributes inside the diagram
 - Columns in the element/attributes tabs for restrictions (length/pattern/enumerations) 
