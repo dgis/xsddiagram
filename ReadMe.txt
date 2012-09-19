@@ -98,6 +98,10 @@ TODO LIST:
 
 CHANGES:
 
+version 0.12 (2012-09-19)
+- Improve the error message in case the image is too big to be generated.
+- Some element (complex type derived from a restriction) could cause an exception. These element are now display but can not be expanded.
+
 version 0.11 (2012-07-22)
 - Remove the "Order" attributes in the source file XmlSchema.cs which are imcompatible with mono > 2.6!
 - Add the option "-y" to force huge image generation without user prompt.

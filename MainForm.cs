@@ -180,7 +180,17 @@ namespace XSDDiagram
                     exporter.Export(outputFilename, g1, new DiagramAlertHandler(SaveAlert));
                     g1.Dispose();
 				}
-				catch (Exception ex)
+                catch (System.ArgumentException ex)
+                {
+                    MessageBox.Show("You have reach the system limit.\r\nPlease remove some element from the diagram to make it smaller.");
+                    System.Diagnostics.Trace.WriteLine(ex.ToString());
+                }
+                catch (System.Runtime.InteropServices.ExternalException ex)
+                {
+                    MessageBox.Show("You have reach the system limit.\r\nPlease remove some element from the diagram to make it smaller.");
+                    System.Diagnostics.Trace.WriteLine(ex.ToString());
+                }
+                catch (Exception ex)
 				{
                     MessageBox.Show(ex.Message);
 					System.Diagnostics.Trace.WriteLine(ex.ToString());
