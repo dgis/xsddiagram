@@ -113,6 +113,12 @@
       <DependentUpon>ErrorReportForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FileShellExtension.cs" />
+    <Compile Include="LoginPromptForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LoginPromptForm.Designer.cs">
+      <DependentUpon>LoginPromptForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -140,6 +146,9 @@
     <EmbeddedResource Include="ErrorReportForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>ErrorReportForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoginPromptForm.resx">
+      <DependentUpon>LoginPromptForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <SubType>Designer</SubType>

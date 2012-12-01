@@ -45,8 +45,8 @@
             this.buttonOK.Location = new System.Drawing.Point(64, 152);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
-            this.buttonOK.TabIndex = 0;
-            this.buttonOK.Text = "OK";
+            this.buttonOK.TabIndex = 4;
+            this.buttonOK.Text = "&OK";
             this.buttonOK.UseVisualStyleBackColor = true;
             // 
             // buttonCancel
@@ -56,8 +56,8 @@
             this.buttonCancel.Location = new System.Drawing.Point(145, 152);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-            this.buttonCancel.TabIndex = 1;
-            this.buttonCancel.Text = "Cancel";
+            this.buttonCancel.TabIndex = 5;
+            this.buttonCancel.Text = "&Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             // 
             // textBoxUsername
@@ -65,7 +65,7 @@
             this.textBoxUsername.Location = new System.Drawing.Point(98, 90);
             this.textBoxUsername.Name = "textBoxUsername";
             this.textBoxUsername.Size = new System.Drawing.Size(174, 20);
-            this.textBoxUsername.TabIndex = 2;
+            this.textBoxUsername.TabIndex = 1;
             // 
             // textBoxPassword
             // 
@@ -81,8 +81,8 @@
             this.labelUsername.Location = new System.Drawing.Point(12, 93);
             this.labelUsername.Name = "labelUsername";
             this.labelUsername.Size = new System.Drawing.Size(55, 13);
-            this.labelUsername.TabIndex = 4;
-            this.labelUsername.Text = "Username";
+            this.labelUsername.TabIndex = 0;
+            this.labelUsername.Text = "&Username";
             // 
             // labelPassword
             // 
@@ -90,8 +90,8 @@
             this.labelPassword.Location = new System.Drawing.Point(12, 119);
             this.labelPassword.Name = "labelPassword";
             this.labelPassword.Size = new System.Drawing.Size(53, 13);
-            this.labelPassword.TabIndex = 5;
-            this.labelPassword.Text = "Password";
+            this.labelPassword.TabIndex = 2;
+            this.labelPassword.Text = "&Password";
             // 
             // textBoxLabel
             // 
@@ -102,11 +102,14 @@
             this.textBoxLabel.ReadOnly = true;
             this.textBoxLabel.Size = new System.Drawing.Size(257, 71);
             this.textBoxLabel.TabIndex = 6;
+            this.textBoxLabel.TabStop = false;
             // 
             // LoginPromptForm
             // 
+            this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(284, 187);
             this.Controls.Add(this.textBoxLabel);
             this.Controls.Add(this.labelPassword);

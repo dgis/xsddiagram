@@ -33,6 +33,8 @@ namespace XSDDiagram
 		public static bool ForceHugeImageGeneration { get; private set; }
 		public static bool RequestHelp { get; private set; }
 		public static bool IsRunningOnMono { get; private set; }
+        public static string Username { get; private set; }
+        public static string Password { get; private set; }
 
 		static Options()
 		{
@@ -124,6 +126,16 @@ namespace XSDDiagram
 				else if (string.Compare("-y", argument, true) == 0)
 				{
 					ForceHugeImageGeneration = true;
+				}
+                else if (string.Compare("-u", argument, true) == 0)
+				{
+					if (currentArgument < arguments.Count)
+						Username = args[currentArgument++];
+				}
+                else if (string.Compare("-p", argument, true) == 0)
+				{
+					if (currentArgument < arguments.Count)
+						Password = args[currentArgument++];
 				}
 				else
 					InputFile = argument;

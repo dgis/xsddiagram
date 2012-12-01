@@ -53,7 +53,8 @@ namespace XSDDiagram
         private TextBox textBoxAnnotation;
         private WebBrowser webBrowserDocumentation;
 		private bool webBrowserSupported = true;
-
+        private string backupUsername = "", backupPassword = "";
+        
 		public MainForm()
 		{
 			InitializeComponent();
@@ -75,7 +76,8 @@ namespace XSDDiagram
 			this.panelDiagram.DiagramControl.Paint += new PaintEventHandler(DiagramControl_Paint);
 
             this.schema.RequestCredential += schema_RequestCredential;
-
+            this.backupUsername = Options.Username;
+            this.backupPassword = Options.Password;
 			if (Options.IsRunningOnMono)
 			{
 				try
@@ -89,9 +91,7 @@ namespace XSDDiagram
 			}
 		}
 
-        string backupUsername = "", backupPassword = "";
-
-        bool schema_RequestCredential(string url, string realm, out string username, out string password)
+        bool schema_RequestCredential(string url, string realm, int attemptCount, out string username, out string password)
         {
             string label = "The file '" + url + "' requires a username and password.";
             LoginPromptForm dlg = new LoginPromptForm(label);
@@ -169,16 +169,25 @@ namespace XSDDiagram
 
 		private void MainForm_DragDrop(object sender, DragEventArgs e)
 		{
-			if (e.Data.GetDataPresent(DataFormats.FileDrop))
-			{
-				string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-				LoadSchema(files[0]);
-			}
+            if (e.Data.GetDataPresent("UniformResourceLocator"))
+            {
+                string url = e.Data.GetData(DataFormats.Text, true) as string;
+                if (!string.IsNullOrEmpty(url))
+                    LoadSchema(url.Trim());
+            }
+            else if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if(files != null && files.Length > 0)
+                    LoadSchema(files[0]);
+            }
 		}
 
 		private void MainForm_DragEnter(object sender, DragEventArgs e)
 		{
-			if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)
+                || e.Data.GetDataPresent("UniformResourceLocator")
+                )
 				e.Effect = DragDropEffects.Move;
 			else
 				e.Effect = DragDropEffects.None;
@@ -200,7 +209,17 @@ namespace XSDDiagram
                     exporter.Export(outputFilename, g1, new DiagramAlertHandler(SaveAlert));
                     g1.Dispose();
 				}
-				catch (Exception ex)
+                catch (System.ArgumentException ex)
+                {
+                    MessageBox.Show("You have reach the system limit.\r\nPlease remove some element from the diagram to make it smaller.");
+                    System.Diagnostics.Trace.WriteLine(ex.ToString());
+                }
+                catch (System.Runtime.InteropServices.ExternalException ex)
+                {
+                    MessageBox.Show("You have reach the system limit.\r\nPlease remove some element from the diagram to make it smaller.");
+                    System.Diagnostics.Trace.WriteLine(ex.ToString());
+                }
+                catch (Exception ex)
 				{
                     MessageBox.Show(ex.Message);
 					System.Diagnostics.Trace.WriteLine(ex.ToString());

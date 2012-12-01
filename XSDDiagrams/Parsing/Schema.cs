@@ -51,7 +51,7 @@ namespace XSDDiagram
         public IList<string> LoadError { get { return loadError; } }
         public IList<string> XsdFilenames { get { return listOfXsdFilename; } }
 
-        public delegate bool RequestCredentialEventHandler(string url, string realm, out string username, out string password);
+        public delegate bool RequestCredentialEventHandler(string url, string realm, int attemptCount, out string username, out string password);
    		public event RequestCredentialEventHandler RequestCredential;
 
         public void LoadSchema(string fileName)
@@ -65,7 +65,16 @@ namespace XSDDiagram
             this.loadError.Clear();
             this.listOfXsdFilename.Clear();
 
-            ImportSchema(fileName);           
+            string url = fileName.Trim();
+            if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0)
+            {
+                string basePath = Path.GetTempPath(); //Environment.CurrentDirectory;
+                string f = LoadSchemaFromUrl(basePath, url);
+                if (f != null)
+                    fileName = f;
+            }
+
+            ImportSchema(fileName);
         }
 
         private void ImportSchema(string fileName)
@@ -130,60 +139,9 @@ namespace XSDDiagram
                         string url = schemaLocation.Trim();
                         if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0)
                         {
-                            Uri uri = new Uri(url);
-                            if (uri.Segments.Length > 0)
-                            {
-                                string fileNameToImport = uri.Segments[uri.Segments.Length - 1];
-                                loadedFileName = basePath + Path.DirectorySeparatorChar + fileNameToImport;
-                                if (!File.Exists(loadedFileName))
-                                {
-                                    WebClient webClient = new WebClient();
-                                    bool tryAgain = false;
-                                    do
-                                    {
-                                        try
-                                        {
-										    //webClient.DownloadFile(uri, loadedFileName);
-                                            tryAgain = false;
-										    string importedXsdFile = webClient.DownloadString(uri);
-
-										    string importedXsdFileWithoutDTD = new Regex(@"<!DOCTYPE[^>]*>", RegexOptions.Singleline | RegexOptions.IgnoreCase).Replace(importedXsdFile, String.Empty);
-
-										    using (StreamWriter outfile = new StreamWriter(loadedFileName))
-										    {
-											    outfile.Write(importedXsdFileWithoutDTD);
-										    }
-									    }
-									    catch (WebException ex)
-									    {
-                                            if (ex.Response is HttpWebResponse)
-                                            {
-                                                HttpWebResponse response = ex.Response as HttpWebResponse;
-                                                if (response != null && RequestCredential != null && (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden))
-                                                {
-                                                    string username = "", password = "";
-                                                    if (RequestCredential(url, "", out username, out password))
-                                                    {
-                                                        webClient.Credentials = new System.Net.NetworkCredential(username, password);
-                                                        tryAgain = true;
-                                                    }
-                                                }
-                                            }
-                                            if (!tryAgain)
-                                            {
-                                                this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
-                                                loadedFileName = null;
-                                            }
-									    }
-									    catch (Exception ex)
-									    {
-										    this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
-										    loadedFileName = null;
-									    }
-                                    }
-                                    while (tryAgain);
-								}
-                            }
+                            string f = LoadSchemaFromUrl(basePath, url);
+                            if (f != null)
+                                loadedFileName = f;
                         }
                     }
 
@@ -248,6 +206,217 @@ namespace XSDDiagram
                 }
             }
         }
+
+        private string LoadSchemaFromUrl(string basePath, string url)
+        {
+            Uri uri = new Uri(url);
+            if (uri.Segments.Length > 0)
+            {
+                string fileNameToImport = uri.Segments[uri.Segments.Length - 1];
+                string loadedFileName = Path.Combine(basePath, fileNameToImport);
+                if (!File.Exists(loadedFileName))
+                {
+                    WebClient webClient = new WebClient();
+                    bool tryAgain = false;
+                    int attemptCount = 0;
+                    do
+                    {
+                        try
+                        {
+                            //webClient.DownloadFile(uri, loadedFileName);
+                            tryAgain = false;
+                            string importedXsdFile = webClient.DownloadString(uri);
+
+                            string importedXsdFileWithoutDTD = new Regex(@"<!DOCTYPE[^>]*>", RegexOptions.Singleline | RegexOptions.IgnoreCase).Replace(importedXsdFile, String.Empty);
+
+                            using (StreamWriter outfile = new StreamWriter(loadedFileName))
+                            {
+                                outfile.Write(importedXsdFileWithoutDTD);
+                            }
+                        }
+                        catch (WebException ex)
+                        {
+                            if (ex.Response is HttpWebResponse)
+                            {
+                                HttpWebResponse response = ex.Response as HttpWebResponse;
+                                if (response != null && RequestCredential != null && (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden))
+                                {
+                                    string username = "", password = "";
+                                    if (RequestCredential(url, "", ++attemptCount, out username, out password))
+                                    {
+                                        webClient.Credentials = new System.Net.NetworkCredential(username, password);
+                                        tryAgain = true;
+                                    }
+                                }
+                            }
+                            if (!tryAgain)
+                            {
+                                this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
+                                loadedFileName = null;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
+                            loadedFileName = null;
+                        }
+                    }
+                    while (tryAgain);
+                }
+                return loadedFileName;
+            }
+            return null;
+        }
+
+        //private void ParseSchema(string fileName, XMLSchema.schema schemaDOM)
+        //{
+        //    string basePath = Path.GetDirectoryName(fileName);
+        //    if (schemaDOM.Items != null)
+        //    {
+        //        foreach (XMLSchema.openAttrs openAttrs in schemaDOM.Items)
+        //        {
+        //            string loadedFileName = "";
+        //            string schemaLocation = "";
+
+        //            if (openAttrs is XMLSchema.include)
+        //            {
+        //                XMLSchema.include include = openAttrs as XMLSchema.include;
+        //                if (include.schemaLocation != null)
+        //                    schemaLocation = include.schemaLocation;
+        //            }
+        //            else if (openAttrs is XMLSchema.import)
+        //            {
+        //                XMLSchema.import import = openAttrs as XMLSchema.import;
+        //                if (import.schemaLocation != null)
+        //                    schemaLocation = import.schemaLocation;
+        //            }
+
+        //            if (!string.IsNullOrEmpty(schemaLocation))
+        //            {
+        //                loadedFileName = basePath + Path.DirectorySeparatorChar + schemaLocation.Replace('/', Path.DirectorySeparatorChar);
+
+        //                string url = schemaLocation.Trim();
+        //                if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0)
+        //                {
+        //                    Uri uri = new Uri(url);
+        //                    if (uri.Segments.Length > 0)
+        //                    {
+        //                        string fileNameToImport = uri.Segments[uri.Segments.Length - 1];
+        //                        loadedFileName = basePath + Path.DirectorySeparatorChar + fileNameToImport;
+        //                        if (!File.Exists(loadedFileName))
+        //                        {
+        //                            WebClient webClient = new WebClient();
+        //                            bool tryAgain = false;
+        //                            int attemptCount = 0;
+        //                            do
+        //                            {
+        //                                try
+        //                                {
+        //                                    //webClient.DownloadFile(uri, loadedFileName);
+        //                                    tryAgain = false;
+        //                                    string importedXsdFile = webClient.DownloadString(uri);
+
+        //                                    string importedXsdFileWithoutDTD = new Regex(@"<!DOCTYPE[^>]*>", RegexOptions.Singleline | RegexOptions.IgnoreCase).Replace(importedXsdFile, String.Empty);
+
+        //                                    using (StreamWriter outfile = new StreamWriter(loadedFileName))
+        //                                    {
+        //                                        outfile.Write(importedXsdFileWithoutDTD);
+        //                                    }
+        //                                }
+        //                                catch (WebException ex)
+        //                                {
+        //                                    if (ex.Response is HttpWebResponse)
+        //                                    {
+        //                                        HttpWebResponse response = ex.Response as HttpWebResponse;
+        //                                        if (response != null && RequestCredential != null && (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden))
+        //                                        {
+        //                                            string username = "", password = "";
+        //                                            if (RequestCredential(url, "", ++attemptCount, out username, out password))
+        //                                            {
+        //                                                webClient.Credentials = new System.Net.NetworkCredential(username, password);
+        //                                                tryAgain = true;
+        //                                            }
+        //                                        }
+        //                                    }
+        //                                    if (!tryAgain)
+        //                                    {
+        //                                        this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
+        //                                        loadedFileName = null;
+        //                                    }
+        //                                }
+        //                                catch (Exception ex)
+        //                                {
+        //                                    this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
+        //                                    loadedFileName = null;
+        //                                }
+        //                            }
+        //                            while (tryAgain);
+        //                        }
+        //                    }
+        //                }
+        //            }
+
+        //            if (!string.IsNullOrEmpty(loadedFileName))
+        //                ImportSchema(loadedFileName);
+        //        }
+        //    }
+
+        //    string nameSpace = schemaDOM.targetNamespace;
+
+        //    if (schemaDOM.Items1 != null)
+        //    {
+        //        foreach (XMLSchema.openAttrs openAttrs in schemaDOM.Items1)
+        //        {
+        //            if (openAttrs is XMLSchema.element)
+        //            {
+        //                XMLSchema.element element = openAttrs as XMLSchema.element;
+        //                XSDObject xsdObject = new XSDObject(fileName, element.name, nameSpace, "element", element);
+        //                this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
+
+        //                if (this.firstElement == null)
+        //                    this.firstElement = xsdObject;
+
+        //                elements.Add(xsdObject);
+        //            }
+        //            else if (openAttrs is XMLSchema.group)
+        //            {
+        //                XMLSchema.group group = openAttrs as XMLSchema.group;
+        //                XSDObject xsdObject = new XSDObject(fileName, group.name, nameSpace, "group", group);
+        //                this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
+
+        //                elements.Add(xsdObject);
+        //            }
+        //            else if (openAttrs is XMLSchema.simpleType)
+        //            {
+        //                XMLSchema.simpleType simpleType = openAttrs as XMLSchema.simpleType;
+        //                XSDObject xsdObject = new XSDObject(fileName, simpleType.name, nameSpace, "simpleType", simpleType);
+        //                this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
+
+        //                elements.Add(xsdObject);
+        //            }
+        //            else if (openAttrs is XMLSchema.complexType)
+        //            {
+        //                XMLSchema.complexType complexType = openAttrs as XMLSchema.complexType;
+        //                XSDObject xsdObject = new XSDObject(fileName, complexType.name, nameSpace, "complexType", complexType);
+        //                this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
+
+        //                elements.Add(xsdObject);
+        //            }
+        //            else if (openAttrs is XMLSchema.attribute)
+        //            {
+        //                XMLSchema.attribute attribute = openAttrs as XMLSchema.attribute;
+        //                XSDAttribute xsdAttribute = new XSDAttribute(fileName, attribute.name, nameSpace, "attribute", attribute.@ref != null, attribute.@default, attribute.use.ToString(), attribute);
+        //                this.hashtableAttributesByName[xsdAttribute.FullName] = xsdAttribute;
+        //            }
+        //            else if (openAttrs is XMLSchema.attributeGroup)
+        //            {
+        //                XMLSchema.attributeGroup attributeGroup = openAttrs as XMLSchema.attributeGroup;
+        //                XSDAttributeGroup xsdAttributeGroup = new XSDAttributeGroup(fileName, attributeGroup.name, nameSpace, "attributeGroup", attributeGroup is XMLSchema.attributeGroupRef, attributeGroup);
+        //                this.hashtableAttributesByName[xsdAttributeGroup.FullName] = xsdAttributeGroup;
+        //            }
+        //        }
+        //    }
+        //}
 
         void schemaSerializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {

@@ -114,7 +114,7 @@ namespace XSDDiagram.Rendering
                         String.Format("Do you agree to generate a {0}x{1} image?", bbox.Width, bbox.Height));
                 if (bypassAlert)
                 {
-                    Bitmap bitmap     = new Bitmap(bbox.Width, bbox.Height);
+                    Bitmap bitmap = new Bitmap(bbox.Width, bbox.Height);
                     Graphics graphics = Graphics.FromImage(bitmap);
                     graphics.FillRectangle(Brushes.White, 0, 0, bbox.Width, bbox.Height);
                     DiagramGdiRenderer.Draw(_diagram, graphics);

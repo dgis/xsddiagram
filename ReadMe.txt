@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.12 Copyright (c) 2006-2012 Regis Cosnier, All Rights Reserved.
+Version 0.14 Copyright (c) 2006-2012 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -17,7 +17,7 @@ FEATURES:
 - Zoom the diagram with the mouse wheel while holding the control key
 - XML validation based on the loaded XSD file
 - Registration in the Windows Explorer contextual menu
-- Drag'n drop a file from explorer
+- Drag'n drop a xsd file or url on the main window header
 - Command line image generation
 
 
@@ -34,20 +34,20 @@ QUICK START:
 
 COMMAND LINE USAGE: 
 
-> XSDDiagram.exe [-o output.svg] [-so EXTENSION] [-r RootElement]* [-e N] [-z N] [file.xsd]
+> XSDDiagram.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd]
 
 or on Windows use 'XSDDiagramConsole.exe' instead of 'XSDDiagram.exe' if you need the console:
 
-> XSDDiagramConsole.exe [-o output.svg] [-so EXTENSION] [-r RootElement]* [-e N] [-z N] [file.xsd]
+> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd]
 
 Options:
 
 -o FILE
-	specifies the output image. Only '.svg' or '.png' are allowed.
+	specifies the output image. '.png','.jpg', '.svg' ('.emf' on Windows) are allowed.
 	If not present, the GUI is shown.
--so EXTENSION
+-os EXTENSION
 	specifies the output image is streamed through the standard
-	output. EXTENSION can be: png, jpg or svg.
+	output. EXTENSION can be: png, jpg, svg.
 	If not present, the GUI is shown.
 -r ELEMENT
 	specifies the root element of the tree.
@@ -59,7 +59,14 @@ Options:
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
 -y
-	Force huge image generation without user prompt.
+	force huge image generation without user prompt.
+-u USERNAME
+	specifies a username to authenticate when a xsd dependency
+	(import or include) is a secured url.
+-p PASSWORD
+	specifies a password to authenticate when a xsd dependency
+	(import or include) is a secured url.
+
 
 Example 1:
 > XSDDiagramConsole.exe -o file.png -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
@@ -81,26 +88,34 @@ Example 4:
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
 
-
 TODO LIST:
 
+- BUG: There is a bug when printing with margin!
+- BUG: On Linux, the horizontal and vertical scrollbars don't appear correctly.
+- Add the attributes to the element in the diagram (suggested by bob)
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
 	o The optional display of attributes inside the diagram
 - Columns in the element/attributes tabs for restrictions (length/pattern/enumerations) 
 - Element selection in the diagram + move from one element to another with the arrow key
 - Multi-selection (i.e.: to remove several element at once)
 - Save the current UI state (open file/diagram/zoom/...)
-- Download xsd by specifying an Url instead of loading it from the file system
 - XML sample (skeleton) generation (the ability to generate random test XML files complying with the open schema)
 - Download .dtd dependency file
-- On Linux, the horizontal and vertical scrollbars don't appear correctly.
 
 
 CHANGES:
 
-version 0.12 (2012-12-01)
+version 0.14 (2012-12-01)
 - Accept all kind of https certificates when the xsd dependencies (import or include) point to a TLS/SSL url.
 - Prompt the user to authenticate when the xsd dependencies (import or include) point toward a secured url.
+- Add the corresponding command line "-u USERNAME" and "-p PASSWORD" options to authenticate the url download.
+- It is now possible to drag'n drop an url pointing to a xsd file on the main window.
+
+version 0.13
+
+version 0.12 (2012-09-19)
+- Improve the error message in case the image is too big to be generated.
+- Some element (complex type derived from a restriction) could cause an exception. These element are now display but can not be expanded.
 
 version 0.11 (2012-07-22)
 - Remove the "Order" attributes in the source file XmlSchema.cs which are imcompatible with mono > 2.6!

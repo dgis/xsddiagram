@@ -33,14 +33,14 @@ namespace XSDDiagram
 		//static extern bool AllocConsole();
 
 		static string usage = @"XSD Diagram, version {0}
-Usage: {1} [-o output.svg] [-so EXTENSION] [-r RootElement]* [-e N] [-z N] [file.xsd]
+Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd]
 
 -o FILE
-	specifies the output image. Only '.svg' or '.png' are allowed.
+	specifies the output image. '.png','.jpg', '.svg' ('.emf' on Windows) are allowed.
 	If not present, the GUI is shown.
--so EXTENSION
+-os EXTENSION
 	specifies the output image is streamed through the standard
-	output. EXTENSION can be: png, jpg, svg or emf (emf on Windows only).
+	output. EXTENSION can be: png, jpg, svg.
 	If not present, the GUI is shown.
 -r ELEMENT
 	specifies the root element of the tree.
@@ -51,14 +51,23 @@ Usage: {1} [-o output.svg] [-so EXTENSION] [-r RootElement]* [-e N] [-z N] [file
 -z N
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
+-y
+	force huge image generation without user prompt.
+-u USERNAME
+	specifies a username to authenticate when a xsd dependency
+	(import or include) is a secured url.
+-p PASSWORD
+	specifies a password to authenticate when a xsd dependency
+	(import or include) is a secured url.
+
 
 Example 1:
-> XSDDiagram.exe -o file.png -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
+> XSDDiagramConsole.exe -o file.png -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
 	will generate a PNG image from a diagram with a root element
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
 Example 2:
-> XSDDiagramConsole.exe ./folder1/toto.xsd
+> XSDDiagram.exe ./folder1/toto.xsd
 	will load the xsd file in the GUI window.
 
 Example 3:
@@ -67,7 +76,7 @@ Example 3:
 	'TotoRoot' and expanding the tree from the root until the 2nd level.
 
 Example 4:
-> XSDDiagram.exe -os svg -r TotoRoot -e 3 ./folder1/toto.xsd
+> XSDDiagramConsole.exe -os svg -r TotoRoot -e 3 ./folder1/toto.xsd
 	will write a SVG image in the standard output from a diagram with a root element
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 ";
@@ -99,6 +108,20 @@ Example 4:
 				Log("Loading the file: {0}\n", Options.InputFile);
 
                 Schema schema = new Schema();
+                schema.RequestCredential += delegate(string url, string realm, int attemptCount, out string username, out string password)
+                {
+                    username = password = "";
+                    if(!string.IsNullOrEmpty(Options.Username))
+                    {
+                        if (attemptCount > 1)
+                            return false;
+                        username = Options.Username;
+                        password = Options.Password;
+                        return true;
+                    }
+                    return false;
+                };
+
 				schema.LoadSchema(Options.InputFile);
 
                 if (schema.LoadError.Count > 0)
