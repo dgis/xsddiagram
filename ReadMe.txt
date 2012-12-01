@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.11 Copyright (c) 2006-2012 Regis Cosnier, All Rights Reserved.
+Version 0.12 Copyright (c) 2006-2012 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -97,6 +97,10 @@ TODO LIST:
 
 
 CHANGES:
+
+version 0.12 (2012-12-01)
+- Accept all kind of https certificates when the xsd dependencies (import or include) point to a TLS/SSL url.
+- Prompt the user to authenticate when the xsd dependencies (import or include) point toward a secured url.
 
 version 0.11 (2012-07-22)
 - Remove the "Order" attributes in the source file XmlSchema.cs which are imcompatible with mono > 2.6!

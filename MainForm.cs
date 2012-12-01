@@ -74,6 +74,8 @@ namespace XSDDiagram
 			this.panelDiagram.VirtualSize = new Size(0, 0);
 			this.panelDiagram.DiagramControl.Paint += new PaintEventHandler(DiagramControl_Paint);
 
+            this.schema.RequestCredential += schema_RequestCredential;
+
 			if (Options.IsRunningOnMono)
 			{
 				try
@@ -86,6 +88,24 @@ namespace XSDDiagram
 				}
 			}
 		}
+
+        string backupUsername = "", backupPassword = "";
+
+        bool schema_RequestCredential(string url, string realm, out string username, out string password)
+        {
+            string label = "The file '" + url + "' requires a username and password.";
+            LoginPromptForm dlg = new LoginPromptForm(label);
+            dlg.Username = backupUsername;
+            dlg.Password = backupPassword;
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
+                backupUsername = username = dlg.Username;
+                backupPassword = password = dlg.Password;
+                return true;
+            }
+            username = password = "";
+            return false;
+        }
 
         /// <summary>
         /// Clean up any resources being used.

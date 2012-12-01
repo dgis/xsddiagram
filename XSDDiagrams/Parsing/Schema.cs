@@ -39,6 +39,9 @@ namespace XSDDiagram
             schemaSerializer.UnknownNode += new XmlNodeEventHandler(schemaSerializer_UnknownNode);
             schemaSerializer.UnknownElement += new XmlElementEventHandler(schemaSerializer_UnknownElement);
             schemaSerializer.UnknownAttribute += new XmlAttributeEventHandler(schemaSerializer_UnknownAttribute);
+
+            //Trust all certificates
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);
         }
 
         public IList<XSDObject> Elements { get { return elements; } }
@@ -47,6 +50,9 @@ namespace XSDDiagram
         public XSDObject FirstElement { get { return firstElement; } set { firstElement = value; } }
         public IList<string> LoadError { get { return loadError; } }
         public IList<string> XsdFilenames { get { return listOfXsdFilename; } }
+
+        public delegate bool RequestCredentialEventHandler(string url, string realm, out string username, out string password);
+   		public event RequestCredentialEventHandler RequestCredential;
 
         public void LoadSchema(string fileName)
         {
@@ -132,29 +138,50 @@ namespace XSDDiagram
                                 if (!File.Exists(loadedFileName))
                                 {
                                     WebClient webClient = new WebClient();
-                                    //webClient.Credentials = new System.Net.NetworkCredential("username", "password");
-                                    try
+                                    bool tryAgain = false;
+                                    do
                                     {
-										//webClient.DownloadFile(uri, loadedFileName);
-										string importedXsdFile = webClient.DownloadString(uri);
+                                        try
+                                        {
+										    //webClient.DownloadFile(uri, loadedFileName);
+                                            tryAgain = false;
+										    string importedXsdFile = webClient.DownloadString(uri);
 
-										string importedXsdFileWithoutDTD = new Regex(@"<!DOCTYPE[^>]*>", RegexOptions.Singleline | RegexOptions.IgnoreCase).Replace(importedXsdFile, String.Empty);
+										    string importedXsdFileWithoutDTD = new Regex(@"<!DOCTYPE[^>]*>", RegexOptions.Singleline | RegexOptions.IgnoreCase).Replace(importedXsdFile, String.Empty);
 
-										using (StreamWriter outfile = new StreamWriter(loadedFileName))
-										{
-											outfile.Write(importedXsdFileWithoutDTD);
-										}
-									}
-									//catch (WebException)
-									//{
-									//    this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
-									//    loadedFileName = null;
-									//}
-									catch (Exception ex)
-									{
-										this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
-										loadedFileName = null;
-									}
+										    using (StreamWriter outfile = new StreamWriter(loadedFileName))
+										    {
+											    outfile.Write(importedXsdFileWithoutDTD);
+										    }
+									    }
+									    catch (WebException ex)
+									    {
+                                            if (ex.Response is HttpWebResponse)
+                                            {
+                                                HttpWebResponse response = ex.Response as HttpWebResponse;
+                                                if (response != null && RequestCredential != null && (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden))
+                                                {
+                                                    string username = "", password = "";
+                                                    if (RequestCredential(url, "", out username, out password))
+                                                    {
+                                                        webClient.Credentials = new System.Net.NetworkCredential(username, password);
+                                                        tryAgain = true;
+                                                    }
+                                                }
+                                            }
+                                            if (!tryAgain)
+                                            {
+                                                this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
+                                                loadedFileName = null;
+                                            }
+									    }
+									    catch (Exception ex)
+									    {
+										    this.loadError.Add("Cannot load the dependency: " + uri.ToString() + ", error: " + ex.ToString());
+										    loadedFileName = null;
+									    }
+                                    }
+                                    while (tryAgain);
 								}
                             }
                         }
