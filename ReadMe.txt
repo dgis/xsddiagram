@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.14 Copyright (c) 2006-2012 Regis Cosnier, All Rights Reserved.
+Version 0.15 Copyright (c) 2006-2013 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -92,6 +92,7 @@ TODO LIST:
 
 - BUG: There is a bug when printing with margin!
 - BUG: On Linux, the horizontal and vertical scrollbars don't appear correctly.
+- From AlexM: oh, and allow the specification of a complex type in the command line as a root... for the same component used in multiple schemas from one library.
 - Add the attributes to the element in the diagram (suggested by bob)
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
 	o The optional display of attributes inside the diagram
@@ -104,6 +105,10 @@ TODO LIST:
 
 
 CHANGES:
+
+version 0.15 (2013-01-13)
+- Show the enumerates documentation.
+- Add Ctrl+0 to reset the zoom
 
 version 0.14 (2012-12-01)
 - Accept all kind of https certificates when the xsd dependencies (import or include) point to a TLS/SSL url.
@@ -191,7 +196,7 @@ version 0.1 (2006-09-14)
 
 LICENSE:
 
-Copyright (c) 2006-2012 Regis COSNIER, All Rights Reserved.
+Copyright (c) 2006-2013 Regis COSNIER, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).

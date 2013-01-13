@@ -872,7 +872,7 @@ namespace XSDDiagram
 							{
 								XMLSchema.facet facet = restriction.Items[i] as XMLSchema.facet;
 								if (facet != null)
-									this.listViewEnumerate.Items.Add(facet.value);
+                                    this.listViewEnumerate.Items.Add(facet.value).Tag = facet;
 							}
 						}
 
@@ -984,6 +984,18 @@ namespace XSDDiagram
 				else
 					ShowDocumentation(null);
 				ShowEnumerate(attribute);
+			}
+		}
+
+        private void listViewEnumerate_SelectedIndexChanged(object sender, EventArgs e)
+		{
+            if (this.listViewEnumerate.SelectedItems.Count > 0)
+			{
+				XMLSchema.facet facet = this.listViewEnumerate.SelectedItems[0].Tag as XMLSchema.facet;
+				if (facet != null && facet.annotation != null)
+					ShowDocumentation(facet.annotation);
+				else
+					ShowDocumentation(null);
 			}
 		}
 
@@ -1662,6 +1674,15 @@ namespace XSDDiagram
         {
             validateXMLFileToolStripMenuItem.Enabled = (schema != null && schema.XsdFilenames.Count != 0);
         }
+
+		private void MainForm_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (e.Control && (e.KeyCode == Keys.D0 || e.KeyCode == Keys.NumPad0))
+			{
+				this.toolStripComboBoxZoom.SelectedIndex = 8;
+			}
+		}
+
 
 		//void DiagramControl_MouseMove(object sender, MouseEventArgs e)
 		//{

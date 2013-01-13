@@ -59,15 +59,14 @@ namespace XSDDiagram
 			this.splitContainerMain = new System.Windows.Forms.SplitContainer();
 			this.tabControlView = new System.Windows.Forms.TabControl();
 			this.tabPageDiagram = new System.Windows.Forms.TabPage();
-			this.panelDiagram = new XSDDiagram.DiagramControlContainer();
 			this.splitContainerDiagramElement = new System.Windows.Forms.SplitContainer();
 			this.tabControlElement = new System.Windows.Forms.TabControl();
 			this.tabPageElementAttibutes = new System.Windows.Forms.TabPage();
 			this.listViewAttributes = new System.Windows.Forms.ListView();
-			this.columnHeaderAttributesName = new System.Windows.Forms.ColumnHeader();
-			this.columnHeaderAttributesType = new System.Windows.Forms.ColumnHeader();
-			this.columnHeaderAttributesUse = new System.Windows.Forms.ColumnHeader();
-			this.columnHeaderAttributesDefault = new System.Windows.Forms.ColumnHeader();
+			this.columnHeaderAttributesName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeaderAttributesType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeaderAttributesUse = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeaderAttributesDefault = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.contextMenuStripAttributes = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.toolStripMenuItemAttributesCopyLine = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItemAttributesCopyList = new System.Windows.Forms.ToolStripMenuItem();
@@ -75,15 +74,15 @@ namespace XSDDiagram
 			this.propertyGridSchemaObject = new System.Windows.Forms.PropertyGrid();
 			this.splitter1 = new System.Windows.Forms.Splitter();
 			this.listViewEnumerate = new System.Windows.Forms.ListView();
-			this.columnHeaderAttributeEnumerateName = new System.Windows.Forms.ColumnHeader();
+			this.columnHeaderAttributeEnumerateName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.contextMenuStripEnumerate = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.toolStripMenuItemEnumerateCopyLine = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItemEnumerateCopyList = new System.Windows.Forms.ToolStripMenuItem();
 			this.splitterElementList = new System.Windows.Forms.Splitter();
 			this.listViewElements = new System.Windows.Forms.ListView();
-			this.columnHeaderElementListName = new System.Windows.Forms.ColumnHeader();
-			this.columnHeaderElementListType = new System.Windows.Forms.ColumnHeader();
-			this.columnHeaderElementListNamespace = new System.Windows.Forms.ColumnHeader();
+			this.columnHeaderElementListName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeaderElementListType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeaderElementListNamespace = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.contextMenuStripElements = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.addToDiagrammToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
@@ -98,6 +97,7 @@ namespace XSDDiagram
 			this.expandOneLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.textBoxElementPath = new System.Windows.Forms.TextBox();
 			this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+			this.panelDiagram = new XSDDiagram.DiagramControlContainer();
 			this.menuStripMain.SuspendLayout();
 			this.statusStripMain.SuspendLayout();
 			this.toolStripMain.SuspendLayout();
@@ -268,8 +268,8 @@ namespace XSDDiagram
 			// previousTabToolStripMenuItem
 			// 
 			this.previousTabToolStripMenuItem.Name = "previousTabToolStripMenuItem";
-			this.previousTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
-						| System.Windows.Forms.Keys.Tab)));
+			this.previousTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.Tab)));
 			this.previousTabToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
 			this.previousTabToolStripMenuItem.Text = "&Previous Tab";
 			this.previousTabToolStripMenuItem.Click += new System.EventHandler(this.previousTabToolStripMenuItem_Click);
@@ -559,23 +559,6 @@ namespace XSDDiagram
 			this.tabPageDiagram.Text = "Diagram";
 			this.tabPageDiagram.UseVisualStyleBackColor = true;
 			// 
-			// panelDiagram
-			// 
-			this.panelDiagram.AllowDrop = true;
-			this.panelDiagram.AutoScroll = true;
-			this.panelDiagram.BackColor = System.Drawing.Color.WhiteSmoke;
-			this.panelDiagram.CausesValidation = false;
-			this.panelDiagram.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panelDiagram.Location = new System.Drawing.Point(0, 0);
-			this.panelDiagram.Margin = new System.Windows.Forms.Padding(0);
-			this.panelDiagram.Name = "panelDiagram";
-			this.panelDiagram.Size = new System.Drawing.Size(650, 499);
-			this.panelDiagram.TabIndex = 0;
-			this.panelDiagram.VirtualPoint = new System.Drawing.Point(0, 0);
-			this.panelDiagram.VirtualSize = new System.Drawing.Size(10, 10);
-			this.panelDiagram.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragDrop);
-			this.panelDiagram.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragEnter);
-			// 
 			// splitContainerDiagramElement
 			// 
 			this.splitContainerDiagramElement.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -636,8 +619,8 @@ namespace XSDDiagram
 			this.listViewAttributes.UseCompatibleStateImageBehavior = false;
 			this.listViewAttributes.View = System.Windows.Forms.View.Details;
 			this.listViewAttributes.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.listView_AfterLabelEdit);
-			this.listViewAttributes.SelectedIndexChanged += new System.EventHandler(this.listViewAttributes_SelectedIndexChanged);
 			this.listViewAttributes.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listViewAttributes_ColumnClick);
+			this.listViewAttributes.SelectedIndexChanged += new System.EventHandler(this.listViewAttributes_SelectedIndexChanged);
 			// 
 			// columnHeaderAttributesName
 			// 
@@ -725,6 +708,7 @@ namespace XSDDiagram
 			this.listViewEnumerate.TabIndex = 6;
 			this.listViewEnumerate.UseCompatibleStateImageBehavior = false;
 			this.listViewEnumerate.View = System.Windows.Forms.View.Details;
+			this.listViewEnumerate.SelectedIndexChanged += new System.EventHandler(this.listViewEnumerate_SelectedIndexChanged);
 			// 
 			// columnHeaderAttributeEnumerateName
 			// 
@@ -783,10 +767,10 @@ namespace XSDDiagram
 			this.listViewElements.UseCompatibleStateImageBehavior = false;
 			this.listViewElements.View = System.Windows.Forms.View.Details;
 			this.listViewElements.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.listView_AfterLabelEdit);
-			this.listViewElements.DoubleClick += new System.EventHandler(this.listViewElement_DoubleClick);
 			this.listViewElements.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listViewElement_ColumnClick);
 			this.listViewElements.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.listViewElements_ItemDrag);
 			this.listViewElements.Click += new System.EventHandler(this.listViewElement_Click);
+			this.listViewElements.DoubleClick += new System.EventHandler(this.listViewElement_DoubleClick);
 			// 
 			// columnHeaderElementListName
 			// 
@@ -914,6 +898,23 @@ namespace XSDDiagram
 			this.toolTip.OwnerDraw = true;
 			this.toolTip.ShowAlways = true;
 			// 
+			// panelDiagram
+			// 
+			this.panelDiagram.AllowDrop = true;
+			this.panelDiagram.AutoScroll = true;
+			this.panelDiagram.BackColor = System.Drawing.Color.WhiteSmoke;
+			this.panelDiagram.CausesValidation = false;
+			this.panelDiagram.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panelDiagram.Location = new System.Drawing.Point(0, 0);
+			this.panelDiagram.Margin = new System.Windows.Forms.Padding(0);
+			this.panelDiagram.Name = "panelDiagram";
+			this.panelDiagram.Size = new System.Drawing.Size(650, 499);
+			this.panelDiagram.TabIndex = 0;
+			this.panelDiagram.VirtualPoint = new System.Drawing.Point(0, 0);
+			this.panelDiagram.VirtualSize = new System.Drawing.Size(10, 10);
+			this.panelDiagram.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragDrop);
+			this.panelDiagram.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragEnter);
+			// 
 			// MainForm
 			// 
 			this.AllowDrop = true;
@@ -926,12 +927,14 @@ namespace XSDDiagram
 			this.Controls.Add(this.toolStripMain);
 			this.Controls.Add(this.menuStripMain);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.KeyPreview = true;
 			this.MainMenuStrip = this.menuStripMain;
 			this.Name = "MainForm";
 			this.Text = "XSD Diagram";
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
 			this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
+			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyUp);
 			this.menuStripMain.ResumeLayout(false);
 			this.menuStripMain.PerformLayout();
 			this.statusStripMain.ResumeLayout(false);

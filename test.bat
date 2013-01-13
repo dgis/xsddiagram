@@ -8,4 +8,5 @@ start "" /wait XSDDiagramConsole.exe -o Tests\file.svg -r COLLADA -e 3 Tests\COL
 XSDDiagramConsole.exe -os png -r COLLADA -e 3 -y Tests\COLLADASchema_141.xsd > Tests\stdout.png
 XSDDiagramConsole.exe -os jpg -r COLLADA -e 3 -y Tests\COLLADASchema_141.xsd > Tests\stdout.jpg
 XSDDiagramConsole.exe -os svg -r COLLADA -e 3 -y Tests\COLLADASchema_141.xsd > Tests\stdout.svg
+XSDDiagramConsole.exe -h
 @pause
