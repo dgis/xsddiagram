@@ -79,6 +79,14 @@ namespace XSDDiagram
 
         private void ImportSchema(string fileName)
         {
+            System.Diagnostics.Trace.WriteLine("ImportSchema: " + fileName);
+
+            fileName = Path.GetFullPath(fileName);
+
+            // Check if the file is already loaded to avoid the cycle
+            if (this.listOfXsdFilename.Contains(fileName))
+                return;
+
             FileStream fileStream = null;
             try
             {
