@@ -90,6 +90,7 @@ Example 4:
 
 TODO LIST:
 
+- BUG: Cascading substitution groups may appear weird.
 - BUG: There is a bug when printing with margin!
 - BUG: On Linux, the horizontal and vertical scrollbars don't appear correctly.
 - From AlexM: oh, and allow the specification of a complex type in the command line as a root... for the same component used in multiple schemas from one library.
@@ -106,8 +107,9 @@ TODO LIST:
 
 CHANGES:
 
-version 0.16 (2013-01-16)
-- Fix an issue to prevent the cylcles in the imported file.
+version 0.16 (2013-01-23)
+- Fix an issue to prevent the cylcles in the imported files.
+- Add a dialog to download an URL targeting a xsd file.
 
 version 0.15 (2013-01-13)
 - Show the enumerates documentation.

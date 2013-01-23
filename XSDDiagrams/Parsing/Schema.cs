@@ -65,19 +65,21 @@ namespace XSDDiagram
             this.loadError.Clear();
             this.listOfXsdFilename.Clear();
 
-            string url = fileName.Trim();
+            string url = fileName.Trim(), baseUrl = "";
             if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0)
             {
-                string basePath = Path.GetTempPath(); //Environment.CurrentDirectory;
-                string f = LoadSchemaFromUrl(basePath, url);
-                if (f != null)
-                    fileName = f;
+                string basePath = Path.GetTempPath(), lf, bu;
+                if (LoadSchemaFromUrl(basePath, url, out lf, out bu))
+                {
+                    fileName = lf;
+                    baseUrl = bu;
+                }
             }
 
-            ImportSchema(fileName);
+            ImportSchema(fileName, baseUrl);
         }
 
-        private void ImportSchema(string fileName)
+        private void ImportSchema(string fileName, string baseUrl)
         {
             System.Diagnostics.Trace.WriteLine("ImportSchema: " + fileName);
 
@@ -96,7 +98,7 @@ namespace XSDDiagram
 
                 this.listOfXsdFilename.Add(fileName);
 
-                ParseSchema(fileName, schemaDOM);
+                ParseSchema(fileName, baseUrl, schemaDOM);
             }
             catch (IOException ex)
             {
@@ -117,7 +119,7 @@ namespace XSDDiagram
             }
         }
 
-        private void ParseSchema(string fileName, XMLSchema.schema schemaDOM)
+        private void ParseSchema(string fileName, string baseUrl, XMLSchema.schema schemaDOM)
         {
             string basePath = Path.GetDirectoryName(fileName);
             if (schemaDOM.Items != null)
@@ -147,14 +149,29 @@ namespace XSDDiagram
                         string url = schemaLocation.Trim();
                         if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0)
                         {
-                            string f = LoadSchemaFromUrl(basePath, url);
-                            if (f != null)
-                                loadedFileName = f;
+                            string lf, bu;
+                            if (LoadSchemaFromUrl(basePath, url, out lf, out bu))
+                            {
+                                loadedFileName = lf;
+                                baseUrl = bu; // The baseUrl change for this file
+                            }
+                        }
+                        else if (!File.Exists(loadedFileName))
+                        {
+                            // The relative file does not exist, so try to download it from the web with the baseUrl
+                            url = baseUrl + "/" + schemaLocation;
+
+                            string lf, bu;
+                            if (LoadSchemaFromUrl(basePath, url, out lf, out bu))
+                            {
+                                loadedFileName = lf;
+                                baseUrl = bu; // The baseUrl change for this file
+                            }
                         }
                     }
 
                     if (!string.IsNullOrEmpty(loadedFileName))
-                        ImportSchema(loadedFileName);
+                        ImportSchema(loadedFileName, baseUrl);
                 }
             }
 
@@ -215,12 +232,19 @@ namespace XSDDiagram
             }
         }
 
-        private string LoadSchemaFromUrl(string basePath, string url)
+        private bool LoadSchemaFromUrl(string basePath, string url, out string loadedFilename, out string baseUrl)
         {
+            loadedFilename = null;
+            baseUrl = "";
             Uri uri = new Uri(url);
             if (uri.Segments.Length > 0)
             {
                 string fileNameToImport = uri.Segments[uri.Segments.Length - 1];
+                int pos = url.LastIndexOf("/");
+                if (pos != -1)
+                {
+                    baseUrl = url.Substring(0, pos);
+                }
                 string loadedFileName = Path.Combine(basePath, fileNameToImport);
                 if (!File.Exists(loadedFileName))
                 {
@@ -271,9 +295,10 @@ namespace XSDDiagram
                     }
                     while (tryAgain);
                 }
-                return loadedFileName;
+                loadedFilename = loadedFileName;
+                return true;
             }
-            return null;
+            return false;
         }
 
         //private void ParseSchema(string fileName, XMLSchema.schema schemaDOM)

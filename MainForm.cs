@@ -167,6 +167,13 @@ namespace XSDDiagram
 				LoadSchema(openFileDialog.FileName);
 		}
 
+        private void openURLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenURLForm openURLForm = new OpenURLForm("");
+            if (openURLForm.ShowDialog() == DialogResult.OK)
+                LoadSchema(openURLForm.URL);
+        }
+
 		private void MainForm_DragDrop(object sender, DragEventArgs e)
 		{
             if (e.Data.GetDataPresent("UniformResourceLocator"))
@@ -1682,6 +1689,7 @@ namespace XSDDiagram
 				this.toolStripComboBoxZoom.SelectedIndex = 8;
 			}
 		}
+
 
 
 		//void DiagramControl_MouseMove(object sender, MouseEventArgs e)
