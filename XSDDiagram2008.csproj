@@ -128,7 +128,7 @@
     <Compile Include="OpenURLForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="OpenURLForm.designer.cs">
+    <Compile Include="OpenURLForm.Designer.cs">
       <DependentUpon>OpenURLForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Options.cs" />
@@ -252,7 +252,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="XsdDiagrams\XSDDiagrams2008.csproj">
+    <ProjectReference Include="XSDDiagrams\XSDDiagrams2008.csproj">
       <Project>{6D3DACE7-D51B-4259-883A-6899BF4D52E2}</Project>
       <Name>XSDDiagrams2008</Name>
     </ProjectReference>

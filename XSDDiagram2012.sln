@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSDDiagram2010", "XSDDiagra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSDDiagramConsole2010", "XSDDiagramConsole\XSDDiagramConsole2010.csproj", "{1D732DFD-D631-4BFB-8057-C34B9327A08F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSDDiagrams2010", "XsdDiagrams\XSDDiagrams2010.csproj", "{6D3DACE7-D51B-4259-883A-6899BF4D52E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSDDiagrams2010", "XSDDiagrams\XSDDiagrams2010.csproj", "{6D3DACE7-D51B-4259-883A-6899BF4D52E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
