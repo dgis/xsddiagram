@@ -34,11 +34,11 @@ QUICK START:
 
 COMMAND LINE USAGE: 
 
-> XSDDiagram.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd]
+> XSDDiagram.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 or on Windows use 'XSDDiagramConsole.exe' instead of 'XSDDiagram.exe' if you need the console:
 
-> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd]
+> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 Options:
 
@@ -109,7 +109,7 @@ CHANGES:
 
 version 0.16 (2013-01-23)
 - Fix an issue to prevent the cylcles in the imported files.
-- Add a dialog to download an URL targeting a xsd file.
+- Add a dialog to download a xsd file with its URL.
 
 version 0.15 (2013-01-13)
 - Show the enumerates documentation.
