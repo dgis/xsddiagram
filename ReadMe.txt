@@ -43,11 +43,11 @@ or on Windows use 'XSDDiagramConsole.exe' instead of 'XSDDiagram.exe' if you nee
 Options:
 
 -o FILE
-	specifies the output image. '.png','.jpg', '.svg' ('.emf' on Windows) are allowed.
+	specifies the output image. '.png','.jpg', '.svg', '.txt', '.csv' ('.emf' on Windows) are allowed.
 	If not present, the GUI is shown.
 -os EXTENSION
 	specifies the output image is streamed through the standard
-	output. EXTENSION can be: png, jpg, svg.
+	output. EXTENSION can be: png, jpg, svg, txt, csv.
 	If not present, the GUI is shown.
 -r ELEMENT
 	specifies the root element of the tree.
@@ -87,6 +87,11 @@ Example 4:
 	will write a SVG image in the standard output from a diagram with a root element
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
+Example 5:
+> XSDDiagramConsole.exe -os txt -r TotoRoot -e 3 ./folder1/toto.xsd
+	will write a textual representation in the standard output from a diagram with a root element
+	'TotoRoot' and expanding the tree from the root until the 3rd level.
+
 
 TODO LIST:
 
@@ -106,6 +111,9 @@ TODO LIST:
 
 
 CHANGES:
+
+version 0.17 (2013-12-xx)
+- Add CSV and TXT output rendering following the Christian's idea.
 
 version 0.16 (2013-01-23)
 - Fix an issue to prevent the cylcles in the imported files.
@@ -205,3 +213,15 @@ Copyright (c) 2006-2013 Regis COSNIER, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
+
+
+CONTRIBUTORS:
+
+Regis Cosnier (Initial developer)
+Mathieu Malaterre (Debian and Ubuntu package)
+Paul Selormey (Refactoring)
+Adrian Covrig
+Hermann Swart
+Arjan Kloosterboer
+Christian Renninger
+Peter Butkovic

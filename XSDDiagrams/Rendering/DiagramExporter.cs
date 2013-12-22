@@ -126,6 +126,31 @@ namespace XSDDiagram.Rendering
                     result = true;
                 }
             }
+            else if (extension.CompareTo(".txt") == 0 || extension.CompareTo(".csv") == 0)
+            {
+                float scaleSave = _diagram.Scale;
+                try
+                {
+                    _diagram.Scale = 1.0f;
+                    _diagram.Layout(referenceGraphics);
+                    using (StreamWriter sw = new StreamWriter(stream))
+                    {
+                        using (DiagramTxtRenderer renderer = new DiagramTxtRenderer(sw))
+                        {
+                            renderer.IsCSV = extension.CompareTo(".csv") == 0;
+                            renderer.Render(_diagram);
+                        }
+
+                        sw.Close();
+                    }
+                    result = true;
+                }
+                finally
+                {
+                    _diagram.Scale = scaleSave;
+                    _diagram.Layout(referenceGraphics);
+                }
+            }
             else //if (extension.CompareTo(".svg") == 0)
             {
                 float scaleSave = _diagram.Scale;
@@ -150,7 +175,6 @@ namespace XSDDiagram.Rendering
                     _diagram.Layout(referenceGraphics);
                 }
             }
-
             return result;
         }
 

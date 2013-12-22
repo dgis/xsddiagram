@@ -76,6 +76,7 @@
     <Compile Include="Rendering\DiagramPrinter.cs" />
     <Compile Include="Rendering\DiagramRenderer.cs" />
     <Compile Include="Rendering\DiagramSvgRenderer.cs" />
+    <Compile Include="Rendering\DiagramTxtRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Diagrams\Diagrams.cd" />
