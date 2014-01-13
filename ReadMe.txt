@@ -58,6 +58,8 @@ Options:
 -z N
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
+-f PATH,NAME,TYPE,NAMESPACE,COMMENT
+	specifies the fields you want to output when rendering to a txt or csf file.
 -y
 	force huge image generation without user prompt.
 -u USERNAME
@@ -88,7 +90,7 @@ Example 4:
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
 Example 5:
-> XSDDiagramConsole.exe -os txt -r TotoRoot -e 3 ./folder1/toto.xsd
+> XSDDiagramConsole.exe -os txt -r TotoRoot -e 3 -f NAME,TYPE,COMMENT ./folder1/toto.xsd
 	will write a textual representation in the standard output from a diagram with a root element
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
@@ -114,6 +116,7 @@ CHANGES:
 
 version 0.17 (2013-12-xx)
 - Add CSV and TXT output rendering following the Christian's idea.
+- Log errors in the standard error console (when launched via command line).
 
 version 0.16 (2013-01-23)
 - Fix an issue to prevent the cylcles in the imported files.
