@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.16 Copyright (c) 2006-2013 Regis Cosnier, All Rights Reserved.
+Version 0.17 Copyright (c) 2006-2014 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -95,6 +95,8 @@ Example 5:
 
 TODO LIST:
 
+- Add a close entry in the File menu (Eric).
+- Add a recently opened list (Eric).
 - BUG: Cascading substitution groups may appear weird.
 - BUG: There is a bug when printing with margin!
 - BUG: On Linux, the horizontal and vertical scrollbars don't appear correctly.
@@ -112,8 +114,9 @@ TODO LIST:
 
 CHANGES:
 
-version 0.17 (2013-12-xx)
+version 0.17 (2014-11-??)
 - Add CSV and TXT output rendering following the Christian's idea.
+- Set the culture to invariant (prevent comma in floating numbers).
 
 version 0.16 (2013-01-23)
 - Fix an issue to prevent the cylcles in the imported files.

@@ -21,6 +21,8 @@ using System.IO;
 using System.Windows.Forms;
 
 using XSDDiagram.Rendering;
+using System.Threading;
+using System.Globalization;
 
 namespace XSDDiagram
 {
@@ -87,6 +89,8 @@ Example 4:
 		[STAThread]
 		public static void Main()
 		{
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
 			bool streamToOutput = !string.IsNullOrEmpty(Options.OutputFile) || Options.OutputOnStdOut;
 			if (Options.RequestHelp || streamToOutput)
             {
