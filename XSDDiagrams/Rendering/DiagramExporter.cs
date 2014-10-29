@@ -15,6 +15,7 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
+using System.Collections.Generic;
 
 namespace XSDDiagram.Rendering
 {
@@ -57,8 +58,14 @@ namespace XSDDiagram.Rendering
 
         #region Public Methods
 
-        public bool Export(string outputFilename, Graphics referenceGraphics, 
+        public bool Export(string outputFilename, Graphics referenceGraphics,
             DiagramAlertHandler alerteDelegate)
+        {
+            return Export(outputFilename, referenceGraphics, alerteDelegate, null);
+        }
+
+        public bool Export(string outputFilename, Graphics referenceGraphics,
+            DiagramAlertHandler alerteDelegate, IDictionary<string, object> specificRendererParameters)
         {
             string extension = Path.GetExtension(outputFilename).ToLower();
             if (string.IsNullOrEmpty(extension)) 
@@ -68,12 +75,18 @@ namespace XSDDiagram.Rendering
             }
             using (FileStream stream = File.Create(outputFilename))
             {
-                return Export(stream, extension, referenceGraphics, alerteDelegate);
+                return Export(stream, extension, referenceGraphics, alerteDelegate, specificRendererParameters);
             }
         }
 
-        public bool Export(Stream stream, string extension, Graphics referenceGraphics, 
+        public bool Export(Stream stream, string extension, Graphics referenceGraphics,
             DiagramAlertHandler alerteDelegate)
+        {
+            return Export(stream, extension, referenceGraphics, alerteDelegate, null);
+        }
+
+        public bool Export(Stream stream, string extension, Graphics referenceGraphics,
+            DiagramAlertHandler alerteDelegate, IDictionary<string, object> specificRendererParameters)
         {
             bool result = false;
 
@@ -138,6 +151,10 @@ namespace XSDDiagram.Rendering
                         using (DiagramTxtRenderer renderer = new DiagramTxtRenderer(sw))
                         {
                             renderer.IsCSV = extension.CompareTo(".csv") == 0;
+                            IDictionary<string, object> parameters = specificRendererParameters as IDictionary<string, object>;
+                            object o;
+                            if (parameters != null && parameters.TryGetValue("TextOutputFields", out o))
+                                renderer.TextOutputFields = o as IList<string>;
                             renderer.Render(_diagram);
                         }
 

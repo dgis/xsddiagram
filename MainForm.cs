@@ -213,7 +213,11 @@ namespace XSDDiagram
 				{
                     DiagramExporter exporter = new DiagramExporter(diagram);
                     Graphics g1 = this.panelDiagram.DiagramControl.CreateGraphics();
-                    exporter.Export(outputFilename, g1, new DiagramAlertHandler(SaveAlert));
+                    exporter.Export(outputFilename, g1, new DiagramAlertHandler(SaveAlert), new Dictionary<string, object>() 
+                            { 
+                                { "TextOutputFields", Options.TextOutputFields }
+                                //For future parameters, {}
+                            });
                     g1.Dispose();
 				}
                 catch (System.ArgumentException ex)

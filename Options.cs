@@ -35,6 +35,7 @@ namespace XSDDiagram
 		public static bool IsRunningOnMono { get; private set; }
         public static string Username { get; private set; }
         public static string Password { get; private set; }
+        public static IList<string> TextOutputFields { get; private set; }
 
 		static Options()
 		{
@@ -47,7 +48,9 @@ namespace XSDDiagram
 			Zoom = 100.0f;
 			ForceHugeImageGeneration = false;
 			RequestHelp = false;
-			IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
+            TextOutputFields = new List<string>();
+
+            IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
 
 			string[] args = Environment.GetCommandLineArgs();
 			List<string> arguments = new List<string>();
@@ -137,7 +140,16 @@ namespace XSDDiagram
 					if (currentArgument < arguments.Count)
 						Password = args[currentArgument++];
 				}
-				else
+                else if (string.Compare("-f", argument, true) == 0)
+                {
+                    if (currentArgument < arguments.Count)
+                    {
+                        string textOutputFields = args[currentArgument++];
+                        foreach (string field in textOutputFields.Split(new char[] { ',' }))
+                            TextOutputFields.Add(field.Trim());
+                    }
+                }
+                else
 					InputFile = argument;
 			}
 		}

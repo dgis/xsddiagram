@@ -16,10 +16,10 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-
 using XSDDiagram.Rendering;
 using System.Threading;
 using System.Globalization;
@@ -130,11 +130,12 @@ Example 4:
 
                 if (schema.LoadError.Count > 0)
                 {
-					Log("There are errors while loading:\n");
+                    LogError("There are errors while loading:\n");
                     foreach (var error in schema.LoadError)
                     {
-                        Log(error);
+                        LogError(error);
                     }
+                    LogError("\r\n");
                 }
 
                 Diagram diagram = new Diagram();
@@ -169,15 +170,20 @@ Example 4:
 					bool result = false;
 
                     DiagramExporter exporter = new DiagramExporter(diagram);
+                    IDictionary<string, object> specificRendererParameters = new Dictionary<string, object>()
+                            { 
+                                { "TextOutputFields", Options.TextOutputFields }
+                                //For future parameters, {}
+                            };
                     if (Options.OutputOnStdOut)
                     {
                         Stream stream = Console.OpenStandardOutput();
-                        result = exporter.Export(stream, "." + Options.OutputOnStdOutExtension.ToLower(), graphics, new DiagramAlertHandler(ByPassSaveAlert));
+                        result = exporter.Export(stream, "." + Options.OutputOnStdOutExtension.ToLower(), graphics, new DiagramAlertHandler(ByPassSaveAlert), specificRendererParameters);
                         stream.Flush();
                     }
                     else
                     {
-                        result = exporter.Export(Options.OutputFile, graphics, new DiagramAlertHandler(SaveAlert));
+                        result = exporter.Export(Options.OutputFile, graphics, new DiagramAlertHandler(SaveAlert), specificRendererParameters);
                     }
 
 					if (result)
@@ -208,12 +214,17 @@ Example 4:
             }
         }
 
-		static void Log(string format, params object[] arg)
-		{
-			if (Options.OutputOnStdOut)
-				return;
-			Console.Write(format, arg);
-		}
+        static void Log(string format, params object[] arg)
+        {
+            if (Options.OutputOnStdOut)
+                return;
+            Console.Write(format, arg);
+        }
+
+        static void LogError(string format, params object[] arg)
+        {
+            Console.Error.Write(format, arg);
+        }
 
 		static bool ByPassSaveAlert(string title, string message)
 		{
