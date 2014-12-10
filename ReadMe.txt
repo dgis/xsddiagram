@@ -97,6 +97,7 @@ Example 5:
 
 TODO LIST:
 
+- Add include a possibility to show the length of an element (Jörg S.)
 - Add a close entry in the File menu (Eric).
 - Add a recently opened list (Eric).
 - BUG: Cascading substitution groups may appear weird.
