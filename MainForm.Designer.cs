@@ -615,7 +615,7 @@ namespace XSDDiagram
             this.tabPageElementAttibutes.Padding = new System.Windows.Forms.Padding(3);
             this.tabPageElementAttibutes.Size = new System.Drawing.Size(206, 127);
             this.tabPageElementAttibutes.TabIndex = 0;
-            this.tabPageElementAttibutes.Text = "Attibutes";
+            this.tabPageElementAttibutes.Text = "Attributes";
             this.tabPageElementAttibutes.UseVisualStyleBackColor = true;
             // 
             // listViewAttributes
