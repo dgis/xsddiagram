@@ -25,5 +25,8 @@ echo
 echo XSDDiagram.exe -os svg -r COLLADA -e 3 -y Tests/COLLADASchema_141.xsd > Tests/stdout.svg
 mono XSDDiagram.exe -os svg -r COLLADA -e 3 -y Tests/COLLADASchema_141.xsd > Tests/stdout.svg
 echo
+echo XSDDiagram.exe -os txt -r COLLADA -e 2 -f NAME,TYPE,COMMENT Tests/COLLADASchema_141.xsd
+mono XSDDiagram.exe -os txt -r COLLADA -e 2 -f NAME,TYPE,COMMENT Tests/COLLADASchema_141.xsd
+echo
 echo XSDDiagram.exe -h
 mono XSDDiagram.exe -h

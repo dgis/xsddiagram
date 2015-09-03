@@ -35,14 +35,14 @@ namespace XSDDiagram
 		//static extern bool AllocConsole();
 
 		static string usage = @"XSD Diagram, version {0}
-Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 -o FILE
-	specifies the output image. '.png','.jpg', '.svg' ('.emf' on Windows) are allowed.
+	specifies the output image. '.png','.jpg', '.svg', '.txt', '.csv' ('.emf' on Windows) are allowed.
 	If not present, the GUI is shown.
 -os EXTENSION
 	specifies the output image is streamed through the standard
-	output. EXTENSION can be: png, jpg, svg.
+	output. EXTENSION can be: png, jpg, svg, txt, csv.
 	If not present, the GUI is shown.
 -r ELEMENT
 	specifies the root element of the tree.
@@ -53,6 +53,8 @@ Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] 
 -z N
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
+-f PATH,NAME,TYPE,NAMESPACE,COMMENT
+	specifies the fields you want to output when rendering to a txt or csf file.
 -y
 	force huge image generation without user prompt.
 -u USERNAME
@@ -80,6 +82,11 @@ Example 3:
 Example 4:
 > XSDDiagramConsole.exe -os svg -r TotoRoot -e 3 ./folder1/toto.xsd
 	will write a SVG image in the standard output from a diagram with a root element
+	'TotoRoot' and expanding the tree from the root until the 3rd level.
+
+Example 5:
+> XSDDiagramConsole.exe -os txt -r TotoRoot -e 3 -f NAME,TYPE,COMMENT ./folder1/toto.xsd
+	will write a textual representation in the standard output from a diagram with a root element
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 ";
 

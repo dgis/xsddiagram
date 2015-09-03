@@ -38,7 +38,7 @@ COMMAND LINE USAGE:
 
 or on Windows use 'XSDDiagramConsole.exe' instead of 'XSDDiagram.exe' if you need the console:
 
-> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 Options:
 
