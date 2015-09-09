@@ -97,12 +97,13 @@ Example 5:
 
 TODO LIST:
 
-- Add include a possibility to show the length of an element (Jörg S.)
-- Add a close entry in the File menu (Eric).
-- Add a recently opened list (Eric).
+- BUG: If I have an attribute with annotation selected, the annotation displays in the gray box in the bottom right as expected. If I move to another attribute that does not have annotation, the annotation from the previously selected attribute still displays. The gray box should have its content cleared if an attribute with no content is selected.
 - BUG: Cascading substitution groups may appear weird.
 - BUG: There is a bug when printing with margin!
 - BUG: On Linux, the horizontal and vertical scrollbars don't appear correctly.
+- Add include a possibility to show the length of an element (Jörg S.)
+- Add a close entry in the File menu (Eric).
+- Add a recently opened list (Eric).
 - From AlexM: oh, and allow the specification of a complex type in the command line as a root... for the same component used in multiple schemas from one library.
 - Add the attributes to the element in the diagram (suggested by bob)
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
