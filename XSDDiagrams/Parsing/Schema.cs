@@ -453,17 +453,17 @@ namespace XSDDiagram
 
         void schemaSerializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
-            this.loadError.Add("Unkonwn attribute (" + e.LineNumber + ", " + e.LinePosition + "): " + e.Attr.Name);
+            this.loadError.Add("Unknown attribute (" + e.LineNumber + ", " + e.LinePosition + "): " + e.Attr.Name);
         }
 
         void schemaSerializer_UnknownElement(object sender, XmlElementEventArgs e)
         {
-            this.loadError.Add("Unkonwn element (" + e.LineNumber + ", " + e.LinePosition + "): " + e.Element.Name);
+            this.loadError.Add("Unknown element (" + e.LineNumber + ", " + e.LinePosition + "): " + e.Element.Name);
         }
 
         void schemaSerializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
-            this.loadError.Add("Unkonwn node (" + e.LineNumber + ", " + e.LinePosition + "): " + e.Name);
+            this.loadError.Add("Unknown node (" + e.LineNumber + ", " + e.LinePosition + "): " + e.Name);
         }
 
         void schemaSerializer_UnreferencedObject(object sender, UnreferencedObjectEventArgs e)
