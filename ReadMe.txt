@@ -118,6 +118,9 @@ TODO LIST:
 
 CHANGES:
 
+version 0.18 (Not released yet)
+- Fixed min/maxOccurs for group references (@Cleric-K).
+
 version 0.17 (2015-09-02)
 - Add CSV and TXT output rendering following the Christian's idea.
 - Log errors in the standard error console (when launched via command line).
