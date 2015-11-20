@@ -770,7 +770,16 @@ namespace XSDDiagram.Rendering
 								if (diagramCompositors != null)
 									ExpandChildren(diagramCompositors);
 							}
-						}
+
+                            XMLSchema.group groupAll = extensionType.all as XMLSchema.group;
+                            if (groupAll != null)
+                            {
+                                DiagramItem diagramCompositors = AddCompositors(parentDiagramElement, groupAll, DiagramItemGroupType.All, extensionType.@base.Namespace);
+                                parentDiagramElement.ShowChildElements = true;
+                                if (diagramCompositors != null)
+                                    ExpandChildren(diagramCompositors);
+                            }
+                        }
 						else if (complexContent.Item is XMLSchema.restrictionType)
 						{
 							XMLSchema.restrictionType restrictionType = complexContent.Item as XMLSchema.restrictionType;

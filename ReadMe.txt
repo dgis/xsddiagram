@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.17 Copyright (c) 2006-2015 Regis Cosnier, All Rights Reserved.
+Version 0.18alpha Copyright (c) 2006-2015 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -119,7 +119,8 @@ TODO LIST:
 CHANGES:
 
 version 0.18 (Not released yet)
-- Fixed min/maxOccurs for group references (@Cleric-K).
+- Fixed min/maxOccurs for group references (Thanks Cleric-K).
+- Fixed the node expansion group of type 'All' (Thanks Carsten).
 
 version 0.17 (2015-09-02)
 - Add CSV and TXT output rendering following the Christian's idea.
