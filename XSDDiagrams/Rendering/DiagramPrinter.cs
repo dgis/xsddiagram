@@ -356,7 +356,7 @@ namespace XSDDiagram.Rendering
             Rectangle clipping = new Rectangle(new Point(column * e.MarginBounds.Width, row * e.MarginBounds.Height),
                 new Size((column + 1) * e.MarginBounds.Width, (row + 1) * e.MarginBounds.Height));
 
-            //MONOFIX graphics.Clip = new Region(e.MarginBounds);
+            graphics.Clip = new Region(e.MarginBounds);
 
             //Point virtualPoint = this.panelDiagram.VirtualPoint;
             graphics.TranslateTransform(-(float)(clipping.Left - e.MarginBounds.Left), 
