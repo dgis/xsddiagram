@@ -103,7 +103,6 @@ NOTES:
 
 TODO LIST:
 
-- BUG: If I have an attribute with annotation selected, the annotation displays in the gray box in the bottom right as expected. If I move to another attribute that does not have annotation, the annotation from the previously selected attribute still displays. The gray box should have its content cleared if an attribute with no content is selected.
 - BUG: Cascading substitution groups may appear weird.
 - Add include a possibility to show the length of an element (Jörg S.)
 - Add a close entry in the File menu (Eric).
