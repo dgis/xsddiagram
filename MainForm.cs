@@ -1,5 +1,5 @@
 //    XSDDiagram - A XML Schema Definition file viewer
-//    Copyright (C) 2006-2011  Regis COSNIER
+//    Copyright (C) 2006-2016  Regis COSNIER
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -116,7 +116,9 @@ namespace XSDDiagram
 					webBrowserSupported = false;
 				}
 			}
-		}
+
+            UpdateActionsState();
+        }
 
         bool schema_RequestCredential(string url, string realm, int attemptCount, out string username, out string password)
         {
@@ -374,6 +376,8 @@ namespace XSDDiagram
 
             schema.LoadSchema(schemaFilename);
 
+            UpdateActionsState();
+
             foreach (XSDObject xsdObject in schema.Elements)
             {
                 this.listViewElements.Items.Add(new ListViewItem(new string[] { xsdObject.Name, xsdObject.Type, xsdObject.NameSpace })).Tag = xsdObject;
@@ -431,6 +435,22 @@ namespace XSDDiagram
             //currentLoadedSchemaFilename = schemaFilename;
         }
 
+        private void UpdateActionsState()
+        {
+            bool isSchemaLoaded = schema.IsLoaded();
+            toolStripButtonSaveDiagram.Enabled = isSchemaLoaded;
+            toolStripButtonPrint.Enabled = isSchemaLoaded;
+            toolStripButtonAddToDiagram.Enabled = isSchemaLoaded;
+            toolStripButtonAddAllToDiagram.Enabled = isSchemaLoaded;
+            toolStripButtonRemoveAllFromDiagram.Enabled = isSchemaLoaded;
+            toolStripButtonExpandOneLevel.Enabled = isSchemaLoaded;
+            closeToolStripMenuItem.Enabled = isSchemaLoaded;
+            saveDiagramToolStripMenuItem.Enabled = isSchemaLoaded;
+            validateXMLFileToolStripMenuItem.Enabled = isSchemaLoaded;
+            printPreviewToolStripMenuItem.Enabled = isSchemaLoaded;
+            printToolStripMenuItem.Enabled = isSchemaLoaded;
+        }
+
         private void CleanupUserInterface(bool fullCleanup)
         {
             this.diagram.Clear();
@@ -444,6 +464,7 @@ namespace XSDDiagram
             this.toolStripComboBoxSchemaElement.Items.Clear();
             this.toolStripComboBoxSchemaElement.Items.Add("");
             this.propertyGridSchemaObject.SelectedObject = null;
+            this.textBoxElementPath.Text = "";
 
             while (this.tabControlView.TabCount > 1)
                 this.tabControlView.TabPages.RemoveAt(1);
@@ -454,6 +475,7 @@ namespace XSDDiagram
             {
                 UpdateTitle("");
                 schema.Cleanup();
+                UpdateActionsState();
             }
         }
 
@@ -1741,11 +1763,6 @@ namespace XSDDiagram
             //if (e.Severity == XmlSeverityType.Error || e.Severity == XmlSeverityType.Warning)
             validationErrorMessages.Add(string.Format("{4}: [{3}] Line: {0}, Position: {1} \"{2}\"",
                 e.Exception.LineNumber, e.Exception.LinePosition, e.Exception.Message, validationErrorMessages.Count, e.Severity));
-        }
-
-        private void toolsToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
-        {
-            validateXMLFileToolStripMenuItem.Enabled = (schema != null && schema.XsdFilenames.Count != 0);
         }
 
         private void MainForm_KeyUp(object sender, KeyEventArgs e)

@@ -71,9 +71,9 @@ Options:
 
 
 Example 1:
-> XSDDiagramConsole.exe -o file.png -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
-	will generate a PNG image from a diagram with a root element
-	'TotoRoot' and expanding the tree from the root until the 3rd level.
+> XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType -e 3 -z 200 ./folder1/toto.xsd
+	will generate a PNG image from a diagram with a root elements
+	'TotoRoot' and 'TotoComplexType', and expanding the tree from the root until the 3rd level.
 
 Example 2:
 > XSDDiagram.exe ./folder1/toto.xsd
@@ -105,7 +105,6 @@ TODO LIST:
 
 - BUG: Cascading substitution groups may appear weird.
 - Add include a possibility to show the length of an element (Jörg S.)
-- From AlexM: oh, and allow the specification of a complex type in the command line as a root... for the same component used in multiple schemas from one library.
 - Add the attributes to the element in the diagram (suggested by bob)
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
 	o The optional display of attributes inside the diagram
@@ -123,10 +122,13 @@ version 0.18 (Not released yet)
 - Add a close entry in the File menu.
 - Add a recently opened list.
 - Show the Windows Explorer registration menu only if we have the adminitrative right.
+- Disable the impossible actions in the menu and the toolbar when XSD file are not loaded.
+- From AlexM: oh, and allow the specification of a complex type in the command line as a root (-r element1 -r complexType2 -r ...).
 - Fixed min/maxOccurs for group references (Thanks Cleric-K).
 - Fixed the node expansion group of type 'All' (Thanks Carsten).
 - Fix a bug when printing with margin!
 - On Linux with Mono, the horizontal and vertical scrollbars should now appear.
+- Fix an UTF8 bug when downloading from a URL.
 
 version 0.17 (2015-09-02)
 - Add CSV and TXT output rendering following the Christian's idea.

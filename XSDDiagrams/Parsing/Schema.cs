@@ -16,6 +16,7 @@ using System.IO;
 using System.Net;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace XSDDiagram
 {
@@ -82,6 +83,11 @@ namespace XSDDiagram
             this.hashtableAttributesByName[""] = null;
             this.loadError.Clear();
             this.listOfXsdFilename.Clear();
+        }
+
+        public bool IsLoaded()
+        {
+            return this.listOfXsdFilename.Count > 0;
         }
 
         private void ImportSchema(string fileName, string baseUrl)
@@ -254,6 +260,7 @@ namespace XSDDiagram
                 if (!File.Exists(loadedFileName))
                 {
                     WebClient webClient = new WebClient();
+                    webClient.Encoding = Encoding.UTF8;
                     bool tryAgain = false;
                     int attemptCount = 0;
                     do
