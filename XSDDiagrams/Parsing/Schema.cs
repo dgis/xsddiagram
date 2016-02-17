@@ -16,6 +16,7 @@ using System.IO;
 using System.Net;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace XSDDiagram
 {
@@ -56,14 +57,7 @@ namespace XSDDiagram
 
         public void LoadSchema(string fileName)
         {
-            this.firstElement = null;
-            this.elements.Clear();
-            this.hashtableElementsByName.Clear();
-            this.hashtableElementsByName[""] = null;
-            this.hashtableAttributesByName.Clear();
-            this.hashtableAttributesByName[""] = null;
-            this.loadError.Clear();
-            this.listOfXsdFilename.Clear();
+            Cleanup();
 
             string url = fileName.Trim(), baseUrl = "";
             if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0)
@@ -77,6 +71,23 @@ namespace XSDDiagram
             }
 
             ImportSchema(fileName, baseUrl);
+        }
+
+        public void Cleanup()
+        {
+            this.firstElement = null;
+            this.elements.Clear();
+            this.hashtableElementsByName.Clear();
+            this.hashtableElementsByName[""] = null;
+            this.hashtableAttributesByName.Clear();
+            this.hashtableAttributesByName[""] = null;
+            this.loadError.Clear();
+            this.listOfXsdFilename.Clear();
+        }
+
+        public bool IsLoaded()
+        {
+            return this.listOfXsdFilename.Count > 0;
         }
 
         private void ImportSchema(string fileName, string baseUrl)
@@ -249,6 +260,7 @@ namespace XSDDiagram
                 if (!File.Exists(loadedFileName))
                 {
                     WebClient webClient = new WebClient();
+                    webClient.Encoding = Encoding.UTF8;
                     bool tryAgain = false;
                     int attemptCount = 0;
                     do

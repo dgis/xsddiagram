@@ -327,6 +327,8 @@ namespace XSDDiagram.Rendering
 			{
 				DiagramItem childDiagramGroup = new DiagramItem();
 				childDiagramGroup.ItemType = DiagramItemType.group;
+
+				XMLSchema.group referenceGroup = null;
 				if (childGroup.@ref != null)
 				{
 					childDiagramGroup.IsReference = true;
@@ -337,7 +339,10 @@ namespace XSDDiagram.Rendering
                     {
                         XMLSchema.group group = grpObject.Tag as XMLSchema.group;
                         if (group != null)
+                        {
+                            referenceGroup = childGroup;
                             childGroup = group;
+                        }
                     }
 				}
 				else if (type == DiagramItemGroupType.Group)
@@ -353,13 +358,13 @@ namespace XSDDiagram.Rendering
 				childDiagramGroup.Diagram = this;
 				childDiagramGroup.TabSchema = childGroup;
 				int occurrence;
-				if (int.TryParse(childGroup.minOccurs, out occurrence))
+				if (int.TryParse(referenceGroup != null ? referenceGroup.minOccurs : childGroup.minOccurs, out occurrence))
 					childDiagramGroup.MinOccurrence = occurrence;
 				else
 					childDiagramGroup.MinOccurrence = -1;
 				//try { childDiagramGroup.MinOccurrence = int.Parse(childGroup.minOccurs); }
 				//catch { childDiagramGroup.MinOccurrence = -1; }
-				if (int.TryParse(childGroup.maxOccurs, out occurrence))
+				if (int.TryParse(referenceGroup != null ? referenceGroup.maxOccurs : childGroup.maxOccurs, out occurrence))
 					childDiagramGroup.MaxOccurrence = occurrence;
 				else
 					childDiagramGroup.MaxOccurrence = -1;
@@ -765,7 +770,16 @@ namespace XSDDiagram.Rendering
 								if (diagramCompositors != null)
 									ExpandChildren(diagramCompositors);
 							}
-						}
+
+                            XMLSchema.group groupAll = extensionType.all as XMLSchema.group;
+                            if (groupAll != null)
+                            {
+                                DiagramItem diagramCompositors = AddCompositors(parentDiagramElement, groupAll, DiagramItemGroupType.All, extensionType.@base.Namespace);
+                                parentDiagramElement.ShowChildElements = true;
+                                if (diagramCompositors != null)
+                                    ExpandChildren(diagramCompositors);
+                            }
+                        }
 						else if (complexContent.Item is XMLSchema.restrictionType)
 						{
 							XMLSchema.restrictionType restrictionType = complexContent.Item as XMLSchema.restrictionType;

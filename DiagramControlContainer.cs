@@ -144,14 +144,12 @@ namespace XSDDiagram
 				this.hScrollBar.Minimum = 0;
 				this.hScrollBar.Maximum = this.virtualSize.Width;
 				this.hScrollBar.LargeChange = this.diagramControl.ClientSize.Width;
-				this.hScrollBar.Visible = true;
 				diagramControlNewSize.Height -= this.hScrollBar.Height;
 			}
 			else
 			{
 				this.hScrollBar.Minimum = 0;
 				this.hScrollBar.Maximum = 0;
-				this.hScrollBar.Visible = false;
 			}
 
 			if (this.virtualSize.Height > this.diagramControl.ClientSize.Height)
@@ -159,32 +157,34 @@ namespace XSDDiagram
 				this.vScrollBar.Minimum = 0;
 				this.vScrollBar.Maximum = this.virtualSize.Height;
 				this.vScrollBar.LargeChange = this.diagramControl.ClientSize.Height;
-				this.vScrollBar.Visible = true;
 				diagramControlNewSize.Width -= this.vScrollBar.Width;
 			}
 			else
 			{
 				this.vScrollBar.Minimum = 0;
 				this.vScrollBar.Maximum = 0;
-				this.vScrollBar.Visible = false;
 			}
 
-			Size hScrollBarSize = this.hScrollBar.Size;
-			if (this.hScrollBar.Visible && !this.vScrollBar.Visible)
-				hScrollBarSize.Width = this.ClientSize.Width;
-			else
-				hScrollBarSize.Width = this.ClientSize.Width - this.vScrollBar.Width;
-			this.hScrollBar.Size = hScrollBarSize;
+            // Fix the Bottom right corner of the scrollbar area.
+            // Seems to be an issue with Mono on Linux!!!
+            if (!Options.IsRunningOnMono)
+            {
+                Size hScrollBarSize = this.hScrollBar.Size;
+                if (this.hScrollBar.Maximum > 0 && this.vScrollBar.Maximum == 0)
+                    hScrollBarSize.Width = this.ClientSize.Width;
+                else
+                    hScrollBarSize.Width = this.ClientSize.Width - this.vScrollBar.Width;
+                this.hScrollBar.Size = hScrollBarSize;
 
-			Size vScrollBarSize = this.vScrollBar.Size;
-			if (this.vScrollBar.Visible && !this.hScrollBar.Visible)
-				vScrollBarSize.Height = this.ClientSize.Height;
-			else
-				vScrollBarSize.Height = this.ClientSize.Height - this.hScrollBar.Height;
-			this.vScrollBar.Size = vScrollBarSize;
+                Size vScrollBarSize = this.vScrollBar.Size;
+                if (this.vScrollBar.Maximum > 0 && this.hScrollBar.Maximum == 0)
+                    vScrollBarSize.Height = this.ClientSize.Height;
+                else
+                    vScrollBarSize.Height = this.ClientSize.Height - this.hScrollBar.Height;
+                this.vScrollBar.Size = vScrollBarSize;
+            }
 
-
-			this.diagramControl.Size = diagramControlNewSize;
+            this.diagramControl.Size = diagramControlNewSize;
 			this.diagramControl.Invalidate(this.diagramControl.ClientRectangle);
 			this.ResumeLayout();
 		}

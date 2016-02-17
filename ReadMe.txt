@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.17 Copyright (c) 2006-2015 Regis Cosnier, All Rights Reserved.
+Version 0.18alpha Copyright (c) 2006-2016 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -71,9 +71,9 @@ Options:
 
 
 Example 1:
-> XSDDiagramConsole.exe -o file.png -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
-	will generate a PNG image from a diagram with a root element
-	'TotoRoot' and expanding the tree from the root until the 3rd level.
+> XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType -e 3 -z 200 ./folder1/toto.xsd
+	will generate a PNG image from a diagram with a root elements
+	'TotoRoot' and 'TotoComplexType', and expanding the tree from the root until the 3rd level.
 
 Example 2:
 > XSDDiagram.exe ./folder1/toto.xsd
@@ -95,16 +95,16 @@ Example 5:
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
 
+NOTES:
+
+- With Mono on Linux, to prevent an exception with a missing assembly, please install the package "libmono-winforms2.0-cil"
+(Prevent the error: Could not load file or assembly 'System.Windows.Forms').
+
+
 TODO LIST:
 
-- BUG: If I have an attribute with annotation selected, the annotation displays in the gray box in the bottom right as expected. If I move to another attribute that does not have annotation, the annotation from the previously selected attribute still displays. The gray box should have its content cleared if an attribute with no content is selected.
 - BUG: Cascading substitution groups may appear weird.
-- BUG: There is a bug when printing with margin!
-- BUG: On Linux, the horizontal and vertical scrollbars don't appear correctly.
 - Add include a possibility to show the length of an element (Jörg S.)
-- Add a close entry in the File menu (Eric).
-- Add a recently opened list (Eric).
-- From AlexM: oh, and allow the specification of a complex type in the command line as a root... for the same component used in multiple schemas from one library.
 - Add the attributes to the element in the diagram (suggested by bob)
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
 	o The optional display of attributes inside the diagram
@@ -117,6 +117,18 @@ TODO LIST:
 
 
 CHANGES:
+
+version 0.18 (Not released yet)
+- Add a close entry in the File menu.
+- Add a recently opened list.
+- Show the Windows Explorer registration menu only if we have the adminitrative right.
+- Disable the impossible actions in the menu and the toolbar when XSD file are not loaded.
+- From AlexM: oh, and allow the specification of a complex type in the command line as a root (-r element1 -r complexType2 -r ...).
+- Fixed min/maxOccurs for group references (Thanks Cleric-K).
+- Fixed the node expansion group of type 'All' (Thanks Carsten).
+- Fix a bug when printing with margin!
+- On Linux with Mono, the horizontal and vertical scrollbars should now appear.
+- Fix an UTF8 bug when downloading from a URL.
 
 version 0.17 (2015-09-02)
 - Add CSV and TXT output rendering following the Christian's idea.
@@ -218,7 +230,7 @@ version 0.1 (2006-09-14)
 
 LICENSE:
 
-Copyright (c) 2006-2015 Regis COSNIER, All Rights Reserved.
+Copyright (c) 2006-2016 Regis COSNIER, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
