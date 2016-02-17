@@ -37,6 +37,8 @@ using XSDDiagram.Rendering;
 using System.Xml.Schema;
 using System.Diagnostics;
 
+using System.Security.Principal;
+
 namespace XSDDiagram
 {
 	public partial class MainForm : Form
@@ -54,12 +56,37 @@ namespace XSDDiagram
         private WebBrowser webBrowserDocumentation;
 		private bool webBrowserSupported = true;
         private string backupUsername = "", backupPassword = "";
-        
-		public MainForm()
+
+        private MRUManager mruManager;
+
+        public MainForm()
 		{
 			InitializeComponent();
 
-			this.toolsToolStripMenuItem.Visible = !Options.IsRunningOnMono;
+            bool isElevated = false;
+            WindowsIdentity identity = null;
+            try
+            {
+                identity = WindowsIdentity.GetCurrent();
+                if (identity != null)
+                {
+                    WindowsPrincipal principal = new WindowsPrincipal(identity);
+                    if (principal != null)
+                        isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                if (identity != null)
+                    identity.Dispose();
+            }
+            this.toolsToolStripMenuItem.Visible = isElevated && !Options.IsRunningOnMono;
 
 			this.originalTitle = Text;
 
@@ -133,7 +160,10 @@ namespace XSDDiagram
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
-			this.toolStripComboBoxZoom.SelectedIndex = 8;
+            this.mruManager = new MRUManager(this.recentFilesToolStripMenuItem, "xsddiagram", this.recentFilesToolStripMenuSubItemFile_Click, this.recentFilesToolStripMenuSubItemClearAll_Click);
+
+
+            this.toolStripComboBoxZoom.SelectedIndex = 8;
 			this.toolStripComboBoxAlignement.SelectedIndex = 1;
 
 			if (!string.IsNullOrEmpty(Options.InputFile))
@@ -174,7 +204,23 @@ namespace XSDDiagram
                 LoadSchema(openURLForm.URL);
         }
 
-		private void MainForm_DragDrop(object sender, DragEventArgs e)
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CleanupUserInterface(true);
+        }
+
+        private void recentFilesToolStripMenuSubItemFile_Click(object sender, EventArgs evt)
+        {
+            string filenameOrURL = (sender as ToolStripItem).Text;
+            LoadSchema(filenameOrURL);
+            //this.mruManager.RemoveRecentFile(filenameOrURL);
+        }
+
+        private void recentFilesToolStripMenuSubItemClearAll_Click(object sender, EventArgs evt)
+        {
+        }
+
+        private void MainForm_DragDrop(object sender, DragEventArgs e)
 		{
             if (e.Data.GetDataPresent("UniformResourceLocator"))
             {
@@ -317,24 +363,14 @@ namespace XSDDiagram
 		}
 
 		private void LoadSchema(string schemaFilename)
-		{
-			Cursor = Cursors.WaitCursor;
+        {
+            Cursor = Cursors.WaitCursor;
 
-			UpdateTitle(schemaFilename);
+            this.mruManager.AddRecentFile(schemaFilename);
 
-			this.diagram.Clear();
-			this.panelDiagram.VirtualSize = new Size(0, 0);
-			this.panelDiagram.VirtualPoint = new Point(0, 0);
-			this.panelDiagram.Clear();
-			this.hashtableTabPageByFilename.Clear();
-			this.listViewElements.Items.Clear();
-			this.toolStripComboBoxSchemaElement.Items.Clear();
-			this.toolStripComboBoxSchemaElement.Items.Add("");
-			this.propertyGridSchemaObject.SelectedObject = null;
+            CleanupUserInterface(false);
 
-			while (this.tabControlView.TabCount > 1)
-				this.tabControlView.TabPages.RemoveAt(1);
-
+            UpdateTitle(schemaFilename);
 
             schema.LoadSchema(schemaFilename);
 
@@ -344,29 +380,29 @@ namespace XSDDiagram
                 this.toolStripComboBoxSchemaElement.Items.Add(xsdObject);
             }
 
-			Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
 
-			if (this.schema.LoadError.Count > 0)
-			{
-				ErrorReportForm errorReportForm = new ErrorReportForm();
-				errorReportForm.Errors = this.schema.LoadError;
-				errorReportForm.ShowDialog(this);
-			}
+            if (this.schema.LoadError.Count > 0)
+            {
+                ErrorReportForm errorReportForm = new ErrorReportForm();
+                errorReportForm.Errors = this.schema.LoadError;
+                errorReportForm.ShowDialog(this);
+            }
 
-			this.diagram.ElementsByName = this.schema.ElementsByName;
-			if (this.schema.FirstElement != null)
-				this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.FirstElement;
-			else
-				this.toolStripComboBoxSchemaElement.SelectedIndex = 0;
+            this.diagram.ElementsByName = this.schema.ElementsByName;
+            if (this.schema.FirstElement != null)
+                this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.FirstElement;
+            else
+                this.toolStripComboBoxSchemaElement.SelectedIndex = 0;
 
-			tabControlView_Selected(null, null);
+            tabControlView_Selected(null, null);
 
-			this.tabControlView.SuspendLayout();
-			foreach (string filename in this.schema.XsdFilenames)
-			{
+            this.tabControlView.SuspendLayout();
+            foreach (string filename in this.schema.XsdFilenames)
+            {
                 string fullPath = filename;
                 Control browser = null;
-				if(webBrowserSupported)
+                if (webBrowserSupported)
                     browser = new WebBrowser();
                 else
                     browser = new System.Windows.Forms.TextBox() { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Both };
@@ -380,22 +416,48 @@ namespace XSDDiagram
                 {
                     fullPath = Path.GetFullPath(filename);
                 }
-				TabPage tabPage = new TabPage(Path.GetFileNameWithoutExtension(filename));
-				tabPage.Tag = fullPath;
-				tabPage.ToolTipText = fullPath;
+                TabPage tabPage = new TabPage(Path.GetFileNameWithoutExtension(filename));
+                tabPage.Tag = fullPath;
+                tabPage.ToolTipText = fullPath;
                 tabPage.Controls.Add(browser);
-				tabPage.UseVisualStyleBackColor = true;
+                tabPage.UseVisualStyleBackColor = true;
 
-				this.tabControlView.TabPages.Add(tabPage);
-				this.hashtableTabPageByFilename[filename] = tabPage;
+                this.tabControlView.TabPages.Add(tabPage);
+                this.hashtableTabPageByFilename[filename] = tabPage;
 
-			}
-			this.tabControlView.ResumeLayout();
+            }
+            this.tabControlView.ResumeLayout();
 
             //currentLoadedSchemaFilename = schemaFilename;
-		}
+        }
 
-		void DiagramControl_MouseClick(object sender, MouseEventArgs e)
+        private void CleanupUserInterface(bool fullCleanup)
+        {
+            this.diagram.Clear();
+            this.panelDiagram.VirtualSize = new Size(0, 0);
+            this.panelDiagram.VirtualPoint = new Point(0, 0);
+            this.panelDiagram.Clear();
+            this.hashtableTabPageByFilename.Clear();
+            this.listViewElements.Items.Clear();
+            this.listViewAttributes.Items.Clear();
+            this.toolStripComboBoxSchemaElement.SelectedItem = "";
+            this.toolStripComboBoxSchemaElement.Items.Clear();
+            this.toolStripComboBoxSchemaElement.Items.Add("");
+            this.propertyGridSchemaObject.SelectedObject = null;
+
+            while (this.tabControlView.TabCount > 1)
+                this.tabControlView.TabPages.RemoveAt(1);
+
+            ShowDocumentation(null);
+
+            if (fullCleanup)
+            {
+                UpdateTitle("");
+                schema.Cleanup();
+            }
+        }
+
+        void DiagramControl_MouseClick(object sender, MouseEventArgs e)
 		{
 			Point location = e.Location;
 			location.Offset(this.panelDiagram.VirtualPoint);
@@ -1686,7 +1748,7 @@ namespace XSDDiagram
             validateXMLFileToolStripMenuItem.Enabled = (schema != null && schema.XsdFilenames.Count != 0);
         }
 
-		private void MainForm_KeyUp(object sender, KeyEventArgs e)
+        private void MainForm_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (e.Control && (e.KeyCode == Keys.D0 || e.KeyCode == Keys.NumPad0))
 			{

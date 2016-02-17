@@ -105,8 +105,6 @@ TODO LIST:
 
 - BUG: Cascading substitution groups may appear weird.
 - Add include a possibility to show the length of an element (Jörg S.)
-- Add a close entry in the File menu (Eric).
-- Add a recently opened list (Eric).
 - From AlexM: oh, and allow the specification of a complex type in the command line as a root... for the same component used in multiple schemas from one library.
 - Add the attributes to the element in the diagram (suggested by bob)
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
@@ -122,6 +120,9 @@ TODO LIST:
 CHANGES:
 
 version 0.18 (Not released yet)
+- Add a close entry in the File menu.
+- Add a recently opened list.
+- Show the Windows Explorer registration menu only if we have the adminitrative right.
 - Fixed min/maxOccurs for group references (Thanks Cleric-K).
 - Fixed the node expansion group of type 'All' (Thanks Carsten).
 - Fix a bug when printing with margin!

@@ -56,14 +56,7 @@ namespace XSDDiagram
 
         public void LoadSchema(string fileName)
         {
-            this.firstElement = null;
-            this.elements.Clear();
-            this.hashtableElementsByName.Clear();
-            this.hashtableElementsByName[""] = null;
-            this.hashtableAttributesByName.Clear();
-            this.hashtableAttributesByName[""] = null;
-            this.loadError.Clear();
-            this.listOfXsdFilename.Clear();
+            Cleanup();
 
             string url = fileName.Trim(), baseUrl = "";
             if (url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0)
@@ -77,6 +70,18 @@ namespace XSDDiagram
             }
 
             ImportSchema(fileName, baseUrl);
+        }
+
+        public void Cleanup()
+        {
+            this.firstElement = null;
+            this.elements.Clear();
+            this.hashtableElementsByName.Clear();
+            this.hashtableElementsByName[""] = null;
+            this.hashtableAttributesByName.Clear();
+            this.hashtableAttributesByName[""] = null;
+            this.loadError.Clear();
+            this.listOfXsdFilename.Clear();
         }
 
         private void ImportSchema(string fileName, string baseUrl)
