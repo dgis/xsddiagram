@@ -23,6 +23,7 @@ namespace XSDDiagram
             this.openURLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveDiagramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.validateXMLFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.recentFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.pageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,6 +56,7 @@ namespace XSDDiagram
             this.toolStripComboBoxZoom = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripComboBoxAlignement = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripButtonShowReferenceBoundingBox = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonShowDocumentation = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonTogglePanel = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButtonAbout = new System.Windows.Forms.ToolStripButton();
@@ -100,7 +102,6 @@ namespace XSDDiagram
             this.expandOneLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxElementPath = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.recentFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripMain.SuspendLayout();
             this.statusStripMain.SuspendLayout();
             this.toolStripMain.SuspendLayout();
@@ -186,6 +187,12 @@ namespace XSDDiagram
             this.validateXMLFileToolStripMenuItem.Text = "&Validate XML File...";
             this.validateXMLFileToolStripMenuItem.Click += new System.EventHandler(this.validateXMLFileToolStripMenuItem_Click);
             // 
+            // recentFilesToolStripMenuItem
+            // 
+            this.recentFilesToolStripMenuItem.Name = "recentFilesToolStripMenuItem";
+            this.recentFilesToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.recentFilesToolStripMenuItem.Text = "&Recent Files";
+            // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
@@ -240,7 +247,7 @@ namespace XSDDiagram
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.windowsExplorerRegistrationToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
             // windowsExplorerRegistrationToolStripMenuItem
@@ -282,7 +289,7 @@ namespace XSDDiagram
             // 
             this.nextTabToolStripMenuItem.Name = "nextTabToolStripMenuItem";
             this.nextTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Tab)));
-            this.nextTabToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.nextTabToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
             this.nextTabToolStripMenuItem.Text = "&Next Tab";
             this.nextTabToolStripMenuItem.Click += new System.EventHandler(this.nextTabToolStripMenuItem_Click);
             // 
@@ -291,7 +298,7 @@ namespace XSDDiagram
             this.previousTabToolStripMenuItem.Name = "previousTabToolStripMenuItem";
             this.previousTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.Tab)));
-            this.previousTabToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.previousTabToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
             this.previousTabToolStripMenuItem.Text = "&Previous Tab";
             this.previousTabToolStripMenuItem.Click += new System.EventHandler(this.previousTabToolStripMenuItem_Click);
             // 
@@ -344,6 +351,7 @@ namespace XSDDiagram
             this.toolStripComboBoxZoom,
             this.toolStripComboBoxAlignement,
             this.toolStripButtonShowReferenceBoundingBox,
+            this.toolStripButtonShowDocumentation,
             this.toolStripButtonTogglePanel,
             this.toolStripSeparator4,
             this.toolStripButtonAbout});
@@ -506,8 +514,19 @@ namespace XSDDiagram
             this.toolStripButtonShowReferenceBoundingBox.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonShowReferenceBoundingBox.Text = "References";
             this.toolStripButtonShowReferenceBoundingBox.ToolTipText = "Show the bounding box for the referenced elements";
-            this.toolStripButtonShowReferenceBoundingBox.Visible = false;
             this.toolStripButtonShowReferenceBoundingBox.Click += new System.EventHandler(this.toolStripButtonShowReferenceBoundingBox_Click);
+            // 
+            // toolStripButtonShowDocumentation
+            // 
+            this.toolStripButtonShowDocumentation.CheckOnClick = true;
+            this.toolStripButtonShowDocumentation.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonShowDocumentation.Image = global::XSDDiagram.Properties.Resources.Properties;
+            this.toolStripButtonShowDocumentation.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonShowDocumentation.Name = "toolStripButtonShowDocumentation";
+            this.toolStripButtonShowDocumentation.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonShowDocumentation.Text = "toolStripButton1";
+            this.toolStripButtonShowDocumentation.ToolTipText = "Show the documentation in the diagram";
+            this.toolStripButtonShowDocumentation.Click += new System.EventHandler(this.toolStripButtonShowDocumentation_Click);
             // 
             // toolStripButtonTogglePanel
             // 
@@ -937,12 +956,6 @@ namespace XSDDiagram
             this.toolTip.OwnerDraw = true;
             this.toolTip.ShowAlways = true;
             // 
-            // recentFilesToolStripMenuItem
-            // 
-            this.recentFilesToolStripMenuItem.Name = "recentFilesToolStripMenuItem";
-            this.recentFilesToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
-            this.recentFilesToolStripMenuItem.Text = "&Recent Files";
-            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -1076,6 +1089,7 @@ namespace XSDDiagram
         private System.Windows.Forms.ToolStripMenuItem openURLToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem recentFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton toolStripButtonShowDocumentation;
     }
 }
 

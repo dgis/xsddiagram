@@ -13,6 +13,7 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace XSDDiagram.Rendering
 {
@@ -41,6 +42,7 @@ namespace XSDDiagram.Rendering
 
         private Rectangle _elementBox;
         private Rectangle _childExpandButtonBox;
+        private Rectangle _documentationBox;
         private Rectangle _boundingBox;
 
         private Diagram _diagram;
@@ -67,6 +69,7 @@ namespace XSDDiagram.Rendering
             _childExpandButtonSize = 10;
             _depth                 = 0;              
             _elementBox            = Rectangle.Empty;
+            _documentationBox      = Rectangle.Empty;
             _childExpandButtonBox  = Rectangle.Empty;
             _boundingBox           = Rectangle.Empty;
             _size                  = new Size(50, 25);
@@ -263,15 +266,22 @@ namespace XSDDiagram.Rendering
                 return _diagram.Font; 
             } 
         }
-        
-        public Font SmallFont 
-        { 
-            get 
-            { 
-                return _diagram.SmallFont; 
-            } 
+
+        public Font SmallFont
+        {
+            get
+            {
+                return _diagram.SmallFont;
+            }
         }
-        
+        public Font DocumentationFont
+        {
+            get
+            {
+                return _diagram.DocumentationFont;
+            }
+        }
+
         public Point Location 
         { 
             get 
@@ -319,19 +329,19 @@ namespace XSDDiagram.Rendering
                 _padding = value; 
             } 
         }
-        
-        public Rectangle ElementBox 
-        { 
-            get 
-            { 
-                return _elementBox; 
-            } 
-            set 
-            { 
-                _elementBox = value; 
-            } 
+
+        public Rectangle ElementBox
+        {
+            get
+            {
+                return _elementBox;
+            }
+            set
+            {
+                _elementBox = value;
+            }
         }
-        
+
         public Rectangle ChildExpandButtonBox 
         { 
             get 
@@ -343,7 +353,19 @@ namespace XSDDiagram.Rendering
                 _childExpandButtonBox = value; 
             } 
         }
-        
+
+        public Rectangle DocumentationBox
+        {
+            get
+            {
+                return _documentationBox;
+            }
+            set
+            {
+                _documentationBox = value;
+            }
+        }
+
         public Rectangle BoundingBox 
         { 
             get 
@@ -424,6 +446,39 @@ namespace XSDDiagram.Rendering
             return _diagram.ScaleRectangle(rectangle); 
         }
 
+        public string GetTextDocumentation()
+        {
+            string text = null;
+            XMLSchema.annotated annotated = this.TabSchema as XMLSchema.annotated;
+            if (annotated != null && annotated.annotation != null)
+            {
+                foreach (object o in annotated.annotation.Items)
+                {
+                    if (o is XMLSchema.documentation)
+                    {
+                        XMLSchema.documentation documentation = o as XMLSchema.documentation;
+                        if (documentation.Any != null && documentation.Any.Length > 0)
+                        {
+                            text = documentation.Any[0].Value;
+                            text = text.Replace("\n", " ");
+                            text = text.Replace("\t", " ");
+                            text = text.Replace("\r", "");
+                            text = Regex.Replace(text, " +", " ");
+                            text = text.Trim();
+                        }
+                        else if (documentation.source != null)
+                        {
+                            text = documentation.source;
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            return text;
+        }
+
         public void GenerateMeasure(Graphics g)
         {
             if (_parent != null)
@@ -459,6 +514,18 @@ namespace XSDDiagram.Rendering
             _boundingBox.Width = _size.Width + 2 * _padding.Width + childBoundingBoxWidth;
             _boundingBox.Height = Math.Max(_size.Height + 2 * _padding.Height, childBoundingBoxHeight);
 
+            if (_diagram.ShowDocumentation)
+            {
+                string text = GetTextDocumentation();
+                if (text != null)
+                {
+                    SizeF sizeF = g.MeasureString(text, DocumentationFont);
+                    double documentationWidth = Math.Max(1.0, _size.Width + _padding.Width * 2.0);
+                    double documentationHeight = (Math.Ceiling(sizeF.Width / documentationWidth) + 1) * sizeF.Height;
+                    _documentationBox = new Rectangle(new Point(0, 0), new Size((int)documentationWidth, (int)documentationHeight));
+                    _boundingBox.Height += (_diagram.Alignement == DiagramAlignement.Center ? 2 : 1) *_documentationBox.Height + 2 * _padding.Height;
+                }
+            }
 
             _elementBox = new Rectangle(new Point(0, 0), _size - new Size(_hasChildElements ? _childExpandButtonSize / 2 : 0, 0));
 
@@ -521,6 +588,14 @@ namespace XSDDiagram.Rendering
                 _childExpandButtonBox.Offset(_location);
 
             _elementBox.Offset(_location);
+
+            if (_documentationBox != null)
+            {
+                if(_diagram.Alignement == DiagramAlignement.Far)
+                    _documentationBox.Offset(_location.X, _location.Y - _documentationBox.Height - _padding.Height);
+                else
+                    _documentationBox.Offset(_location.X, _location.Y + _elementBox.Height + _padding.Height);
+            }
         }
 
         public void HitTest(Point point, out DiagramItem element, out DiagramHitTestRegion region)

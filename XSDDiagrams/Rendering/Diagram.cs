@@ -20,15 +20,17 @@ namespace XSDDiagram.Rendering
     {
         #region Private Fields
 
-        private bool  _showBoundingBox;
-		private Size  _size;
-		private Size  _padding;
+        private bool _showBoundingBox;
+        private bool _showDocumentation;
+        private Size _size;
+		private Size _padding;
         private float _scale;
 
         private Font _font;
         private Font _smallFont;
+        private Font _documentationFont;
 
-		private Rectangle         _boundingBox;
+        private Rectangle         _boundingBox;
 		private DiagramAlignement _alignement;
 
         private List<DiagramItem> _rootElements;
@@ -60,10 +62,12 @@ namespace XSDDiagram.Rendering
 		public Rectangle BoundingBox { get { return _boundingBox; } }
 		public float Scale { get { return _scale; } set { _scale = value; } }
 		public DiagramAlignement Alignement { get { return _alignement; } set { _alignement = value; } }
-		public bool ShowBoundingBox { get { return _showBoundingBox; } set { _showBoundingBox = value; } }
+        public bool ShowBoundingBox { get { return _showBoundingBox; } set { _showBoundingBox = value; } }
+        public bool ShowDocumentation { get { return _showDocumentation; } set { _showDocumentation = value; } }
 
-		public Font Font { get { return _font; } set { _font = value; } }
-		public Font SmallFont { get { return _smallFont; } set { _smallFont = value; } }
+        public Font Font { get { return _font; } set { _font = value; } }
+        public Font SmallFont { get { return _smallFont; } set { _smallFont = value; } }
+        public Font DocumentationFont { get { return _documentationFont; } set { _documentationFont = value; } }
 
         public IDictionary<string, XSDObject> ElementsByName { get { return _elementsByName; } set { _elementsByName = value; } }
 		public List<DiagramItem> RootElements { get { return _rootElements; } }
@@ -425,19 +429,30 @@ namespace XSDDiagram.Rendering
 		{
  			string fontName = "Arial"; // "Verdana"; // "Arial";
 
-            if (_font != null)
-            {
-                _font.Dispose();
-            }
-            if (_smallFont != null)
-            {
-                _smallFont.Dispose();
-            }
+            //if (_font != null)
+            //{
+            //    _font.Dispose();
+            //}
+            //if (_smallFont != null)
+            //{
+            //    _smallFont.Dispose();
+            //}
+            //if (_documentationFont != null)
+            //{
+            //    _documentationFont.Dispose();
+            //}
+            //_font      = new Font(fontName, 10.0f * (float)Math.Pow(_scale, 2.0), FontStyle.Bold, GraphicsUnit.Pixel);
+            //_smallFont = new Font(fontName, 9.0f * (float)Math.Pow(_scale, 2.0), GraphicsUnit.Pixel);
+            //_documentationFont = new Font(fontName, 10.0f * (float)Math.Pow(_scale, 2.0), GraphicsUnit.Pixel);
+            float fontScale = (float)Math.Pow(_scale, 2.0);
+            if (_font == null)
+                _font = new Font(fontName, 10.0f * fontScale, FontStyle.Bold, GraphicsUnit.Pixel);
+            if (_smallFont == null)
+                _smallFont = new Font(fontName, 9.0f * fontScale, GraphicsUnit.Pixel);
+            if (_documentationFont == null)
+                _documentationFont = new Font(fontName, 10.0f * fontScale, GraphicsUnit.Pixel);
 
-			_font      = new Font(fontName, 10.0f * (float)Math.Pow(_scale, 2.0), FontStyle.Bold, GraphicsUnit.Pixel);
-			_smallFont = new Font(fontName, 9.0f * (float)Math.Pow(_scale, 2.0), GraphicsUnit.Pixel);
-
-			foreach (DiagramItem element in _rootElements)
+            foreach (DiagramItem element in _rootElements)
 				element.GenerateMeasure(g);
 
 			_boundingBox = new Rectangle(0, 0, 100, 0);

@@ -1765,6 +1765,12 @@ namespace XSDDiagram
                 e.Exception.LineNumber, e.Exception.LinePosition, e.Exception.Message, validationErrorMessages.Count, e.Severity));
         }
 
+        private void toolStripButtonShowDocumentation_Click(object sender, EventArgs e)
+        {
+            this.diagram.ShowDocumentation = this.toolStripButtonShowDocumentation.Checked;
+            UpdateDiagram();
+        }
+
         private void MainForm_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (e.Control && (e.KeyCode == Keys.D0 || e.KeyCode == Keys.NumPad0))

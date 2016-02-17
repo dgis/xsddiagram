@@ -119,10 +119,12 @@ TODO LIST:
 CHANGES:
 
 version 0.18 (Not released yet)
+- Add the documentation in the diagram (experimental).
 - Add a close entry in the File menu.
 - Add a recently opened list.
 - Show the Windows Explorer registration menu only if we have the adminitrative right.
 - Disable the impossible actions in the menu and the toolbar when XSD file are not loaded.
+- Increase the icon resolution.
 - From AlexM: oh, and allow the specification of a complex type in the command line as a root (-r element1 -r complexType2 -r ...).
 - Fixed min/maxOccurs for group references (Thanks Cleric-K).
 - Fixed the node expansion group of type 'All' (Thanks Carsten).

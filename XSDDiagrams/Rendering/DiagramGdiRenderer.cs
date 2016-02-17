@@ -486,42 +486,30 @@ namespace XSDDiagram.Rendering
             }
 
             // Draw Documentation
-            
-            XMLSchema.annotated annotated = drawingItem.TabSchema as XMLSchema.annotated;
-            if (annotated != null && annotated.annotation != null)
+            if (drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null)
             {
-                foreach (object o in annotated.annotation.Items)
+                string text = drawingItem.GetTextDocumentation();
+                if (text != null)
                 {
-                    if (o is XMLSchema.documentation)
+                    StringFormat stringFormatText = new StringFormat();
+                    stringFormatText.Alignment = StringAlignment.Near;
+                    stringFormatText.LineAlignment = StringAlignment.Near;
+                    stringFormatText.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
+
+                    //_graphics.DrawString(text, drawingItem.Font, foreground
+                    //    , new RectangleF(scaledElementBox.X - drawingItem.Diagram.Scale * 5.0f, scaledElementBox.Y + scaledElementBox.Height + drawingItem.Diagram.Scale * 12.0f
+                    //                , scaledElementBox.Width + drawingItem.Diagram.Scale * 10.0f, 2.0f * scaledElementBox.Height)
+                    //    , stringFormatText);
+                    Rectangle scaledDocumentationBox = drawingItem.ScaleRectangle(drawingItem.DocumentationBox);
+                    if (drawingItem.Diagram.ShowBoundingBox)
                     {
-                        string text = null;
-                        XMLSchema.documentation documentation = o as XMLSchema.documentation;
-                        if (documentation.Any != null && documentation.Any.Length > 0)
-                        {
-                            text = documentation.Any[0].Value;
-                            text = text.Replace("\n", " ");
-                            text = text.Replace("\t", " ");
-                            text = text.Replace("\r", "");
-                            text = Regex.Replace(text, " +", " ");
-                            text = text.Trim();
-                        }
-                        else if (documentation.source != null)
-                        {
-                            text = documentation.source;
-                        }
-                        if (text != null)
-                        {
-                            StringFormat stringFormatText = new StringFormat();
-                            stringFormatText.Alignment = StringAlignment.Near;
-                            stringFormatText.LineAlignment = StringAlignment.Near;
-                            stringFormatText.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
-                            _graphics.DrawString(text, drawingItem.Font, foreground
-                                , new RectangleF(scaledElementBox.X - drawingItem.Diagram.Scale * 5.0f, scaledElementBox.Y + scaledElementBox.Height + drawingItem.Diagram.Scale * 12.0f
-                                            , scaledElementBox.Width + drawingItem.Diagram.Scale * 10.0f, 2.0f * scaledElementBox.Height)
-                                , stringFormatText);
-                        }
-                        break;
+                        int color = 255 - drawingItem.Depth * 8;
+                        _graphics.FillRectangle(new SolidBrush(Color.FromArgb(color, 255 - color, color)), scaledDocumentationBox);
+                        _graphics.DrawRectangle(foregroundPen, scaledDocumentationBox);
                     }
+                    _graphics.DrawString(text, drawingItem.DocumentationFont, foreground
+                        , new RectangleF(scaledDocumentationBox.X, scaledDocumentationBox.Y, scaledDocumentationBox.Width, scaledDocumentationBox.Height)
+                        , stringFormatText);
                 }
             }
 
