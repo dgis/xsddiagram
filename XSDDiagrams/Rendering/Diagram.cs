@@ -25,10 +25,14 @@ namespace XSDDiagram.Rendering
         private Size _size;
 		private Size _padding;
         private float _scale;
+        private float _lastScale;
 
         private Font _font;
+        private Font _fontScaled;
         private Font _smallFont;
+        private Font _smallFontScaled;
         private Font _documentationFont;
+        private Font _documentationFontScaled;
 
         private Rectangle         _boundingBox;
 		private DiagramAlignement _alignement;
@@ -44,12 +48,13 @@ namespace XSDDiagram.Rendering
 
         public Diagram()
         {
-            _scale                   = 1.0f;
-            _size                    = new Size(100, 100);
-            _padding                 = new Size(10, 10);
-            _boundingBox             = Rectangle.Empty;
-            _alignement              = DiagramAlignement.Center;
-            _rootElements            = new List<DiagramItem>();
+            _scale = 1.0f;
+            _lastScale = 1.0f;
+            _size = new Size(100, 100);
+            _padding = new Size(10, 10);
+            _boundingBox = Rectangle.Empty;
+            _alignement = DiagramAlignement.Center;
+            _rootElements = new List<DiagramItem>();
             _elementsByName = new Dictionary<string, XSDObject>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -66,8 +71,11 @@ namespace XSDDiagram.Rendering
         public bool ShowDocumentation { get { return _showDocumentation; } set { _showDocumentation = value; } }
 
         public Font Font { get { return _font; } set { _font = value; } }
+        public Font FontScaled { get { return _fontScaled; } set { _fontScaled = value; } }
         public Font SmallFont { get { return _smallFont; } set { _smallFont = value; } }
+        public Font SmallFontScaled { get { return _smallFontScaled; } set { _smallFontScaled = value; } }
         public Font DocumentationFont { get { return _documentationFont; } set { _documentationFont = value; } }
+        public Font DocumentationFontScaled { get { return _documentationFontScaled; } set { _documentationFontScaled = value; } }
 
         public IDictionary<string, XSDObject> ElementsByName { get { return _elementsByName; } set { _elementsByName = value; } }
 		public List<DiagramItem> RootElements { get { return _rootElements; } }
@@ -444,13 +452,24 @@ namespace XSDDiagram.Rendering
             //_font      = new Font(fontName, 10.0f * (float)Math.Pow(_scale, 2.0), FontStyle.Bold, GraphicsUnit.Pixel);
             //_smallFont = new Font(fontName, 9.0f * (float)Math.Pow(_scale, 2.0), GraphicsUnit.Pixel);
             //_documentationFont = new Font(fontName, 10.0f * (float)Math.Pow(_scale, 2.0), GraphicsUnit.Pixel);
-            float fontScale = (float)Math.Pow(_scale, 2.0);
             if (_font == null)
-                _font = new Font(fontName, 10.0f * fontScale, FontStyle.Bold, GraphicsUnit.Pixel);
-            if (_smallFont == null)
-                _smallFont = new Font(fontName, 9.0f * fontScale, GraphicsUnit.Pixel);
-            if (_documentationFont == null)
-                _documentationFont = new Font(fontName, 10.0f * fontScale, GraphicsUnit.Pixel);
+            {
+                _font = new Font(fontName, 10.0f, FontStyle.Bold, GraphicsUnit.Pixel);
+                _smallFont = new Font(fontName, 9.0f, GraphicsUnit.Pixel);
+                _documentationFont = new Font(fontName, 10.0f, GraphicsUnit.Pixel);
+            }
+            if (_fontScaled == null || _lastScale != _scale)
+            {
+                //float fontScale = (float)Math.Pow(_scale, 2.0);
+                float fontScale = _scale;
+                if (_fontScaled != null) _fontScaled.Dispose();
+                _fontScaled = new Font(fontName, 10.0f * fontScale, FontStyle.Bold, GraphicsUnit.Pixel);
+                if (_smallFontScaled != null) _smallFontScaled.Dispose();
+                _smallFontScaled = new Font(fontName, 9.0f * fontScale, GraphicsUnit.Pixel);
+                if (_documentationFontScaled != null) _documentationFontScaled.Dispose();
+                _documentationFontScaled = new Font(fontName, 10.0f * fontScale, GraphicsUnit.Pixel);
+                _lastScale = _scale;
+            }
 
             foreach (DiagramItem element in _rootElements)
 				element.GenerateMeasure(g);

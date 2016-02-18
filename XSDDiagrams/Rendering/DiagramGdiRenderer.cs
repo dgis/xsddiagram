@@ -482,7 +482,7 @@ namespace XSDDiagram.Rendering
                 stringFormatText.Alignment = StringAlignment.Center;
                 stringFormatText.LineAlignment = StringAlignment.Center;
                 stringFormatText.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
-                _graphics.DrawString(drawingItem.Name, drawingItem.Font, foreground, new RectangleF(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height), stringFormatText);
+                _graphics.DrawString(drawingItem.Name, drawingItem.FontScaled, foreground, new RectangleF(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height), stringFormatText);
             }
 
             // Draw Documentation
@@ -494,6 +494,7 @@ namespace XSDDiagram.Rendering
                     StringFormat stringFormatText = new StringFormat();
                     stringFormatText.Alignment = StringAlignment.Near;
                     stringFormatText.LineAlignment = StringAlignment.Near;
+                    stringFormatText.Trimming = StringTrimming.EllipsisCharacter;
                     stringFormatText.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
 
                     //_graphics.DrawString(text, drawingItem.Font, foreground
@@ -507,7 +508,7 @@ namespace XSDDiagram.Rendering
                         _graphics.FillRectangle(new SolidBrush(Color.FromArgb(color, 255 - color, color)), scaledDocumentationBox);
                         _graphics.DrawRectangle(foregroundPen, scaledDocumentationBox);
                     }
-                    _graphics.DrawString(text, drawingItem.DocumentationFont, foreground
+                    _graphics.DrawString(text, drawingItem.DocumentationFontScaled, foreground
                         , new RectangleF(scaledDocumentationBox.X, scaledDocumentationBox.Y, scaledDocumentationBox.Width, scaledDocumentationBox.Height)
                         , stringFormatText);
                 }
@@ -525,7 +526,7 @@ namespace XSDDiagram.Rendering
                 PointF pointOccurences = new PointF();
                 pointOccurences.X = drawingItem.Diagram.Scale * (drawingItem.Location.X + drawingItem.Size.Width - 10);
                 pointOccurences.Y = drawingItem.Diagram.Scale * (drawingItem.Location.Y + drawingItem.Size.Height + 10);
-                _graphics.DrawString(occurences, drawingItem.SmallFont, foreground, pointOccurences, stringFormatOccurences);
+                _graphics.DrawString(occurences, drawingItem.SmallFontScaled, foreground, pointOccurences, stringFormatOccurences);
             }
 
             // Draw type

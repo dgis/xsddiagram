@@ -131,6 +131,7 @@ version 0.18 (Not released yet)
 - Fix a bug when printing with margin!
 - On Linux with Mono, the horizontal and vertical scrollbars should now appear.
 - Fix an UTF8 bug when downloading from a URL.
+- Fix bug when zooming the fonts.
 
 version 0.17 (2015-09-02)
 - Add CSV and TXT output rendering following the Christian's idea.

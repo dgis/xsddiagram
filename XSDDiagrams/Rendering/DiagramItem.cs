@@ -266,6 +266,13 @@ namespace XSDDiagram.Rendering
                 return _diagram.Font; 
             } 
         }
+        public Font FontScaled
+        {
+            get
+            {
+                return _diagram.FontScaled;
+            }
+        }
 
         public Font SmallFont
         {
@@ -274,11 +281,26 @@ namespace XSDDiagram.Rendering
                 return _diagram.SmallFont;
             }
         }
+        public Font SmallFontScaled
+        {
+            get
+            {
+                return _diagram.SmallFontScaled;
+            }
+        }
+
         public Font DocumentationFont
         {
             get
             {
                 return _diagram.DocumentationFont;
+            }
+        }
+        public Font DocumentationFontScaled
+        {
+            get
+            {
+                return _diagram.DocumentationFontScaled;
             }
         }
 
@@ -523,7 +545,15 @@ namespace XSDDiagram.Rendering
                     double documentationWidth = Math.Max(1.0, _size.Width + _padding.Width * 2.0);
                     double documentationHeight = (Math.Ceiling(sizeF.Width / documentationWidth) + 1) * sizeF.Height;
                     _documentationBox = new Rectangle(new Point(0, 0), new Size((int)documentationWidth, (int)documentationHeight));
-                    _boundingBox.Height += (_diagram.Alignement == DiagramAlignement.Center ? 2 : 1) *_documentationBox.Height + 2 * _padding.Height;
+                    //_boundingBox.Height += (_diagram.Alignement == DiagramAlignement.Center ? 2 : 1) * _documentationBox.Height + 2 * _padding.Height;
+                    //if(_diagram.Alignement == DiagramAlignement.Center)
+                    //{
+                    //    _boundingBox.Height = Math.Max(_size.Height + 2 * _padding.Height + 2 * _documentationBox.Height + 2 * _padding.Height, childBoundingBoxHeight);
+                    //}
+                    //else
+                    {
+                        _boundingBox.Height = Math.Max(_size.Height + 2 * _padding.Height + _documentationBox.Height + 2 * _padding.Height, childBoundingBoxHeight);
+                    }
                 }
             }
 
