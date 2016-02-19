@@ -577,6 +577,11 @@ namespace XSDDiagram.Rendering
                 case DiagramAlignement.Center:
                     _location.Y = _boundingBox.Y +
                         (_boundingBox.Height - _size.Height) / 2;
+                    if(_diagram.ShowDocumentation && _documentationBox != null)
+                    {
+                        _location.Y = _boundingBox.Y +
+                            (_boundingBox.Height - (2 * _padding.Height + _documentationBox.Height)) / 2;
+                    }
                     break;
                 case DiagramAlignement.Near:
                     if (_itemType == DiagramItemType.group && _parent != null && _parent.ChildElements.Count == 1)
