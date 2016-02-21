@@ -437,21 +437,6 @@ namespace XSDDiagram.Rendering
 		{
  			string fontName = "Arial"; // "Verdana"; // "Arial";
 
-            //if (_font != null)
-            //{
-            //    _font.Dispose();
-            //}
-            //if (_smallFont != null)
-            //{
-            //    _smallFont.Dispose();
-            //}
-            //if (_documentationFont != null)
-            //{
-            //    _documentationFont.Dispose();
-            //}
-            //_font      = new Font(fontName, 10.0f * (float)Math.Pow(_scale, 2.0), FontStyle.Bold, GraphicsUnit.Pixel);
-            //_smallFont = new Font(fontName, 9.0f * (float)Math.Pow(_scale, 2.0), GraphicsUnit.Pixel);
-            //_documentationFont = new Font(fontName, 10.0f * (float)Math.Pow(_scale, 2.0), GraphicsUnit.Pixel);
             if (_font == null)
             {
                 _font = new Font(fontName, 10.0f, FontStyle.Bold, GraphicsUnit.Pixel);

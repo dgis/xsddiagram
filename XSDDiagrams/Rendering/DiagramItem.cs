@@ -468,7 +468,7 @@ namespace XSDDiagram.Rendering
             return _diagram.ScaleRectangle(rectangle); 
         }
 
-        public string GetTextDocumentation()
+        public string GetTextDocumentation(bool autoWrap = false)
         {
             string text = null;
             XMLSchema.annotated annotated = this.TabSchema as XMLSchema.annotated;

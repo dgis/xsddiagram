@@ -114,16 +114,17 @@ namespace XSDDiagram.Rendering
             Rectangle scaledElementBox = drawingItem.ScaleRectangle(drawingItem.ElementBox);
 
             // Draw the children lines
-            if (drawingItem.ShowChildElements)  
+            if (drawingItem.ShowChildElements && drawingItem.ChildElements.Count > 0)
             {
-                if (drawingItem.ChildElements.Count == 1)
+                bool showDocumentation = (drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null);
+                if (drawingItem.ChildElements.Count == 1 && !showDocumentation)
                 {
                     int parentMidleY = drawingItem.ScaleInt(drawingItem.Location.Y + drawingItem.Size.Height / 2);
                     this.SVGLine(foregroundRoundPen, 
                         drawingItem.ScaleInt(drawingItem.Location.X + drawingItem.Size.Width), 
                         parentMidleY, drawingItem.ScaleInt(drawingItem.ChildElements[0].Location.X), parentMidleY);
                 }
-                else if (drawingItem.ChildElements.Count > 1)
+                else if (drawingItem.ChildElements.Count > 1 || showDocumentation)
                 {
                     DiagramItem firstElement = drawingItem.ChildElements[0];
                     DiagramItem lastElement  = drawingItem.ChildElements[drawingItem.ChildElements.Count - 1];
@@ -459,6 +460,22 @@ namespace XSDDiagram.Rendering
                     drawingItem.Font.Name, drawingItem.Font.Size * fontScale, foregroundColor);
                 SVGText(drawingItem.Name, style, 
                     new Rectangle(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height));
+            }
+
+            // Draw Documentation
+            if (drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null)
+            {
+                string text = drawingItem.GetTextDocumentation();
+                if (text != null)
+                {
+                    //stringFormatText.Trimming = StringTrimming.EllipsisCharacter;
+                    Rectangle scaledDocumentationBox = drawingItem.ScaleRectangle(drawingItem.DocumentationBox);
+                    string style = String.Format(
+                        "font-family:{0};font-size:{1}pt;fill:{2};font-weight:bold;text-anchor:start;dominant-baseline:central;inline-size={3}",
+                        drawingItem.DocumentationFont.Name, drawingItem.DocumentationFont.Size * fontScale, foregroundColor, scaledDocumentationBox.Width);
+                    SVGText(text, style,
+                        new Rectangle(scaledDocumentationBox.X, scaledDocumentationBox.Y, scaledDocumentationBox.Width, scaledDocumentationBox.Height));
+                }
             }
 
             // Draw occurences small text

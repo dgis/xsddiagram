@@ -159,18 +159,19 @@ namespace XSDDiagram.Rendering
             Rectangle scaledElementBox = drawingItem.ScaleRectangle(drawingItem.ElementBox);
 
             // Draw the children lines
-            if (drawingItem.ShowChildElements)
+            if (drawingItem.ShowChildElements && drawingItem.ChildElements.Count > 0)
             {
                 Pen foregroundInheritPen = new Pen(foreground);
                 foregroundInheritPen.StartCap = LineCap.Round;
                 foregroundInheritPen.EndCap = LineCap.Round;
 
-                if (drawingItem.ChildElements.Count == 1)
+                bool showDocumentation = (drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null);
+                if (drawingItem.ChildElements.Count == 1 && !showDocumentation)
                 {
                     int parentMidleY = drawingItem.ScaleInt(drawingItem.Location.Y + drawingItem.Size.Height / 2);
                     _graphics.DrawLine(foregroundInheritPen, drawingItem.ScaleInt(drawingItem.Location.X + drawingItem.Size.Width), parentMidleY, drawingItem.ScaleInt(drawingItem.ChildElements[0].Location.X), parentMidleY);
                 }
-                else if (drawingItem.ChildElements.Count > 1)
+                else if (drawingItem.ChildElements.Count > 1 || showDocumentation)
                 {
                     DiagramItem firstElement = drawingItem.ChildElements[0];
                     DiagramItem lastElement = drawingItem.ChildElements[drawingItem.ChildElements.Count - 1];
@@ -497,10 +498,6 @@ namespace XSDDiagram.Rendering
                     stringFormatText.Trimming = StringTrimming.EllipsisCharacter;
                     stringFormatText.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
 
-                    //_graphics.DrawString(text, drawingItem.Font, foreground
-                    //    , new RectangleF(scaledElementBox.X - drawingItem.Diagram.Scale * 5.0f, scaledElementBox.Y + scaledElementBox.Height + drawingItem.Diagram.Scale * 12.0f
-                    //                , scaledElementBox.Width + drawingItem.Diagram.Scale * 10.0f, 2.0f * scaledElementBox.Height)
-                    //    , stringFormatText);
                     Rectangle scaledDocumentationBox = drawingItem.ScaleRectangle(drawingItem.DocumentationBox);
                     if (drawingItem.Diagram.ShowBoundingBox)
                     {
