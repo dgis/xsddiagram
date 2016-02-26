@@ -44,6 +44,8 @@ namespace XSDDiagram
 	public partial class MainForm : Form
 	{
         private DiagramPrinter _diagramPrinter;
+        private DiagramGdiRenderer _diagramGdiRenderer;
+        private Rectangle _renderingClipRectangle = new Rectangle();
 
         private Diagram diagram = new Diagram();
         private Schema schema = new Schema();
@@ -94,13 +96,15 @@ namespace XSDDiagram
 			this.toolStripComboBoxSchemaElement.Items.Add("");
 
 			this.diagram.RequestAnyElement += new Diagram.RequestAnyElementEventHandler(diagram_RequestAnyElement);
-			this.panelDiagram.DiagramControl.ContextMenuStrip = this.contextMenuStripDiagram;
+            this.panelDiagram.VirtualSize = new Size(0, 0);
+            this.panelDiagram.DiagramControl.ContextMenuStrip = this.contextMenuStripDiagram;
 			this.panelDiagram.DiagramControl.MouseWheel += new MouseEventHandler(DiagramControl_MouseWheel);
 			this.panelDiagram.DiagramControl.MouseClick += new MouseEventHandler(DiagramControl_MouseClick);
 			this.panelDiagram.DiagramControl.MouseHover += new EventHandler(DiagramControl_MouseHover);
-			this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
-			this.panelDiagram.VirtualSize = new Size(0, 0);
-			this.panelDiagram.DiagramControl.Paint += new PaintEventHandler(DiagramControl_Paint);
+            this.panelDiagram.DiagramControl.MouseMove += new MouseEventHandler(DiagramControl_MouseMove);
+            //this.panelDiagram.DiagramControl.KeyDown += DiagramControl_KeyDown;
+            this.panelDiagram.DiagramControl.KeyDown += new KeyEventHandler(DiagramControl_KeyDown);
+            this.panelDiagram.DiagramControl.Paint += new PaintEventHandler(DiagramControl_Paint);
 
             this.schema.RequestCredential += schema_RequestCredential;
             this.backupUsername = Options.Username;
@@ -333,13 +337,21 @@ namespace XSDDiagram
 
 		void DiagramControl_Paint(object sender, PaintEventArgs e)
 		{
-			Point virtualPoint = this.panelDiagram.VirtualPoint;
-			e.Graphics.TranslateTransform(-(float)virtualPoint.X, -(float)virtualPoint.Y);
-			e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-			e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            if (_diagramGdiRenderer == null)
+                _diagramGdiRenderer = new DiagramGdiRenderer(e.Graphics);
+            else if (e.Graphics != _diagramGdiRenderer.Graphics)
+                _diagramGdiRenderer.Graphics = e.Graphics;
+            if (_diagramGdiRenderer != null)
+            {
+                Point virtualPoint = this.panelDiagram.VirtualPoint;
+                e.Graphics.TranslateTransform(-(float)virtualPoint.X, -(float)virtualPoint.Y);
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                _renderingClipRectangle.Location = virtualPoint;
+                _renderingClipRectangle.Size = this.panelDiagram.DiagramControl.ClientRectangle.Size;
 
-            DiagramGdiRenderer.Draw(diagram, e.Graphics, 
-                new Rectangle(virtualPoint, this.panelDiagram.DiagramControl.ClientRectangle.Size));
+                _diagramGdiRenderer.Render(diagram, _renderingClipRectangle);
+            }
 		}
 
 		private void UpdateDiagram()
@@ -501,9 +513,10 @@ namespace XSDDiagram
 						else
 							resultElement.ShowChildElements ^= true;
 
-						UpdateDiagram();
-						this.panelDiagram.ScrollTo(this.diagram.ScalePoint(resultElement.Location), true);
-					}
+                        //UpdateDiagram();
+                        //this.panelDiagram.ScrollTo(this.diagram.ScalePoint(resultElement.Location), true);
+                        SelectDiagramElement(resultElement, true);
+                    }
 				}
 				else if (resultRegion == DiagramHitTestRegion.Element)
 				{
@@ -520,21 +533,18 @@ namespace XSDDiagram
 			}
 		}
 
-		private void SelectDiagramElement(DiagramItem element)
+        private void SelectDiagramElement(DiagramItem element, bool scrollToElement = false)
 		{
 			this.textBoxElementPath.Text = "";
-			if (element == null)
+
+            if (element == null)
 			{
 				this.toolStripComboBoxSchemaElement.SelectedItem = "";
 				this.propertyGridSchemaObject.SelectedObject = null;
 				this.listViewAttributes.Items.Clear();
-				return;
 			}
-
-			if (element is DiagramItem)
+            else
 			{
-                //if (this.schema.ElementsByName[element.FullName] != null)
-                //	this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.ElementsByName[element.FullName];
                 XSDObject xsdObject;
                 if (this.schema.ElementsByName.TryGetValue(element.FullName, out xsdObject) && xsdObject != null)
                     this.toolStripComboBoxSchemaElement.SelectedItem = xsdObject;
@@ -553,14 +563,15 @@ namespace XSDDiagram
 				}
 				this.textBoxElementPath.Text = path;
 			}
-			else
-			{
-				this.toolStripComboBoxSchemaElement.SelectedItem = "";
-				SelectSchemaElement(element);
-			}
-		}
 
-		private void SelectSchemaElement(XSDObject xsdObject)
+            if (element != this.diagram.SelectedElement)
+                this.diagram.SelectElement(element);
+            if (scrollToElement)
+                this.panelDiagram.ScrollTo(this.diagram.ScalePoint(element.Location), true);
+            UpdateDiagram();
+        }
+
+        private void SelectSchemaElement(XSDObject xsdObject)
 		{
 			SelectSchemaElement(xsdObject.Tag, xsdObject.NameSpace);
 		}
@@ -1233,7 +1244,8 @@ namespace XSDDiagram
 		private void contextMenuStripDiagram_Opened(object sender, EventArgs e)
 		{
 			this.gotoXSDFileToolStripMenuItem.Enabled = false;
-			this.removeFromDiagramToolStripMenuItem.Enabled = false;
+            this.expandToolStripMenuItem.Enabled = false;
+            this.removeFromDiagramToolStripMenuItem.Enabled = false;
 
 			Point contextualMenuMousePosition = this.panelDiagram.DiagramControl.PointToClient(MousePosition);
 			contextualMenuMousePosition.Offset(this.panelDiagram.VirtualPoint);
@@ -1246,7 +1258,8 @@ namespace XSDDiagram
 				{
 					this.contextualMenuPointedElement = resultElement;
                     this.gotoXSDFileToolStripMenuItem.Enabled = this.schema.ElementsByName.ContainsKey(this.contextualMenuPointedElement.FullName);
-					this.removeFromDiagramToolStripMenuItem.Enabled = true;
+                    this.expandToolStripMenuItem.Enabled = true;
+                    this.removeFromDiagramToolStripMenuItem.Enabled = true;
 				}
 			}
 		}
@@ -1268,22 +1281,30 @@ namespace XSDDiagram
 			this.contextualMenuPointedElement = null;
 		}
 
-		private void removeFromDiagramToolStripMenuItem_Click(object sender, EventArgs e)
+        private void expandToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExpandCollapseElement(this.contextualMenuPointedElement, false);
+            this.contextualMenuPointedElement = null;
+        }
+
+        private void removeFromDiagramToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (this.contextualMenuPointedElement != null)
-			{
-				DiagramItem parentDiagram = this.contextualMenuPointedElement.Parent;
-				this.diagram.Remove(this.contextualMenuPointedElement);
-				UpdateDiagram();
-				if (parentDiagram != null)
-					this.panelDiagram.ScrollTo(this.diagram.ScalePoint(parentDiagram.Location), true);
-				else
-					this.panelDiagram.ScrollTo(new Point(0, 0));
-			}
-			this.contextualMenuPointedElement = null;
+            RemoveElement(this.contextualMenuPointedElement);
+            this.contextualMenuPointedElement = null;
 		}
 
-		private void tabControlView_Selected(object sender, TabControlEventArgs e)
+        private void RemoveElement(DiagramItem element)
+        {
+            DiagramItem parentDiagram = element.Parent;
+            this.diagram.Remove(element);
+            UpdateDiagram();
+            if (parentDiagram != null)
+                this.panelDiagram.ScrollTo(this.diagram.ScalePoint(parentDiagram.Location), true);
+            else
+                this.panelDiagram.ScrollTo(new Point(0, 0));
+        }
+
+        private void tabControlView_Selected(object sender, TabControlEventArgs e)
 		{
 			if (tabControlView.SelectedTab.Tag != null)
 			{
@@ -1640,12 +1661,97 @@ namespace XSDDiagram
 		{
 		}
 
-		//private void toolTip_Popup(object sender, PopupEventArgs e)
-		//{
-		//    //toolTip.SetToolTip(e.AssociatedControl, "AAAAAAAAAA");
-		//}
+        //private void toolTip_Popup(object sender, PopupEventArgs e)
+        //{
+        //    //toolTip.SetToolTip(e.AssociatedControl, "AAAAAAAAAA");
+        //}
 
-		private void toolTip_Draw(object sender, DrawToolTipEventArgs e)
+        private void DiagramControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (this.diagram.RootElements.Count > 0)
+            {
+                if (e.KeyCode == Keys.Space || e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter)
+                    ExpandCollapseElement(this.diagram.SelectedElement, true);
+                if (e.KeyCode == Keys.Delete)
+                {
+                    DiagramItem parentElement = this.diagram.SelectedElement.Parent;
+                    RemoveElement(this.diagram.SelectedElement);
+                    if (parentElement != null)
+                        SelectDiagramElement(this.diagram.SelectedElement.Parent, true);
+                    else
+                        SelectDiagramElement(null);
+                }
+                else if (e.KeyCode == Keys.Right || e.KeyCode == Keys.Left
+                    || e.KeyCode == Keys.Down || e.KeyCode == Keys.Up
+                    || e.KeyCode == Keys.PageDown || e.KeyCode == Keys.PageUp
+                    || e.KeyCode == Keys.Home || e.KeyCode == Keys.End
+                    )
+                {
+                    DiagramItem element = this.diagram.SelectedElement;
+                    if (element == null)
+                        SelectDiagramElement(this.diagram.RootElements[0], true);
+                    else
+                    {
+                        switch (e.KeyCode)
+                        {
+                            case Keys.Right:
+                                if (element.HasChildElements)
+                                {
+                                    if (element.ChildElements.Count == 0)
+                                        this.diagram.ExpandChildren(element);
+                                    element.ShowChildElements = true;
+                                    SelectDiagramElement(element.ChildElements[0], true);
+                                }
+                                break;
+                            case Keys.Left:
+                                if (element.Parent != null)
+                                    SelectDiagramElement(element.Parent, true);
+                                break;
+                            case Keys.Down:
+                                {
+                                    IList<DiagramItem> children = element.Parent == null ? this.diagram.RootElements : element.Parent.ChildElements;
+                                    if (children != null)
+                                    {
+                                        var pos = children.IndexOf(element);
+                                        if (pos + 1 < children.Count)
+                                            SelectDiagramElement(children[pos + 1], true);
+                                    }
+                                }
+                                break;
+                            case Keys.Up:
+                                {
+                                    IList<DiagramItem> children = element.Parent == null ? this.diagram.RootElements : element.Parent.ChildElements;
+                                    if (children != null)
+                                    {
+                                        var pos = children.IndexOf(element);
+                                        if (pos - 1 >= 0)
+                                            SelectDiagramElement(children[pos - 1], true);
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ExpandCollapseElement(DiagramItem element, bool scrollToElement = false)
+        {
+            if (element != null && element.HasChildElements)
+            {
+                if (element.ChildElements.Count == 0)
+                {
+                    this.diagram.ExpandChildren(element);
+                    element.ShowChildElements = true;
+                }
+                else
+                    element.ShowChildElements ^= true;
+                UpdateDiagram();
+                this.panelDiagram.ScrollTo(this.diagram.ScalePoint(element.Location), true);
+            }
+        }
+
+        private void toolTip_Draw(object sender, DrawToolTipEventArgs e)
 		{
 			Point diagramMousePosition = e.AssociatedControl.PointToClient(MousePosition);
 			string text = string.Format("AAAA {0} {1}\nA Que\n\nCoucou", diagramMousePosition.X, diagramMousePosition.Y);

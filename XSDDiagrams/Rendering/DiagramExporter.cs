@@ -175,14 +175,14 @@ namespace XSDDiagram.Rendering
                 {
                     _diagram.Scale = 1.0f;
                     _diagram.Layout(referenceGraphics);
-                    using (StreamWriter sw = new StreamWriter(stream))
+                    using (StreamWriter streamWriter = new StreamWriter(stream))
                     {
-                        using (DiagramSvgRenderer renderer = new DiagramSvgRenderer(sw))
+                        using (DiagramSvgRenderer renderer = new DiagramSvgRenderer(streamWriter, referenceGraphics))
                         {
                             renderer.Render(_diagram);
                         }
 
-                        sw.Close();
+                        streamWriter.Close();
                     }
                     result = true;
                 }

@@ -34,11 +34,12 @@ namespace XSDDiagram.Rendering
         private Font _documentationFont;
         private Font _documentationFontScaled;
 
-        private Rectangle         _boundingBox;
+        private Rectangle _boundingBox;
 		private DiagramAlignement _alignement;
 
-        private List<DiagramItem> _rootElements;
         private IDictionary<string, XSDObject> _elementsByName;
+        private List<DiagramItem> _rootElements;
+        private DiagramItem _selectedElement;
 
         private XMLSchema.any     _fakeAny;
 
@@ -55,6 +56,7 @@ namespace XSDDiagram.Rendering
             _boundingBox = Rectangle.Empty;
             _alignement = DiagramAlignement.Center;
             _rootElements = new List<DiagramItem>();
+            _selectedElement = null;
             _elementsByName = new Dictionary<string, XSDObject>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -79,6 +81,7 @@ namespace XSDDiagram.Rendering
 
         public IDictionary<string, XSDObject> ElementsByName { get { return _elementsByName; } set { _elementsByName = value; } }
 		public List<DiagramItem> RootElements { get { return _rootElements; } }
+        public DiagramItem SelectedElement { get { return _selectedElement; } }
 
         #endregion
 
@@ -430,10 +433,12 @@ namespace XSDDiagram.Rendering
 
 		public void Clear()
 		{
-			_rootElements.Clear();
-		}
+            _elementsByName.Clear();
+            _rootElements.Clear();
+            _selectedElement = null;
+        }
 
-		public void Layout(Graphics g)
+        public void Layout(Graphics g)
 		{
  			string fontName = "Arial"; // "Verdana"; // "Arial";
 
@@ -609,6 +614,17 @@ namespace XSDDiagram.Rendering
                     AddAny(diagramCompositors, null, diagramCompositors.NameSpace);
                 }
 			}
+        }
+
+        public void SelectElement(DiagramItem element)
+        {
+            if(_selectedElement != null)
+                _selectedElement.IsSelected = false;
+            if (element != null)
+            {
+                _selectedElement = element;
+                element.IsSelected = true;
+            }
         }
 
         #endregion

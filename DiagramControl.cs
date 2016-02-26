@@ -33,10 +33,38 @@ namespace XSDDiagram
 			ControlStyles.OptimizedDoubleBuffer, true);
 		}
 
-		protected override void WndProc(ref Message m)
+        protected override bool IsInputKey(Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Right:
+                case Keys.Left:
+                case Keys.Up:
+                case Keys.Down:
+                case Keys.PageDown:
+                case Keys.PageUp:
+                case Keys.Home:
+                case Keys.End:
+                case Keys.Delete:
+                    return true;
+                case Keys.Shift | Keys.Right:
+                case Keys.Shift | Keys.Left:
+                case Keys.Shift | Keys.Up:
+                case Keys.Shift | Keys.Down:
+                case Keys.Shift | Keys.PageDown:
+                case Keys.Shift | Keys.PageUp:
+                case Keys.Shift | Keys.Home:
+                case Keys.Shift | Keys.End:
+                case Keys.Shift | Keys.Delete:
+                    return true;
+            }
+            return base.IsInputKey(keyData);
+        }
+
+        protected override void WndProc(ref Message m)
 		{
-			if (m.Msg == WM_SETFOCUS)
-				return;
+			//if (m.Msg == WM_SETFOCUS)
+			//	return;
 			base.WndProc(ref m);
 		}
 	}

@@ -14,6 +14,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace XSDDiagram.Rendering
 {
@@ -22,12 +23,13 @@ namespace XSDDiagram.Rendering
         #region Private Fields
 
         private TextWriter _writer;
+        private Graphics _graphics;
 
         #endregion
 
         #region Constructors and Destructor
 
-        public DiagramSvgRenderer(TextWriter writer)
+        public DiagramSvgRenderer(TextWriter writer, Graphics referenceGraphics = null)
         {
             if (writer == null)
             {
@@ -35,6 +37,7 @@ namespace XSDDiagram.Rendering
             }
 
             _writer = writer;
+            _graphics = referenceGraphics;
         }
 
         #endregion
@@ -87,6 +90,8 @@ namespace XSDDiagram.Rendering
 
         public override void Render(DiagramItem drawingItem)
         {
+            bool showDocumentation = drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null && _graphics != null;
+
             //if (drawingItem.diagram.ShowBoundingBox)
             //{
             //    int color = 255 - depth * 8;
@@ -116,7 +121,6 @@ namespace XSDDiagram.Rendering
             // Draw the children lines
             if (drawingItem.ShowChildElements && drawingItem.ChildElements.Count > 0)
             {
-                bool showDocumentation = (drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null);
                 if (drawingItem.ChildElements.Count == 1 && !showDocumentation)
                 {
                     int parentMidleY = drawingItem.ScaleInt(drawingItem.Location.Y + drawingItem.Size.Height / 2);
@@ -463,18 +467,19 @@ namespace XSDDiagram.Rendering
             }
 
             // Draw Documentation
-            if (drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null)
+            if (showDocumentation)
             {
                 string text = drawingItem.GetTextDocumentation();
                 if (text != null)
                 {
+                    List<string> lines = WrapText(_graphics, drawingItem.DocumentationFont, text, drawingItem.ScaleRectangle(drawingItem.DocumentationBox).Width);
+
                     //stringFormatText.Trimming = StringTrimming.EllipsisCharacter;
                     Rectangle scaledDocumentationBox = drawingItem.ScaleRectangle(drawingItem.DocumentationBox);
                     string style = String.Format(
                         "font-family:{0};font-size:{1}pt;fill:{2};font-weight:bold;text-anchor:start;dominant-baseline:central;inline-size={3}",
                         drawingItem.DocumentationFont.Name, drawingItem.DocumentationFont.Size * fontScale, foregroundColor, scaledDocumentationBox.Width);
-                    SVGText(text, style,
-                        new Rectangle(scaledDocumentationBox.X, scaledDocumentationBox.Y, scaledDocumentationBox.Width, scaledDocumentationBox.Height));
+                    SVGText(lines, style, new Point(scaledDocumentationBox.X, scaledDocumentationBox.Y), drawingItem.DocumentationFont.Size * fontScale * 1.333333f);
                 }
             }
 
@@ -597,6 +602,14 @@ namespace XSDDiagram.Rendering
             _writer.WriteLine("<text x=\"{0}\" y=\"{1}\" style=\"{2}\">{3}</text>", 
                 rect.X + rect.Width / 2.0, rect.Y + rect.Height / 2.0, style, text);
         }
+        private void SVGText(List<string> text, string style, Point point, float fontSize)
+        {
+            _writer.WriteLine("<text x=\"{0}\" y=\"{1}\" style=\"{2}\">{3}",
+                point.X, point.Y, style, text.Count > 0 ? text[0] : "");
+            for (int i = 1; i < text.Count; i++)
+                _writer.WriteLine("<tspan x=\"{0}\" y=\"{1}\">{2}</tspan>", point.X, point.Y + i * fontSize, text[i]);
+            _writer.WriteLine("</text>");
+        }
 
         private string SVGPolygonToDrawCommand(Point[] pathPoint)
         {
@@ -608,6 +621,60 @@ namespace XSDDiagram.Rendering
             result.Append('Z');
 
             return result.ToString();
+        }
+
+        private static List<string> WrapText0(Graphics g, Font font, string text, int pixels)
+        {
+            List<string> wordwrapped = new List<string>();
+            string currentLine = string.Empty;
+            for (int i = 0; i < text.Length; i++)
+            {
+                char currentChar = text[i];
+                currentLine += currentChar;
+                if (g.MeasureString(currentLine, font).Width > pixels)
+                {
+                    // exceeded length, back up to last space
+                    int moveback = 0;
+                    while (currentChar != ' ')
+                    {
+                        moveback++;
+                        i--;
+                        currentChar = text[i];
+                    }
+                    string lineToAdd = currentLine.Substring(0, currentLine.Length - moveback);
+                    wordwrapped.Add(lineToAdd);
+                    currentLine = string.Empty;
+                }
+            }
+
+            return wordwrapped;
+        }
+
+        static List<string> WrapText(Graphics g, Font font, string text, int pixels)
+        {
+            string[] originalLines = text.Split(new string[] { " " }, StringSplitOptions.None);
+            List<string> wrappedLines = new List<string>();
+            StringBuilder actualLine = new StringBuilder();
+            float actualWidth = 0;
+
+            foreach (var item in originalLines)
+            {
+                SizeF formatted = g.MeasureString(item, font);
+                actualLine.Append(item + " ");
+                actualWidth += formatted.Width;
+                if (actualWidth > pixels)
+                {
+                    wrappedLines.Add(actualLine.ToString());
+                    actualLine.Length = 0;
+                    //actualLine.Clear();
+                    actualWidth = 0;
+                }
+            }
+
+            if (actualLine.Length > 0)
+                wrappedLines.Add(actualLine.ToString());
+
+            return wrappedLines;
         }
 
         #endregion

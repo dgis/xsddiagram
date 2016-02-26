@@ -14,6 +14,7 @@ using System;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace XSDDiagram.Rendering
 {
@@ -29,6 +30,7 @@ namespace XSDDiagram.Rendering
         private bool _isReference;
         private bool _isSimpleContent;
         private bool _isDisabled;
+        private bool _isSelected;
         private bool _hasChildElements;
         private bool _showChildElements;
 
@@ -190,19 +192,31 @@ namespace XSDDiagram.Rendering
                 _isSimpleContent = value; 
             } 
         }
-        
-        public bool IsDisabled 
-        { 
-            get 
-            { 
-                return _isDisabled; 
-            } 
-            set 
-            { 
-                _isDisabled = value; 
-            } 
+
+        public bool IsDisabled
+        {
+            get
+            {
+                return _isDisabled;
+            }
+            set
+            {
+                _isDisabled = value;
+            }
         }
-        
+
+        public bool IsSelected
+        {
+            get
+            {
+                return _isSelected;
+            }
+            set
+            {
+                _isSelected = value;
+            }
+        }
+
         public int MinOccurrence 
         { 
             get 
@@ -468,7 +482,7 @@ namespace XSDDiagram.Rendering
             return _diagram.ScaleRectangle(rectangle); 
         }
 
-        public string GetTextDocumentation(bool autoWrap = false)
+        public string GetTextDocumentation()
         {
             string text = null;
             XMLSchema.annotated annotated = this.TabSchema as XMLSchema.annotated;
@@ -542,18 +556,10 @@ namespace XSDDiagram.Rendering
                 if (text != null)
                 {
                     SizeF sizeF = g.MeasureString(text, DocumentationFont);
-                    double documentationWidth = Math.Max(1.0, _size.Width + _padding.Width * 2.0);
+                    double documentationWidth = Math.Max(1.0, _size.Width + _padding.Width); // * 2.0);
                     double documentationHeight = (Math.Ceiling(sizeF.Width / documentationWidth) + 1) * sizeF.Height;
                     _documentationBox = new Rectangle(new Point(0, 0), new Size((int)documentationWidth, (int)documentationHeight));
-                    //_boundingBox.Height += (_diagram.Alignement == DiagramAlignement.Center ? 2 : 1) * _documentationBox.Height + 2 * _padding.Height;
-                    //if(_diagram.Alignement == DiagramAlignement.Center)
-                    //{
-                    //    _boundingBox.Height = Math.Max(_size.Height + 2 * _padding.Height + 2 * _documentationBox.Height + 2 * _padding.Height, childBoundingBoxHeight);
-                    //}
-                    //else
-                    {
-                        _boundingBox.Height = Math.Max(_size.Height + 2 * _padding.Height + _documentationBox.Height + 2 * _padding.Height, childBoundingBoxHeight);
-                    }
+                    _boundingBox.Height = Math.Max(_size.Height + 2 * _padding.Height + _documentationBox.Height + 2 * _padding.Height, childBoundingBoxHeight);
                 }
             }
 
@@ -627,9 +633,9 @@ namespace XSDDiagram.Rendering
             if (_documentationBox != null)
             {
                 if(_diagram.Alignement == DiagramAlignement.Far)
-                    _documentationBox.Offset(_location.X, _location.Y - _documentationBox.Height - _padding.Height);
+                    _documentationBox.Offset(_location.X - _padding.Height / 2, _location.Y - _documentationBox.Height - _padding.Height);
                 else
-                    _documentationBox.Offset(_location.X, _location.Y + _elementBox.Height + _padding.Height);
+                    _documentationBox.Offset(_location.X - _padding.Height / 2, _location.Y + _elementBox.Height + _padding.Height);
             }
         }
 

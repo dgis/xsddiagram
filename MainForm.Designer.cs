@@ -63,7 +63,6 @@ namespace XSDDiagram
             this.splitContainerMain = new System.Windows.Forms.SplitContainer();
             this.tabControlView = new System.Windows.Forms.TabControl();
             this.tabPageDiagram = new System.Windows.Forms.TabPage();
-            this.panelDiagram = new XSDDiagram.DiagramControlContainer();
             this.splitContainerDiagramElement = new System.Windows.Forms.SplitContainer();
             this.tabControlElement = new System.Windows.Forms.TabControl();
             this.tabPageElementAttibutes = new System.Windows.Forms.TabPage();
@@ -102,6 +101,8 @@ namespace XSDDiagram
             this.expandOneLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxElementPath = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.expandToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panelDiagram = new XSDDiagram.DiagramControlContainer();
             this.menuStripMain.SuspendLayout();
             this.statusStripMain.SuspendLayout();
             this.toolStripMain.SuspendLayout();
@@ -599,23 +600,6 @@ namespace XSDDiagram
             this.tabPageDiagram.Text = "Diagram";
             this.tabPageDiagram.UseVisualStyleBackColor = true;
             // 
-            // panelDiagram
-            // 
-            this.panelDiagram.AllowDrop = true;
-            this.panelDiagram.AutoScroll = true;
-            this.panelDiagram.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.panelDiagram.CausesValidation = false;
-            this.panelDiagram.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelDiagram.Location = new System.Drawing.Point(0, 0);
-            this.panelDiagram.Margin = new System.Windows.Forms.Padding(0);
-            this.panelDiagram.Name = "panelDiagram";
-            this.panelDiagram.Size = new System.Drawing.Size(650, 499);
-            this.panelDiagram.TabIndex = 0;
-            this.panelDiagram.VirtualPoint = new System.Drawing.Point(0, 0);
-            this.panelDiagram.VirtualSize = new System.Drawing.Size(10, 10);
-            this.panelDiagram.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragDrop);
-            this.panelDiagram.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragEnter);
-            // 
             // splitContainerDiagramElement
             // 
             this.splitContainerDiagramElement.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -887,13 +871,14 @@ namespace XSDDiagram
             // 
             this.contextMenuStripDiagram.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.gotoXSDFileToolStripMenuItem,
+            this.expandToolStripMenuItem,
             this.removeFromDiagramToolStripMenuItem,
             this.toolStripMenuItem3,
             this.addAllToolStripMenuItem,
             this.removeAllToolStripMenuItem,
             this.expandOneLevelToolStripMenuItem});
             this.contextMenuStripDiagram.Name = "contextMenuStripDiagram";
-            this.contextMenuStripDiagram.Size = new System.Drawing.Size(197, 120);
+            this.contextMenuStripDiagram.Size = new System.Drawing.Size(197, 164);
             this.contextMenuStripDiagram.Opened += new System.EventHandler(this.contextMenuStripDiagram_Opened);
             // 
             // gotoXSDFileToolStripMenuItem
@@ -938,7 +923,7 @@ namespace XSDDiagram
             this.expandOneLevelToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Expand;
             this.expandOneLevelToolStripMenuItem.Name = "expandOneLevelToolStripMenuItem";
             this.expandOneLevelToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
-            this.expandOneLevelToolStripMenuItem.Text = "&Expand One Level";
+            this.expandOneLevelToolStripMenuItem.Text = "&Expand All One Level";
             this.expandOneLevelToolStripMenuItem.Click += new System.EventHandler(this.expandOneLevelToolStripMenuItem_Click);
             // 
             // textBoxElementPath
@@ -955,6 +940,31 @@ namespace XSDDiagram
             this.toolTip.AutomaticDelay = 0;
             this.toolTip.OwnerDraw = true;
             this.toolTip.ShowAlways = true;
+            // 
+            // expandToolStripMenuItem
+            // 
+            this.expandToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Expand;
+            this.expandToolStripMenuItem.Name = "expandToolStripMenuItem";
+            this.expandToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
+            this.expandToolStripMenuItem.Text = "E&xpand / Collapse";
+            this.expandToolStripMenuItem.Click += new System.EventHandler(this.expandToolStripMenuItem_Click);
+            // 
+            // panelDiagram
+            // 
+            this.panelDiagram.AllowDrop = true;
+            this.panelDiagram.AutoScroll = true;
+            this.panelDiagram.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.panelDiagram.CausesValidation = false;
+            this.panelDiagram.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelDiagram.Location = new System.Drawing.Point(0, 0);
+            this.panelDiagram.Margin = new System.Windows.Forms.Padding(0);
+            this.panelDiagram.Name = "panelDiagram";
+            this.panelDiagram.Size = new System.Drawing.Size(650, 499);
+            this.panelDiagram.TabIndex = 0;
+            this.panelDiagram.VirtualPoint = new System.Drawing.Point(0, 0);
+            this.panelDiagram.VirtualSize = new System.Drawing.Size(10, 10);
+            this.panelDiagram.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragDrop);
+            this.panelDiagram.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragEnter);
             // 
             // MainForm
             // 
@@ -1090,6 +1100,7 @@ namespace XSDDiagram
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem recentFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton toolStripButtonShowDocumentation;
+        private System.Windows.Forms.ToolStripMenuItem expandToolStripMenuItem;
     }
 }
 

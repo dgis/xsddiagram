@@ -109,7 +109,6 @@ TODO LIST:
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
 	o The optional display of attributes inside the diagram
 - Columns in the element/attributes tabs for restrictions (length/pattern/enumerations) 
-- Element selection in the diagram + move from one element to another with the arrow key
 - Multi-selection (i.e.: to remove several element at once)
 - Save the current UI state (open file/diagram/zoom/...)
 - XML sample (skeleton) generation (the ability to generate random test XML files complying with the open schema)
@@ -118,10 +117,11 @@ TODO LIST:
 
 CHANGES:
 
-version 0.18 (Not released yet)
+version 1.0a (Not released yet)
 - Add the documentation in the diagram (experimental).
 - Add a close entry in the File menu.
 - Add a recently opened list.
+- Add the selection of an element in the diagram and allow to move from one element to another with the arrow key.
 - Show the Windows Explorer registration menu only if we have the adminitrative right.
 - Disable the impossible actions in the menu and the toolbar when XSD file are not loaded.
 - Increase the icon resolution.

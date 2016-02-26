@@ -56,6 +56,10 @@ namespace XSDDiagram.Rendering
             {
                 return _graphics;
             }
+            set
+            {
+                _graphics = value;
+            }
         }
 
         #endregion
@@ -116,11 +120,16 @@ namespace XSDDiagram.Rendering
         {
             //System.Diagnostics.Trace.WriteLine("DiagramElement.Paint\n\tName: " + drawingItem.Name);
 
-            Brush background = new SolidBrush(Color.White);
+            Color backgroundColor = Color.White;
+            if(drawingItem.IsSelected)
+                backgroundColor = Color.FromArgb(0xA6, 0xCA, 0xF0);
+
+            Brush background = new SolidBrush(backgroundColor);
+            Brush backgroundExpandBox = new SolidBrush(Color.White);
             SolidBrush foreground = new SolidBrush(Color.Black);
             if (drawingItem.IsDisabled)
             {
-                background = new HatchBrush(HatchStyle.BackwardDiagonal, Color.Gray, Color.White);
+                background = new HatchBrush(HatchStyle.BackwardDiagonal, Color.Gray, backgroundColor);
                 foreground = new SolidBrush(Color.Gray);
             }
             Pen foregroundPen = new Pen(foreground);
@@ -570,7 +579,7 @@ namespace XSDDiagram.Rendering
             if (drawingItem.HasChildElements)
             {
                 Rectangle scaledChildExpandButtonBox = drawingItem.ScaleRectangle(drawingItem.ChildExpandButtonBox);
-                _graphics.FillRectangle(background, scaledChildExpandButtonBox);
+                _graphics.FillRectangle(backgroundExpandBox, scaledChildExpandButtonBox);
                 _graphics.DrawRectangle(foregroundPen, scaledChildExpandButtonBox);
 
                 Point middle = new Point(scaledChildExpandButtonBox.Width / 2, scaledChildExpandButtonBox.Height / 2);
