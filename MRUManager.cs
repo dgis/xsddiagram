@@ -18,8 +18,7 @@ namespace XSDDiagram
         private EventDelegate onRecentFileClick;
         private EventDelegate onClearRecentFilesClick;
 
-
-        public MRUManager(ToolStripMenuItem parentMenuItem, string nameOfProgram, EventDelegate onRecentFileClick, EventDelegate onClearRecentFilesClick = null)
+		public MRUManager(ToolStripMenuItem parentMenuItem, string nameOfProgram, EventDelegate onRecentFileClick, EventDelegate onClearRecentFilesClick)
         {
             if (parentMenuItem == null || onRecentFileClick == null ||
                 nameOfProgram == null || nameOfProgram.Length == 0 || nameOfProgram.Contains("\\"))

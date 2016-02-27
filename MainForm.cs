@@ -555,7 +555,12 @@ namespace XSDDiagram
 			}
 		}
 
-        private void SelectDiagramElement(DiagramItem element, bool scrollToElement = false)
+		private void SelectDiagramElement(DiagramItem element)
+		{
+			SelectDiagramElement(element, false);
+		}
+
+        private void SelectDiagramElement(DiagramItem element, bool scrollToElement)
 		{
 			this.textBoxElementPath.Text = "";
 
@@ -1768,7 +1773,12 @@ namespace XSDDiagram
             }
         }
 
-        private void ExpandCollapseElement(DiagramItem element, bool scrollToElement = false)
+		private void ExpandCollapseElement(DiagramItem element)
+		{
+			ExpandCollapseElement(element, false);
+		}
+
+        private void ExpandCollapseElement(DiagramItem element, bool scrollToElement)
         {
             if (element != null && element.HasChildElements)
             {

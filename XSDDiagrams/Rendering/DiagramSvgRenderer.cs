@@ -31,16 +31,28 @@ namespace XSDDiagram.Rendering
 
         #region Constructors and Destructor
 
-        public DiagramSvgRenderer(TextWriter writer, Graphics referenceGraphics = null)
-        {
-            if (writer == null)
-            {
-                throw new ArgumentNullException("writer", "The writer object is required.");
-            }
+		public DiagramSvgRenderer(TextWriter writer)
+		{
 
-            _writer = writer;
-            _graphics = referenceGraphics;
-        }
+			if (writer == null)
+			{
+				throw new ArgumentNullException("writer", "The writer object is required.");
+			}
+
+			_writer = writer;
+			_graphics = null;
+		}
+
+		public DiagramSvgRenderer(TextWriter writer, Graphics referenceGraphics)
+		{
+			if (writer == null)
+			{
+				throw new ArgumentNullException("writer", "The writer object is required.");
+			}
+
+			_writer = writer;
+			_graphics = referenceGraphics;
+		}
 
         #endregion
 

@@ -14,10 +14,10 @@ FEATURES:
 - Show and display the text/HTML documentation of element and attribute when available
 - Walk the displayed tree with the keyboard
 - Print the diagram
-- Export the diagram to SVG, PNG, JPG and EMF (EMF only with Windows)
+- Export the diagram to TXT, SVG, PNG, JPG and EMF (EMF only with Windows)
 - Zoom the diagram with the mouse wheel while holding the control key
 - XML validation based on the loaded XSD file
-- Registration in the Windows Explorer contextual menu
+- Registration in the Windows Explorer contextual menu (for Windows administrator only)
 - Drag'n drop a xsd file or url on the main window header
 - Command line image generation
 
