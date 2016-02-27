@@ -16,6 +16,15 @@ echo
 echo XSDDiagram.exe -o Tests/file.svg -r COLLADA -e 3 Tests/COLLADASchema_141.xsd
 mono XSDDiagram.exe -o Tests/file.svg -r COLLADA -e 3 Tests/COLLADASchema_141.xsd
 echo
+echo XSDDiagram.exe -o Tests/fileDoc.png -r COLLADA -e 2 -d Tests/COLLADASchema_141.xsd
+mono XSDDiagram.exe -o Tests/fileDoc.png -r COLLADA -e 2 -d Tests/COLLADASchema_141.xsd
+echo
+echo XSDDiagram.exe -o Tests/fileDoc.jpg -r COLLADA -e 2 -d Tests/COLLADASchema_141.xsd
+mono XSDDiagram.exe -o Tests/fileDoc.jpg -r COLLADA -e 2 -d Tests/COLLADASchema_141.xsd
+echo
+echo XSDDiagram.exe -o Tests/file.svg -r COLLADA -e 2 -d Tests/COLLADASchema_141.xsd
+mono XSDDiagram.exe -o Tests/file.svg -r COLLADA -e 2 -d Tests/COLLADASchema_141.xsd
+echo
 echo XSDDiagram.exe -os png -r COLLADA -e 3 -y Tests/COLLADASchema_141.xsd > Tests/stdout.png
 mono XSDDiagram.exe -os png -r COLLADA -e 3 -y Tests/COLLADASchema_141.xsd > Tests/stdout.png
 echo

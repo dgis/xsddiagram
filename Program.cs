@@ -35,7 +35,7 @@ namespace XSDDiagram
 		//static extern bool AllocConsole();
 
 		static string usage = @"XSD Diagram, version {0}
-Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 -o FILE
 	specifies the output image. '.png','.jpg', '.svg', '.txt', '.csv' ('.emf' on Windows) are allowed.
@@ -50,6 +50,8 @@ Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-f P
 -e N
 	specifies the expand level (from 0 to what you want).
 	Be carefull, the result image can be huge.
+-d
+	Display the documentation.
 -z N
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
@@ -66,9 +68,10 @@ Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-f P
 
 
 Example 1:
-> XSDDiagramConsole.exe -o file.png -r TotoRoot -e 3 -z 200 ./folder1/toto.xsd
-	will generate a PNG image from a diagram with a root element
-	'TotoRoot' and expanding the tree from the root until the 3rd level.
+> XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType -e 3 -d -z 200 ./folder1/toto.xsd
+	will generate a PNG image from a diagram with a root elements
+	'TotoRoot' and 'TotoComplexType', and expanding the tree
+	from the root until the 3rd level, with the documentation.
 
 Example 2:
 > XSDDiagram.exe ./folder1/toto.xsd
@@ -146,6 +149,7 @@ Example 5:
                 }
 
                 Diagram diagram = new Diagram();
+                diagram.ShowDocumentation = Options.ShowDocumentation;
                 diagram.ElementsByName = schema.ElementsByName;
 				diagram.Scale = Options.Zoom / 100.0f;
 

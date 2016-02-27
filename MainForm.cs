@@ -89,8 +89,9 @@ namespace XSDDiagram
                     identity.Dispose();
             }
             this.toolsToolStripMenuItem.Visible = isElevated && !Options.IsRunningOnMono;
+            this.diagram.ShowDocumentation = this.toolStripButtonShowDocumentation.Checked = Options.ShowDocumentation;
 
-			this.originalTitle = Text;
+            this.originalTitle = Text;
 
 			this.toolStripComboBoxSchemaElement.Sorted = true;
 			this.toolStripComboBoxSchemaElement.Items.Add("");

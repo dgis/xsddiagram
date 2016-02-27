@@ -25,6 +25,8 @@ namespace XSDDiagram.Rendering
         private TextWriter _writer;
         private Graphics _graphics;
 
+        private int xsdDocCounter = 0;
+
         #endregion
 
         #region Constructors and Destructor
@@ -66,6 +68,8 @@ namespace XSDDiagram.Rendering
 
         public override void BeginItemsRender()
         {
+            xsdDocCounter = 0;
+
             _writer.WriteLine(@"<?xml version=""1.0"" standalone=""no""?>");
             _writer.WriteLine(@"<!DOCTYPE svg PUBLIC ""-//W3C//DTD SVG 1.1//EN"" ""http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"">");
             _writer.WriteLine(@"<svg width=""100%"" height=""100%"" version=""1.1"" xmlns=""http://www.w3.org/2000/svg"">");
@@ -472,14 +476,16 @@ namespace XSDDiagram.Rendering
                 string text = drawingItem.GetTextDocumentation();
                 if (text != null)
                 {
-                    List<string> lines = WrapText(_graphics, drawingItem.DocumentationFont, text, drawingItem.ScaleRectangle(drawingItem.DocumentationBox).Width);
-
-                    //stringFormatText.Trimming = StringTrimming.EllipsisCharacter;
                     Rectangle scaledDocumentationBox = drawingItem.ScaleRectangle(drawingItem.DocumentationBox);
+                    List<string> lines = WrapText(_graphics, drawingItem.DocumentationFont, text, scaledDocumentationBox.Width * fontScale * 0.6f);
+                    //stringFormatText.Trimming = StringTrimming.EllipsisCharacter;
                     string style = String.Format(
-                        "font-family:{0};font-size:{1}pt;fill:{2};font-weight:bold;text-anchor:start;dominant-baseline:central;inline-size={3}",
-                        drawingItem.DocumentationFont.Name, drawingItem.DocumentationFont.Size * fontScale, foregroundColor, scaledDocumentationBox.Width);
-                    SVGText(lines, style, new Point(scaledDocumentationBox.X, scaledDocumentationBox.Y), drawingItem.DocumentationFont.Size * fontScale * 1.333333f);
+                        "font-family:{0};font-size:{1}pt;fill:{2};font-weight:normal;text-anchor:start;dominant-baseline:central;inline-size={3}",
+                        drawingItem.DocumentationFont.Name, drawingItem.DocumentationFont.Size * fontScale * 0.9, foregroundColor, scaledDocumentationBox.Width);
+                    float fontSizeAdjustement = drawingItem.DocumentationFont.Size * fontScale * 1.4f;
+                    SVGText(lines, style,
+                        new Point(scaledDocumentationBox.X, scaledDocumentationBox.Y), fontSizeAdjustement,
+                        new Size(scaledDocumentationBox.Width, scaledDocumentationBox.Height));
                 }
             }
 
@@ -602,13 +608,17 @@ namespace XSDDiagram.Rendering
             _writer.WriteLine("<text x=\"{0}\" y=\"{1}\" style=\"{2}\">{3}</text>", 
                 rect.X + rect.Width / 2.0, rect.Y + rect.Height / 2.0, style, text);
         }
-        private void SVGText(List<string> text, string style, Point point, float fontSize)
+        private void SVGText(List<string> text, string style, Point point, float fontSize, Size size)
         {
-            _writer.WriteLine("<text x=\"{0}\" y=\"{1}\" style=\"{2}\">{3}",
-                point.X, point.Y, style, text.Count > 0 ? text[0] : "");
+            _writer.WriteLine("<clipPath id=\"xsddoc{0}\"><rect x=\"{1}\" y=\"{2}\" width=\"{3}\" height=\"{4}\"/></clipPath>",
+                xsdDocCounter, point.X, point.Y - fontSize, size.Width * 2, size.Height + 2 * fontSize);
+            int y = point.Y + (int)(fontSize * 0.5f);
+            _writer.WriteLine("<text x=\"{0}\" y=\"{1}\" style=\"{2}\" clip-path=\"url(#xsddoc{3})\">{4}",
+                point.X, y, style, xsdDocCounter, text.Count > 0 ? text[0] : "");
             for (int i = 1; i < text.Count; i++)
-                _writer.WriteLine("<tspan x=\"{0}\" y=\"{1}\">{2}</tspan>", point.X, point.Y + i * fontSize, text[i]);
+                _writer.WriteLine("<tspan x=\"{0}\" y=\"{1}\">{2}</tspan>", point.X, y + i * fontSize, text[i]);
             _writer.WriteLine("</text>");
+            xsdDocCounter++;
         }
 
         private string SVGPolygonToDrawCommand(Point[] pathPoint)
@@ -623,34 +633,7 @@ namespace XSDDiagram.Rendering
             return result.ToString();
         }
 
-        private static List<string> WrapText0(Graphics g, Font font, string text, int pixels)
-        {
-            List<string> wordwrapped = new List<string>();
-            string currentLine = string.Empty;
-            for (int i = 0; i < text.Length; i++)
-            {
-                char currentChar = text[i];
-                currentLine += currentChar;
-                if (g.MeasureString(currentLine, font).Width > pixels)
-                {
-                    // exceeded length, back up to last space
-                    int moveback = 0;
-                    while (currentChar != ' ')
-                    {
-                        moveback++;
-                        i--;
-                        currentChar = text[i];
-                    }
-                    string lineToAdd = currentLine.Substring(0, currentLine.Length - moveback);
-                    wordwrapped.Add(lineToAdd);
-                    currentLine = string.Empty;
-                }
-            }
-
-            return wordwrapped;
-        }
-
-        static List<string> WrapText(Graphics g, Font font, string text, int pixels)
+        static List<string> WrapText(Graphics g, Font font, string text, float pixels)
         {
             string[] originalLines = text.Split(new string[] { " " }, StringSplitOptions.None);
             List<string> wrappedLines = new List<string>();
@@ -659,14 +642,13 @@ namespace XSDDiagram.Rendering
 
             foreach (var item in originalLines)
             {
-                SizeF formatted = g.MeasureString(item, font);
+                SizeF wordMeasure = g.MeasureString(item, font);
+                actualWidth += wordMeasure.Width;
                 actualLine.Append(item + " ");
-                actualWidth += formatted.Width;
                 if (actualWidth > pixels)
                 {
                     wrappedLines.Add(actualLine.ToString());
                     actualLine.Length = 0;
-                    //actualLine.Clear();
                     actualWidth = 0;
                 }
             }

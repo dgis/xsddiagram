@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 0.18alpha Copyright (c) 2006-2016 Regis Cosnier, All Rights Reserved.
+Version 1.0alpha Copyright (c) 2006-2016 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -11,7 +11,8 @@ FEATURES:
 - GPL (Part of the source code are dual licensed with LGPL and MS-PL)
 - Need of the Microsoft Framework.NET 2.0 (if not already install) or Mono
 - Display the elements, the groups and the attributes
-- Show the text/HTML documentation of element and attribute when available
+- Show and display the text/HTML documentation of element and attribute when available
+- Walk the displayed tree with the keyboard
 - Print the diagram
 - Export the diagram to SVG, PNG, JPG and EMF (EMF only with Windows)
 - Zoom the diagram with the mouse wheel while holding the control key
@@ -29,16 +30,16 @@ QUICK START:
 	- Select a toplevel element in the toolbar (The first one is already selected).
 	- Push the add button to put the element on the diagram
 - Or double click in the right panel list.
-- Then, on the diagram element, click on the + box.
+- Then, on the diagram element, click on the + box or walk the tree with arrow keys.
 
 
 COMMAND LINE USAGE: 
 
-> XSDDiagram.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+> XSDDiagram.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-d] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 or on Windows use 'XSDDiagramConsole.exe' instead of 'XSDDiagram.exe' if you need the console:
 
-> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 Options:
 
@@ -55,6 +56,8 @@ Options:
 -e N
 	specifies the expand level (from 0 to what you want).
 	Be carefull, the result image can be huge.
+-d
+	Display the documentation.
 -z N
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
@@ -71,9 +74,10 @@ Options:
 
 
 Example 1:
-> XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType -e 3 -z 200 ./folder1/toto.xsd
+> XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType -e 3 -d -z 200 ./folder1/toto.xsd
 	will generate a PNG image from a diagram with a root elements
-	'TotoRoot' and 'TotoComplexType', and expanding the tree from the root until the 3rd level.
+	'TotoRoot' and 'TotoComplexType', and expanding the tree
+	from the root until the 3rd level, with the documentation.
 
 Example 2:
 > XSDDiagram.exe ./folder1/toto.xsd

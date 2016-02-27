@@ -25,11 +25,12 @@ namespace XSDDiagram
 		public static string[] Arguments { get; private set; }
 		public static string InputFile { get; private set; }
 		public static string OutputFile { get; private set; }
-		public static bool OutputOnStdOut { get; private set; }
-		public static string OutputOnStdOutExtension { get; private set; }
+        public static bool OutputOnStdOut { get; private set; }
+        public static string OutputOnStdOutExtension { get; private set; }
 		public static IList<string> RootElements { get; private set; }
 		public static int ExpandLevel { get; private set; }
-		public static float Zoom { get; private set; }
+        public static bool ShowDocumentation { get; private set; }
+        public static float Zoom { get; private set; }
 		public static bool ForceHugeImageGeneration { get; private set; }
 		public static bool RequestHelp { get; private set; }
 		public static bool IsRunningOnMono { get; private set; }
@@ -45,7 +46,8 @@ namespace XSDDiagram
 			OutputOnStdOutExtension = "png";
 			RootElements = new List<string>();
 			ExpandLevel = 0;
-			Zoom = 100.0f;
+            ShowDocumentation = false;
+            Zoom = 100.0f;
 			ForceHugeImageGeneration = false;
 			RequestHelp = false;
             TextOutputFields = new List<string>();
@@ -104,17 +106,21 @@ namespace XSDDiagram
 					if (currentArgument < arguments.Count)
 						RootElements.Add(args[currentArgument++]);
 				}
-				else if (string.Compare("-e", argument, true) == 0)
-				{
-					if (currentArgument < arguments.Count)
-					{
-						try
-						{
-							ExpandLevel = int.Parse(args[currentArgument++]);
-						}
-						catch { }
-					}
-				}
+                else if (string.Compare("-e", argument, true) == 0)
+                {
+                    if (currentArgument < arguments.Count)
+                    {
+                        try
+                        {
+                            ExpandLevel = int.Parse(args[currentArgument++]);
+                        }
+                        catch { }
+                    }
+                }
+                else if(string.Compare("-d", argument, true) == 0)
+                {
+                    ShowDocumentation = true;
+                }
 				else if (string.Compare("-z", argument, true) == 0)
 				{
 					if (currentArgument < arguments.Count)

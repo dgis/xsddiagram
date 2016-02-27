@@ -21,7 +21,7 @@ namespace XSDDiagram
 {
 	public partial class DiagramControl : UserControl
 	{
-		private static int WM_SETFOCUS = 0x0007;
+		//private static int WM_SETFOCUS = 0x0007;
 
 		public DiagramControl()
 		{
