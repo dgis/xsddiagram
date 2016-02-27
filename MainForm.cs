@@ -147,6 +147,14 @@ namespace XSDDiagram
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
+            if (Options.IsRunningOnMono)
+            {
+                // Prevent exception with Linux on Mono
+                object[] toolStripMenuItems = new object[] { this.fileToolStripMenuItem, this.fileToolStripMenuItem, this.openToolStripMenuItem, this.openToolStripMenuItem, this.openURLToolStripMenuItem, this.openURLToolStripMenuItem, this.saveDiagramToolStripMenuItem, this.saveDiagramToolStripMenuItem, this.validateXMLFileToolStripMenuItem, this.validateXMLFileToolStripMenuItem, this.recentFilesToolStripMenuItem, this.recentFilesToolStripMenuItem, this.closeToolStripMenuItem, this.closeToolStripMenuItem, this.toolStripMenuItem2, this.pageToolStripMenuItem, this.pageToolStripMenuItem, this.printPreviewToolStripMenuItem, this.printPreviewToolStripMenuItem, this.printToolStripMenuItem, this.printToolStripMenuItem, this.toolStripMenuItem1, this.exitToolStripMenuItem, this.exitToolStripMenuItem, this.toolsToolStripMenuItem, this.toolsToolStripMenuItem, this.windowsExplorerRegistrationToolStripMenuItem, this.windowsExplorerRegistrationToolStripMenuItem, this.registerToolStripMenuItem, this.registerToolStripMenuItem, this.unregisterToolStripMenuItem, this.unregisterToolStripMenuItem, this.windowToolStripMenuItem, this.windowToolStripMenuItem, this.nextTabToolStripMenuItem, this.nextTabToolStripMenuItem, this.previousTabToolStripMenuItem, this.previousTabToolStripMenuItem, this.helpToolStripMenuItem, this.helpToolStripMenuItem, this.aboutToolStripMenuItem, this.aboutToolStripMenuItem, this.toolStripMenuItemAttributesCopyLine, this.toolStripMenuItemAttributesCopyLine, this.toolStripMenuItemAttributesCopyList, this.toolStripMenuItemAttributesCopyList, this.toolStripMenuItemEnumerateCopyLine, this.toolStripMenuItemEnumerateCopyLine, this.toolStripMenuItemEnumerateCopyList, this.toolStripMenuItemEnumerateCopyList, this.addToDiagrammToolStripMenuItem, this.addToDiagrammToolStripMenuItem, this.toolStripMenuItem4, this.toolStripMenuItemElementsCopyLine, this.toolStripMenuItemElementsCopyLine, this.toolStripMenuItemElementsCopyList, this.toolStripMenuItemElementsCopyList, this.gotoXSDFileToolStripMenuItem, this.gotoXSDFileToolStripMenuItem, this.expandToolStripMenuItem, this.expandToolStripMenuItem, this.removeFromDiagramToolStripMenuItem, this.removeFromDiagramToolStripMenuItem, this.toolStripMenuItem3, this.addAllToolStripMenuItem, this.addAllToolStripMenuItem, this.removeAllToolStripMenuItem, this.removeAllToolStripMenuItem, this.expandOneLevelToolStripMenuItem, this.expandOneLevelToolStripMenuItem };
+                foreach (var toolStripMenuItem in toolStripMenuItems)
+                    GC.SuppressFinalize(toolStripMenuItem);
+            }
+
             if (disposing)
             {
                 if (components != null)
@@ -320,21 +328,34 @@ namespace XSDDiagram
 		private void toolStripButtonAddToDiagram_Click(object sender, EventArgs e)
 		{
 			if (this.toolStripComboBoxSchemaElement.SelectedItem != null)
-			{
-				XSDObject xsdObject = this.toolStripComboBoxSchemaElement.SelectedItem as XSDObject;
-				if (xsdObject != null)
-					this.diagram.Add(xsdObject.Tag, xsdObject.NameSpace);
-				UpdateDiagram();
-			}
-		}
+            {
+                XSDObject xsdObject = this.toolStripComboBoxSchemaElement.SelectedItem as XSDObject;
+                if (xsdObject != null)
+                {
+                    DiagramItem diagramItem = this.diagram.Add(xsdObject.Tag, xsdObject.NameSpace);
+                    if(diagramItem != null)
+                        SelectDiagramElement(diagramItem, true);
+                    else
+                        UpdateDiagram();
+                }
+            }
+        }
 
-		private void toolStripButtonAddAllToDiagram_Click(object sender, EventArgs e)
+        private void toolStripButtonAddAllToDiagram_Click(object sender, EventArgs e)
 		{
-			foreach (XSDObject xsdObject in this.schema.ElementsByName.Values)
-				if (xsdObject != null)
-					this.diagram.Add(xsdObject.Tag, xsdObject.NameSpace);
-			UpdateDiagram();
-		}
+            DiagramItem firstDiagramItem = null;
+            foreach (XSDObject xsdObject in this.schema.ElementsByName.Values)
+                if (xsdObject != null)
+                {
+                    DiagramItem diagramItem = this.diagram.Add(xsdObject.Tag, xsdObject.NameSpace);
+                    if (firstDiagramItem == null && diagramItem != null)
+                        firstDiagramItem = diagramItem;
+                }
+            if(firstDiagramItem != null)
+                SelectDiagramElement(firstDiagramItem, true);
+            else
+                UpdateDiagram();
+        }
 
 		void DiagramControl_Paint(object sender, PaintEventArgs e)
 		{
@@ -565,11 +586,10 @@ namespace XSDDiagram
 				this.textBoxElementPath.Text = path;
 			}
 
-            if (element != this.diagram.SelectedElement)
-                this.diagram.SelectElement(element);
+            this.diagram.SelectElement(element);
+            UpdateDiagram();
             if (scrollToElement)
                 this.panelDiagram.ScrollTo(this.diagram.ScalePoint(element.Location), true);
-            UpdateDiagram();
         }
 
         private void SelectSchemaElement(XSDObject xsdObject)
@@ -1437,27 +1457,35 @@ namespace XSDDiagram
 		{
 			if (this.listViewElements.SelectedItems.Count > 0)
 			{
-				foreach (ListViewItem lvi in this.listViewElements.SelectedItems)
+                DiagramItem firstDiagramItem = null;
+
+                foreach (ListViewItem lvi in this.listViewElements.SelectedItems)
 				{
 					XSDObject xsdObject = lvi.Tag as XSDObject;
-					this.diagram.Add(xsdObject.Tag as XMLSchema.openAttrs, xsdObject.NameSpace);
-					//switch (xsdObject.Type)
-					//{
-					//    case "element":
-					//        this.diagram.AddElement(xsdObject.Tag as XMLSchema.element, xsdObject.NameSpace);
-					//        break;
-					//    case "group":
-					//        this.diagram.AddCompositors(xsdObject.Tag as XMLSchema.group, xsdObject.NameSpace);
-					//        break;
-					//    case "complexType":
-					//        this.diagram.AddComplexType(xsdObject.Tag as XMLSchema.complexType, xsdObject.NameSpace);
-					//        break;
-					//    case "simpleType":
-					//        this.diagram.Add(xsdObject.Tag as XMLSchema.simpleType, xsdObject.NameSpace);
-					//        break;
-					//}
-				}
-				UpdateDiagram();
+                    DiagramItem diagramItem = this.diagram.Add(xsdObject.Tag as XMLSchema.openAttrs, xsdObject.NameSpace);
+                    if (firstDiagramItem == null && diagramItem != null)
+                        firstDiagramItem = diagramItem;
+
+                    //switch (xsdObject.Type)
+                    //{
+                    //    case "element":
+                    //        this.diagram.AddElement(xsdObject.Tag as XMLSchema.element, xsdObject.NameSpace);
+                    //        break;
+                    //    case "group":
+                    //        this.diagram.AddCompositors(xsdObject.Tag as XMLSchema.group, xsdObject.NameSpace);
+                    //        break;
+                    //    case "complexType":
+                    //        this.diagram.AddComplexType(xsdObject.Tag as XMLSchema.complexType, xsdObject.NameSpace);
+                    //        break;
+                    //    case "simpleType":
+                    //        this.diagram.Add(xsdObject.Tag as XMLSchema.simpleType, xsdObject.NameSpace);
+                    //        break;
+                    //}
+                }
+                if (firstDiagramItem != null)
+                    SelectDiagramElement(firstDiagramItem, true);
+                else
+    				UpdateDiagram();
 			}
 		}
 
@@ -1508,11 +1536,15 @@ namespace XSDDiagram
 
 		private void toolStripButtonRemoveAllFromDiagram_Click(object sender, EventArgs e)
 		{
-			this.diagram.RemoveAll();
-			UpdateDiagram();
-			this.panelDiagram.VirtualPoint = new Point(0, 0);
-			this.panelDiagram.Clear();
-		}
+            DialogResult dialogResult = MessageBox.Show("Are you sure to remove everything?", "Remove All", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
+            {
+                this.diagram.RemoveAll();
+                UpdateDiagram();
+                this.panelDiagram.VirtualPoint = new Point(0, 0);
+                this.panelDiagram.Clear();
+            }
+        }
 
 		private void listView_AfterLabelEdit(object sender, LabelEditEventArgs e)
 		{

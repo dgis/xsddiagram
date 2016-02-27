@@ -633,9 +633,9 @@ namespace XSDDiagram.Rendering
             if (_documentationBox != null)
             {
                 if(_diagram.Alignement == DiagramAlignement.Far)
-                    _documentationBox.Offset(_location.X - _padding.Height / 2, _location.Y - _documentationBox.Height - _padding.Height);
+                    _documentationBox.Offset(_location.X, _location.Y - _documentationBox.Height - _padding.Height);
                 else
-                    _documentationBox.Offset(_location.X - _padding.Height / 2, _location.Y + _elementBox.Height + _padding.Height);
+                    _documentationBox.Offset(_location.X, _location.Y + _elementBox.Height + _padding.Height);
             }
         }
 
