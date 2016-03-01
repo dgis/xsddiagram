@@ -24,6 +24,7 @@ namespace XSDDiagram.Rendering
 
         private TextWriter _writer;
         private Graphics _graphics;
+        private Rectangle _boundingBox;
 
         private int xsdDocCounter = 0;
 
@@ -84,7 +85,10 @@ namespace XSDDiagram.Rendering
 
             _writer.WriteLine(@"<?xml version=""1.0"" standalone=""no""?>");
             _writer.WriteLine(@"<!DOCTYPE svg PUBLIC ""-//W3C//DTD SVG 1.1//EN"" ""http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"">");
-            _writer.WriteLine(@"<svg width=""100%"" height=""100%"" version=""1.1"" xmlns=""http://www.w3.org/2000/svg"">");
+            if(_boundingBox.Width > 0 && _boundingBox.Height > 0)
+                _writer.WriteLine("<svg width=\"{0}\" height=\"{1}\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">", _boundingBox.Width, _boundingBox.Height);
+            else
+                _writer.WriteLine(@"<svg width=""100%"" height=""100%"" version=""1.1"" xmlns=""http://www.w3.org/2000/svg"">");
         }
 
         public override void EndItemsRender()
@@ -94,6 +98,7 @@ namespace XSDDiagram.Rendering
 
         public override void Render(Diagram diagram)
         {
+            _boundingBox = diagram.ScaleRectangle(diagram.BoundingBox);
             this.BeginItemsRender();
 
             foreach (DiagramItem element in diagram.RootElements)

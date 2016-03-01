@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 1.0 Copyright (c) 2006-2016 Regis Cosnier, All Rights Reserved.
+Version 1.1 Copyright (c) 2006-2016 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -120,6 +120,9 @@ TODO LIST:
 
 
 CHANGES:
+
+version 1.1 (Not released yet)
+- Fix SVG page size.
 
 version 1.0 (2016-02-28)
 - Add the documentation in the diagram.
