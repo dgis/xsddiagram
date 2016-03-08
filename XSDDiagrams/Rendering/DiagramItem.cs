@@ -583,7 +583,7 @@ namespace XSDDiagram.Rendering
                 case DiagramAlignement.Center:
                     _location.Y = _boundingBox.Y +
                         (_boundingBox.Height - _size.Height) / 2;
-                    if(_diagram.ShowDocumentation && _documentationBox != null)
+				if(_diagram.ShowDocumentation && !_documentationBox.IsEmpty)
                     {
                         _location.Y = _boundingBox.Y +
                             (_boundingBox.Height - (2 * _padding.Height + _documentationBox.Height)) / 2;
@@ -630,7 +630,7 @@ namespace XSDDiagram.Rendering
 
             _elementBox.Offset(_location);
 
-            if (_documentationBox != null)
+			if (!_documentationBox.IsEmpty)
             {
                 if(_diagram.Alignement == DiagramAlignement.Far)
                     _documentationBox.Offset(_location.X, _location.Y - _documentationBox.Height - _padding.Height);

@@ -174,7 +174,7 @@ namespace XSDDiagram.Rendering
                 foregroundInheritPen.StartCap = LineCap.Round;
                 foregroundInheritPen.EndCap = LineCap.Round;
 
-                bool showDocumentation = (drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null);
+				bool showDocumentation = (drawingItem.Diagram.ShowDocumentation && !drawingItem.DocumentationBox.IsEmpty);
                 if (drawingItem.ChildElements.Count == 1 && !showDocumentation)
                 {
                     int parentMidleY = drawingItem.ScaleInt(drawingItem.Location.Y + drawingItem.Size.Height / 2);
@@ -496,7 +496,7 @@ namespace XSDDiagram.Rendering
             }
 
             // Draw Documentation
-            if (drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null)
+			if (drawingItem.Diagram.ShowDocumentation && !drawingItem.DocumentationBox.IsEmpty)
             {
                 string text = drawingItem.GetTextDocumentation();
                 if (text != null)

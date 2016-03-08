@@ -111,7 +111,7 @@ namespace XSDDiagram.Rendering
 
         public override void Render(DiagramItem drawingItem)
         {
-            bool showDocumentation = drawingItem.Diagram.ShowDocumentation && drawingItem.DocumentationBox != null && _graphics != null;
+			bool showDocumentation = drawingItem.Diagram.ShowDocumentation && !drawingItem.DocumentationBox.IsEmpty && _graphics != null;
 
             //if (drawingItem.diagram.ShowBoundingBox)
             //{
