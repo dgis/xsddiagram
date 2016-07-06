@@ -826,7 +826,7 @@ namespace XSDDiagram
 			}
 		}
 
-		private void ParseAttribute(string nameSpace, List<XSDAttribute> listAttributes, XMLSchema.attribute attribute, bool isRestriction)
+		private XSDAttribute ParseAttribute(string nameSpace, List<XSDAttribute> listAttributes, XMLSchema.attribute attribute, bool isRestriction)
 		{
 			bool isReference = false;
 			string filename = "";
@@ -839,8 +839,13 @@ namespace XSDDiagram
                 if (o is XSDAttribute)
 				{
 					XSDAttribute xsdAttributeInstance = o as XSDAttribute;
-					ParseAttribute(nameSpace, listAttributes, xsdAttributeInstance.Tag, isRestriction);
-					return;
+                    XSDAttribute refXSDAttribute = ParseAttribute(nameSpace, listAttributes, xsdAttributeInstance.Tag, isRestriction);
+                    if(refXSDAttribute != null)
+                    {
+                        // Override the "use" field with 
+                        refXSDAttribute.Use = attribute.use.ToString();
+                    }
+                    return null;
 				}
 				else // Reference not found!
 				{
@@ -900,7 +905,10 @@ namespace XSDDiagram
 			{
 				XSDAttribute xsdAttribute = new XSDAttribute(filename, name, nameSpace, type, isReference, attribute.@default, attribute.use.ToString(), attribute);
 				listAttributes.Insert(0, xsdAttribute);
-			}
+                return xsdAttribute;
+
+            }
+            return null;
 		}
 
 		private void ParseAttributeGroup(string nameSpace, List<XSDAttribute> listAttributes, XMLSchema.attributeGroup attributeGroup, bool isRestriction)

@@ -123,6 +123,8 @@ CHANGES:
 
 version 1.1 (Not released yet)
 - Fix SVG page size.
+- The error dialog should now appear if a local dependency cannot be loaded.
+- Fix the "use" field of an attribute with a reference (Thanks Christelle S.).
 
 version 1.0 (2016-02-28)
 - Add the documentation in the diagram.

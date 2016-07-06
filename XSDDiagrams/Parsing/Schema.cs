@@ -121,7 +121,15 @@ namespace XSDDiagram
             }
             catch (InvalidOperationException ex)
             {
-                this.loadError.Add(ex.Message + "\r\n" + ex.InnerException.Message);
+                this.loadError.Add(ex.Message + "\r\n" + (ex.InnerException != null ? ex.InnerException.Message : ex.Message));
+            }
+            catch (UriFormatException ex)
+            {
+                this.loadError.Add(ex.Message + "\r\n" + (ex.InnerException != null ? ex.InnerException.Message : ex.Message));
+            }
+            catch (Exception ex)
+            {
+                this.loadError.Add(ex.Message + "\r\n" + (ex.InnerException != null ? ex.InnerException.Message : ex.Message));
             }
             finally
             {
@@ -247,7 +255,15 @@ namespace XSDDiagram
         {
             loadedFilename = null;
             baseUrl = "";
-            Uri uri = new Uri(url);
+            Uri uri;
+            try
+            {
+                uri = new Uri(url);
+            }
+            catch (UriFormatException ex)
+            {
+                throw new Exception("Cannot read the URL '" + url + "'!");
+            }
             if (uri.Segments.Length > 0)
             {
                 string fileNameToImport = uri.Segments[uri.Segments.Length - 1];
