@@ -260,7 +260,7 @@ namespace XSDDiagram
             {
                 uri = new Uri(url);
             }
-            catch (UriFormatException ex)
+            catch (UriFormatException)
             {
                 throw new Exception("Cannot read the URL '" + url + "'!");
             }
