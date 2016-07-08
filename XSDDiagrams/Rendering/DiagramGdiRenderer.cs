@@ -174,7 +174,7 @@ namespace XSDDiagram.Rendering
                 foregroundInheritPen.StartCap = LineCap.Round;
                 foregroundInheritPen.EndCap = LineCap.Round;
 
-				bool showDocumentation = (drawingItem.Diagram.ShowDocumentation && !drawingItem.DocumentationBox.IsEmpty);
+                bool showDocumentation = (drawingItem.Diagram.ShowDocumentation); // && !drawingItem.DocumentationBox.IsEmpty);
                 if (drawingItem.ChildElements.Count == 1 && !showDocumentation)
                 {
                     int parentMidleY = drawingItem.ScaleInt(drawingItem.Location.Y + drawingItem.Size.Height / 2);
@@ -559,6 +559,15 @@ namespace XSDDiagram.Rendering
                 Point targetPoint = basePoint + new Size(3, -3);
                 basePoint = drawingItem.ScalePoint(basePoint);
                 targetPoint = drawingItem.ScalePoint(targetPoint);
+                if (drawingItem.ItemType == DiagramItemType.group)
+                {
+                    int bevel = (int)(scaledElementBox.Height * 0.30);
+                    int groupCornerOffset = (int)((double)bevel * 0.424264068713); // 0.6/sqr(2)
+                    basePoint.X += groupCornerOffset;
+                    basePoint.Y -= groupCornerOffset;
+                    targetPoint.X += groupCornerOffset;
+                    targetPoint.Y -= groupCornerOffset;
+                }
                 _graphics.DrawLine(arrowPen, basePoint, targetPoint);
 
                 Point[] pathPoint = new Point[5];

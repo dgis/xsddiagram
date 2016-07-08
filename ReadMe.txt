@@ -121,10 +121,11 @@ TODO LIST:
 
 CHANGES:
 
-version 1.1 (Not released yet)
+version 1.1 (2016-07-08)
 - Fix SVG page size.
 - The error dialog should now appear if a local dependency cannot be loaded.
 - Fix the "use" field of an attribute with a reference (Thanks Christelle S.).
+- I increase the minimum width of an element when showing the documentation for an easier reading (Thanks Stefan B.).
 
 version 1.0 (2016-02-28)
 - Add the documentation in the diagram.
@@ -149,7 +150,7 @@ version 0.17 (2015-09-02)
 - Fix a typo with "Attributes".
 
 version 0.16 (2013-01-23)
-- Fix an issue to prevent the cylcles in the imported files.
+- Fix an issue to prevent the cycles in the imported files.
 - Add a dialog to download a xsd file with its URL.
 
 version 0.15 (2013-01-13)

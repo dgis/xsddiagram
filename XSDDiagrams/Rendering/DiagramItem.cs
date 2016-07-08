@@ -46,6 +46,7 @@ namespace XSDDiagram.Rendering
         private Rectangle _childExpandButtonBox;
         private Rectangle _documentationBox;
         private Rectangle _boundingBox;
+        private int _documentationMinWidth;
 
         private Diagram _diagram;
         private DiagramItem _parent;
@@ -74,6 +75,7 @@ namespace XSDDiagram.Rendering
             _documentationBox      = Rectangle.Empty;
             _childExpandButtonBox  = Rectangle.Empty;
             _boundingBox           = Rectangle.Empty;
+            _documentationMinWidth = 100;
             _size                  = new Size(50, 25);
             _margin                = new Size(10, 5);
             _padding               = new Size(10, 15);
@@ -539,6 +541,7 @@ namespace XSDDiagram.Rendering
             int childBoundingBoxWidth = 0;
             if (_showChildElements)
             {
+                // Measure the children
                 foreach (DiagramItem element in _childElements)
                 {
                     //MONOFIX GenerateMeasure not supported???
@@ -555,9 +558,16 @@ namespace XSDDiagram.Rendering
                 string text = GetTextDocumentation();
                 if (text != null)
                 {
+                    if (_size.Width < _documentationMinWidth)
+                    {
+                        int widthOffset = _documentationMinWidth - _size.Width;
+                        _size.Width += widthOffset;
+                        _boundingBox.Width += widthOffset;
+                    }
+
                     SizeF sizeF = g.MeasureString(text, DocumentationFont);
                     double documentationWidth = Math.Max(1.0, _size.Width + _padding.Width); // * 2.0);
-                    double documentationHeight = (Math.Ceiling(sizeF.Width / documentationWidth) + 1) * sizeF.Height;
+                    double documentationHeight = (Math.Ceiling(sizeF.Width / documentationWidth) + 1.8) * sizeF.Height;
                     _documentationBox = new Rectangle(new Point(0, 0), new Size((int)documentationWidth, (int)documentationHeight));
                     _boundingBox.Height = Math.Max(_size.Height + 2 * _padding.Height + _documentationBox.Height + 2 * _padding.Height, childBoundingBoxHeight);
                 }
@@ -583,7 +593,7 @@ namespace XSDDiagram.Rendering
                 case DiagramAlignement.Center:
                     _location.Y = _boundingBox.Y +
                         (_boundingBox.Height - _size.Height) / 2;
-				if(_diagram.ShowDocumentation && !_documentationBox.IsEmpty)
+				    if(_diagram.ShowDocumentation && !_documentationBox.IsEmpty)
                     {
                         _location.Y = _boundingBox.Y +
                             (_boundingBox.Height - (2 * _padding.Height + _documentationBox.Height)) / 2;
