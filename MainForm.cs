@@ -1922,6 +1922,60 @@ namespace XSDDiagram
                 e.Exception.LineNumber, e.Exception.LinePosition, e.Exception.Message, validationErrorMessages.Count, e.Severity));
         }
 
+        private void generateSampleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void inferXSDFromXMLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 2;
+            openFileDialog.RestoreDirectory = true;
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    Cursor = Cursors.WaitCursor;
+
+                    //https://msdn.microsoft.com/en-us/library/system.xml.schema.xmlschemainference.aspx
+                    XmlReader reader = XmlReader.Create(openFileDialog.FileName);
+                    XmlSchemaSet schemaSet = new XmlSchemaSet();
+                    XmlSchemaInference schema = new XmlSchemaInference();
+
+                    schemaSet = schema.InferSchema(reader);
+
+
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    saveFileDialog.Filter = "xsd files (*.xsd) | *.xsd | All files(*.*) | *.* ";
+                    saveFileDialog.FilterIndex = 0;
+                    saveFileDialog.RestoreDirectory = true;
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        string outputFilename = saveFileDialog.FileName;
+                        using (TextWriter textWriter = File.CreateText(outputFilename))
+                        {
+                            foreach (XmlSchema xmlSchema in schemaSet.Schemas())
+                            {
+                                xmlSchema.Write(textWriter);
+                            }
+                        }
+
+                        if(MessageBox.Show(this, "Would you open the newly inferred XSD file?", "Open XSD file", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            LoadSchema(outputFilename);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                Cursor = Cursors.Default;
+            }
+        }
+
+
         private void toolStripButtonShowDocumentation_Click(object sender, EventArgs e)
         {
             this.diagram.ShowDocumentation = this.toolStripButtonShowDocumentation.Checked;

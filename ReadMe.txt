@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 1.1 Copyright (c) 2006-2016 Regis Cosnier, All Rights Reserved.
+Version 1.2alpha Copyright (c) 2006-2016 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -107,6 +107,15 @@ NOTES:
 
 TODO LIST:
 
+- Add the infer XSD file in the command line.
+- NoukNouk suggestions:
+ + Add some display parameter like font type / size for tags / annotation... background color, vertical margin between tags...
+ + Element window should be logically sorted - for example I think that name, type, minoccur, maxoccur,
+   nillable should be on the top of this windows... and other unquoted data can remain in alphabetical order after these 5 first...
+ + In element window again, type is showing the related namespace. It could be great to have the possibilty
+   to hide it (or maybe duplicate type with a full type with namespace and short type W/O namespace)
+ + "Pattern" tab addition with the Annotation / Element window in order to show tag restriction/pattern
+   like this one: <xs:restriction base="xs:string"><xs:pattern value="[A-Z]{2,2}[0-9]{2,2}[a-zA-Z0-9]{1,30}" /></xs:restriction>
 - BUG: Cascading substitution groups may appear weird.
 - Add include a possibility to show the length of an element (Jörg S.)
 - Add the attributes to the element in the diagram (suggested by bob)
@@ -120,6 +129,9 @@ TODO LIST:
 
 
 CHANGES:
+
+version 1.2alpha (2016-09-??)
+- Add infer XSD from XML menu.
 
 version 1.1 (2016-07-08)
 - Fix SVG page size.

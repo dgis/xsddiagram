@@ -23,6 +23,8 @@ namespace XSDDiagram
             this.openURLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveDiagramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.validateXMLFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.generateSampleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.inferXSDFromXMLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.recentFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
@@ -63,7 +65,6 @@ namespace XSDDiagram
             this.splitContainerMain = new System.Windows.Forms.SplitContainer();
             this.tabControlView = new System.Windows.Forms.TabControl();
             this.tabPageDiagram = new System.Windows.Forms.TabPage();
-            this.panelDiagram = new XSDDiagram.DiagramControlContainer();
             this.splitContainerDiagramElement = new System.Windows.Forms.SplitContainer();
             this.tabControlElement = new System.Windows.Forms.TabControl();
             this.tabPageElementAttibutes = new System.Windows.Forms.TabPage();
@@ -103,6 +104,7 @@ namespace XSDDiagram
             this.expandOneLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxElementPath = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.panelDiagram = new XSDDiagram.DiagramControlContainer();
             this.menuStripMain.SuspendLayout();
             this.statusStripMain.SuspendLayout();
             this.toolStripMain.SuspendLayout();
@@ -140,7 +142,9 @@ namespace XSDDiagram
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
             this.openURLToolStripMenuItem,
+            this.inferXSDFromXMLToolStripMenuItem,
             this.saveDiagramToolStripMenuItem,
+            this.generateSampleToolStripMenuItem,
             this.validateXMLFileToolStripMenuItem,
             this.recentFilesToolStripMenuItem,
             this.closeToolStripMenuItem,
@@ -187,6 +191,21 @@ namespace XSDDiagram
             this.validateXMLFileToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
             this.validateXMLFileToolStripMenuItem.Text = "&Validate XML File...";
             this.validateXMLFileToolStripMenuItem.Click += new System.EventHandler(this.validateXMLFileToolStripMenuItem_Click);
+            // 
+            // generateSampleToolStripMenuItem
+            // 
+            this.generateSampleToolStripMenuItem.Name = "generateSampleToolStripMenuItem";
+            this.generateSampleToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.generateSampleToolStripMenuItem.Text = "&Generate Sample...";
+            this.generateSampleToolStripMenuItem.Visible = false;
+            this.generateSampleToolStripMenuItem.Click += new System.EventHandler(this.generateSampleToolStripMenuItem_Click);
+            // 
+            // inferXSDFromXMLToolStripMenuItem
+            // 
+            this.inferXSDFromXMLToolStripMenuItem.Name = "inferXSDFromXMLToolStripMenuItem";
+            this.inferXSDFromXMLToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.inferXSDFromXMLToolStripMenuItem.Text = "Infer XSD from XML...";
+            this.inferXSDFromXMLToolStripMenuItem.Click += new System.EventHandler(this.inferXSDFromXMLToolStripMenuItem_Click);
             // 
             // recentFilesToolStripMenuItem
             // 
@@ -601,23 +620,6 @@ namespace XSDDiagram
             this.tabPageDiagram.Text = "Diagram";
             this.tabPageDiagram.UseVisualStyleBackColor = true;
             // 
-            // panelDiagram
-            // 
-            this.panelDiagram.AllowDrop = true;
-            this.panelDiagram.AutoScroll = true;
-            this.panelDiagram.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.panelDiagram.CausesValidation = false;
-            this.panelDiagram.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelDiagram.Location = new System.Drawing.Point(0, 0);
-            this.panelDiagram.Margin = new System.Windows.Forms.Padding(0);
-            this.panelDiagram.Name = "panelDiagram";
-            this.panelDiagram.Size = new System.Drawing.Size(650, 499);
-            this.panelDiagram.TabIndex = 0;
-            this.panelDiagram.VirtualPoint = new System.Drawing.Point(0, 0);
-            this.panelDiagram.VirtualSize = new System.Drawing.Size(10, 10);
-            this.panelDiagram.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragDrop);
-            this.panelDiagram.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragEnter);
-            // 
             // splitContainerDiagramElement
             // 
             this.splitContainerDiagramElement.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -967,6 +969,23 @@ namespace XSDDiagram
             this.toolTip.OwnerDraw = true;
             this.toolTip.ShowAlways = true;
             // 
+            // panelDiagram
+            // 
+            this.panelDiagram.AllowDrop = true;
+            this.panelDiagram.AutoScroll = true;
+            this.panelDiagram.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.panelDiagram.CausesValidation = false;
+            this.panelDiagram.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelDiagram.Location = new System.Drawing.Point(0, 0);
+            this.panelDiagram.Margin = new System.Windows.Forms.Padding(0);
+            this.panelDiagram.Name = "panelDiagram";
+            this.panelDiagram.Size = new System.Drawing.Size(650, 499);
+            this.panelDiagram.TabIndex = 0;
+            this.panelDiagram.VirtualPoint = new System.Drawing.Point(0, 0);
+            this.panelDiagram.VirtualSize = new System.Drawing.Size(10, 10);
+            this.panelDiagram.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragDrop);
+            this.panelDiagram.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragEnter);
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -1102,6 +1121,8 @@ namespace XSDDiagram
         private System.Windows.Forms.ToolStripMenuItem recentFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton toolStripButtonShowDocumentation;
         private System.Windows.Forms.ToolStripMenuItem expandToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem generateSampleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem inferXSDFromXMLToolStripMenuItem;
     }
 }
 
