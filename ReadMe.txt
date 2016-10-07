@@ -107,6 +107,7 @@ NOTES:
 
 TODO LIST:
 
+- Multi-(language) documentation (https://github.com/dgis/xsddiagram/issues/8)
 - Add the infer XSD file in the command line.
 - NoukNouk suggestions:
  + Add some display parameter like font type / size for tags / annotation... background color, vertical margin between tags...
