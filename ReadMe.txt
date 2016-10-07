@@ -132,6 +132,7 @@ CHANGES:
 
 version 1.2alpha (2016-09-??)
 - Add infer XSD from XML menu.
+- Fix a null reference exception in the documentation (Thanks Mario M.).
 
 version 1.1 (2016-07-08)
 - Fix SVG page size.

@@ -1073,7 +1073,7 @@ namespace XSDDiagram
 				if (o is XMLSchema.documentation)
 				{
 					XMLSchema.documentation documentation = o as XMLSchema.documentation;
-					if (documentation.Any != null && documentation.Any.Length > 0)
+					if (documentation.Any != null && documentation.Any.Length > 0 && documentation.Any[0].Value != null)
 					{
 						string text = documentation.Any[0].Value;
 						text = text.Replace("\n", " ");
