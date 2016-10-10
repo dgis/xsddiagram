@@ -107,6 +107,8 @@ NOTES:
 
 TODO LIST:
 
+- Show/hide group elements in the settings (Mario M.).
+- Font look blurry on Windows, add default font size in the settings (Mario M.).
 - Multi-(language) documentation (https://github.com/dgis/xsddiagram/issues/8)
 - Add the infer XSD file in the command line.
 - NoukNouk suggestions:
