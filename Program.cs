@@ -35,7 +35,7 @@ namespace XSDDiagram
 		//static extern bool AllocConsole();
 
 		static string usage = @"XSD Diagram, version {0}
-Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 -o FILE
 	specifies the output image. '.png','.jpg', '.svg', '.txt', '.csv' ('.emf' on Windows) are allowed.
@@ -47,6 +47,7 @@ Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-d] [-z N] 
 -r ELEMENT
 	specifies the root element of the tree.
 	You can put several -r options = several root elements in the tree.
+    The element can have a namespace: MyElement@http://mynamespace/path
 -e N
 	specifies the expand level (from 0 to what you want).
 	Be carefull, the result image can be huge.
@@ -68,7 +69,7 @@ Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-d] [-z N] 
 
 
 Example 1:
-> XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType -e 3 -d -z 200 ./folder1/toto.xsd
+> XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType@http://mynamespace -e 3 -d -z 200 ./folder1/toto.xsd
 	will generate a PNG image from a diagram with a root elements
 	'TotoRoot' and 'TotoComplexType', and expanding the tree
 	from the root until the 3rd level, with the documentation.
@@ -155,9 +156,22 @@ Example 5:
 
 				foreach (var rootElement in Options.RootElements)
 				{
-					foreach (var element in schema.Elements)
+                    string elementName = rootElement;
+                    string elementNamespace = null;
+                    if(!string.IsNullOrEmpty(elementName))
+                    {
+                        var pos = rootElement.IndexOf("@");
+                        if(pos != -1)
+                        {
+                            elementName = rootElement.Substring(0, pos);
+                            elementNamespace = rootElement.Substring(pos + 1);
+                        }
+                    }
+
+                    foreach (var element in schema.Elements)
 					{
-                        if (element.Name == rootElement)
+                        if ((elementNamespace != null && elementNamespace == element.NameSpace && element.Name == elementName) ||
+                            (elementNamespace == null && element.Name == elementName))
                         {
 							Log("Adding '{0}' element to the diagram...\n", rootElement);
                             diagram.Add(element.Tag, element.NameSpace);

@@ -186,14 +186,27 @@ namespace XSDDiagram
 				LoadSchema(Options.InputFile);
 				foreach (var rootElement in Options.RootElements)
 				{
-					foreach (var element in schema.Elements)
-					{
-						if (element.Name == rootElement)
-						{
-							diagram.Add(element.Tag, element.NameSpace);
-						}
-					}
-				}
+                    string elementName = rootElement;
+                    string elementNamespace = null;
+                    if (!string.IsNullOrEmpty(elementName))
+                    {
+                        var pos = rootElement.IndexOf("@");
+                        if (pos != -1)
+                        {
+                            elementName = rootElement.Substring(0, pos);
+                            elementNamespace = rootElement.Substring(pos + 1);
+                        }
+                    }
+
+                    foreach (var element in schema.Elements)
+                    {
+                        if ((elementNamespace != null && elementNamespace == element.NameSpace && element.Name == elementName) ||
+                            (elementNamespace == null && element.Name == elementName))
+                        {
+                            diagram.Add(element.Tag, element.NameSpace);
+                        }
+                    }
+                }
 				for (int i = 0; i < Options.ExpandLevel; i++)
 				{
 					diagram.ExpandOneLevel();

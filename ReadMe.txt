@@ -35,11 +35,11 @@ QUICK START:
 
 COMMAND LINE USAGE: 
 
-> XSDDiagram.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-d] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+> XSDDiagram.exe [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 or on Windows use 'XSDDiagramConsole.exe' instead of 'XSDDiagram.exe' if you need the console:
 
-> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 Options:
 
@@ -74,7 +74,7 @@ Options:
 
 
 Example 1:
-> XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType -e 3 -d -z 200 ./folder1/toto.xsd
+> XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType@http://mynamespace -e 3 -d -z 200 ./folder1/toto.xsd
 	will generate a PNG image from a diagram with a root elements
 	'TotoRoot' and 'TotoComplexType', and expanding the tree
 	from the root until the 3rd level, with the documentation.
@@ -133,9 +133,10 @@ TODO LIST:
 
 CHANGES:
 
-version 1.2alpha (2016-09-??)
+version 1.2alpha (2016-11-??)
 - Add infer XSD from XML menu.
 - Fix a null reference exception in the documentation (Thanks Mario M.).
+- Add the namespace in the command line option -r (Thanks Kevin)
 
 version 1.1 (2016-07-08)
 - Fix SVG page size.
