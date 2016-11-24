@@ -71,6 +71,8 @@ Options:
 -p PASSWORD
 	specifies a password to authenticate when a xsd dependency
 	(import or include) is a secured url.
+-no-gui
+	prevents the graphical interface to be opened.
 
 
 Example 1:
@@ -136,7 +138,8 @@ CHANGES:
 version 1.2alpha (2016-11-??)
 - Add infer XSD from XML menu.
 - Fix a null reference exception in the documentation (Thanks Mario M.).
-- Add the namespace in the command line option -r (Thanks Kevin)
+- Add the namespace in the command line option -r (Thanks Kevin).
+- Add the option --no-gui to prevent the UI to be shown (Thanks Kevin).
 
 version 1.1 (2016-07-08)
 - Fix SVG page size.

@@ -37,8 +37,9 @@ namespace XSDDiagram
         public static string Username { get; private set; }
         public static string Password { get; private set; }
         public static IList<string> TextOutputFields { get; private set; }
+        public static bool NoGUI { get; private set; }
 
-		static Options()
+        static Options()
 		{
 			InputFile = null;
 			OutputFile = null;
@@ -51,6 +52,7 @@ namespace XSDDiagram
 			ForceHugeImageGeneration = false;
 			RequestHelp = false;
             TextOutputFields = new List<string>();
+            NoGUI = false;
 
             IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
 
@@ -154,6 +156,10 @@ namespace XSDDiagram
                         foreach (string field in textOutputFields.Split(new char[] { ',' }))
                             TextOutputFields.Add(field.Trim());
                     }
+                }
+                else if (string.Compare("-no-gui", argument, true) == 0)
+                {
+                    NoGUI = true;
                 }
                 else
 					InputFile = argument;
