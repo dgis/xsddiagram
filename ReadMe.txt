@@ -109,6 +109,7 @@ NOTES:
 
 TODO LIST:
 
+- Add an icon "Go to Diagram" on tool bar, to help working with lot of includes (Majo).
 - Show/hide group elements in the settings (Mario M.).
 - Font look blurry on Windows, add default font size in the settings (Mario M.).
 - Multi-(language) documentation (https://github.com/dgis/xsddiagram/issues/8)
