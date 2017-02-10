@@ -35,7 +35,7 @@ namespace XSDDiagram
 		//static extern bool AllocConsole();
 
 		static string usage = @"XSD Diagram, version {0}
-Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-a] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 -o FILE
 	specifies the output image. '.png','.jpg', '.svg', '.txt', '.csv' ('.emf' on Windows) are allowed.
@@ -58,6 +58,8 @@ Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] 
 	Work only with the '-o', '-os png' or '-os jpg' option.
 -f PATH,NAME,TYPE,NAMESPACE,COMMENT
 	specifies the fields you want to output when rendering to a txt or csf file.
+-a
+	outputs the attributes in text mode only (.txt and .csv).
 -y
 	force huge image generation without user prompt.
 -u USERNAME
@@ -90,7 +92,7 @@ Example 4:
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
 Example 5:
-> XSDDiagramConsole.exe -os txt -r TotoRoot -e 3 -f NAME,TYPE,COMMENT ./folder1/toto.xsd
+> XSDDiagramConsole.exe -os txt -r TotoRoot -e 3 -f PATH,TYPE,COMMENT -a ./folder1/toto.xsd
 	will write a textual representation in the standard output from a diagram with a root element
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 ";
@@ -197,8 +199,10 @@ Example 5:
 
                     DiagramExporter exporter = new DiagramExporter(diagram);
                     IDictionary<string, object> specificRendererParameters = new Dictionary<string, object>()
-                            { 
-                                { "TextOutputFields", Options.TextOutputFields }
+                            {
+                                { "TextOutputFields", Options.TextOutputFields },
+                                { "DisplayAttributes", Options.DisplayAttributes },
+                                { "Schema", schema }
                                 //For future parameters, {}
                             };
                     if (Options.OutputOnStdOut)

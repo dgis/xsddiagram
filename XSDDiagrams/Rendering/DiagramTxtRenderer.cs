@@ -28,6 +28,8 @@ namespace XSDDiagram.Rendering
         private string _fieldSeparator;
         private IList<string> _textOutputFields;
         private IList<string> _finalTextOutputFields;
+        private bool _displayAttributes;
+        private Schema _schema;
 
         private static List<string> fields = new List<string>() {
             "PATH", "NAME", "TYPE", "NAMESPACE", "COMMENT"
@@ -91,7 +93,30 @@ namespace XSDDiagram.Rendering
             }
         }
 
-        
+        public bool DisplayAttributes
+        {
+            get
+            {
+                return _displayAttributes;
+            }
+            set
+            {
+                _displayAttributes = value;
+            }
+        }
+
+        public Schema Schema
+        {
+            get
+            {
+                return _schema;
+            }
+            set
+            {
+                _schema = value;
+            }
+        }
+
 
         #endregion
 
@@ -115,6 +140,10 @@ namespace XSDDiagram.Rendering
         {
         }
 
+        /// <summary>
+        /// Renders the specified diagram.
+        /// </summary>
+        /// <param name="diagram">The diagram.</param>
         public override void Render(Diagram diagram)
         {
             _fieldSeparator = IsCSV ? "," : "\t";
@@ -137,6 +166,10 @@ namespace XSDDiagram.Rendering
             this.EndItemsRender();
         }
 
+        /// <summary>
+        /// Renders the specified drawing item.
+        /// </summary>
+        /// <param name="drawingItem">The drawing item.</param>
         public override void Render(DiagramItem drawingItem)
         {
             string type = "";
@@ -159,6 +192,7 @@ namespace XSDDiagram.Rendering
                     parentElement = parentElement.Parent;
                 }
 
+                // Get the comment/documentation
                 string comment = "";
                 XMLSchema.annotated annotated = drawingItem.TabSchema as XMLSchema.annotated;
                 if (annotated != null && annotated.annotation != null)
@@ -187,6 +221,7 @@ namespace XSDDiagram.Rendering
                     }
                 }
 
+                // Output the item
                 for (int i = 0; i < _finalTextOutputFields.Count; i++)
                 {
                     if (i > 0)
@@ -202,6 +237,48 @@ namespace XSDDiagram.Rendering
                     }
                 }
                 _writer.WriteLine();
+
+
+                // Output the item attributes
+                if (this.Schema != null && this.DisplayAttributes)
+                {
+                    string nameSpace = drawingItem.NameSpace;
+                    if (annotated != null)
+                    {
+                        // Attributes enumeration
+                        List<XSDAttribute> listAttributes = DiagramHelpers.GetAnnotatedAttributes(this.Schema, annotated, nameSpace);
+                        listAttributes.Reverse();
+                        for (int a = 0; a < listAttributes.Count; a++)
+                        {
+                            XSDAttribute xsdAttribute = listAttributes[a];
+                            if(xsdAttribute != null)
+                            {
+                                string commentAttribute = "";
+                                XMLSchema.attribute attribute = xsdAttribute.Tag;
+                                if (attribute != null && attribute.annotation != null)
+                                    commentAttribute = DiagramHelpers.GetAnnotationText(attribute.annotation);
+
+                                for (int i = 0; i < _finalTextOutputFields.Count; i++)
+                                {
+                                    if (i > 0)
+                                        _writer.Write(_fieldSeparator);
+                                    string field = _finalTextOutputFields[i];
+                                    switch (field)
+                                    {
+                                        case "PATH": _writer.Write(path + "@" + xsdAttribute.Name); break;
+                                        case "NAME": _writer.Write(drawingItem.Name + "@" + xsdAttribute.Name); break;
+                                        case "TYPE": _writer.Write(xsdAttribute.Type); break;
+                                        case "NAMESPACE": _writer.Write(xsdAttribute.NameSpace); break;
+                                        case "COMMENT": _writer.Write(commentAttribute); break;
+                                    }
+                                }
+                                _writer.WriteLine();
+                            }
+
+                            //this.listViewAttributes.Items.Add(new ListViewItem(new string[] { attribute.Name, attribute.Type, attribute.Use, attribute.DefaultValue, s })).Tag = attribute;
+                        }
+                    }
+                }
 
 
                 //// Draw the inheritor line

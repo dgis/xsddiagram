@@ -41,7 +41,7 @@ namespace XSDDiagram.Rendering
         private List<DiagramItem> _rootElements;
         private DiagramItem _selectedElement;
 
-        private XMLSchema.any     _fakeAny;
+        private XMLSchema.any _fakeAny;
 
         #endregion
 

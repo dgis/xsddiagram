@@ -163,6 +163,8 @@ namespace XSDDiagram
 
                     if (!string.IsNullOrEmpty(schemaLocation))
                     {
+                        schemaLocation = Uri.UnescapeDataString(schemaLocation);
+
                         loadedFileName = basePath + Path.DirectorySeparatorChar + schemaLocation.Replace('/', Path.DirectorySeparatorChar);
 
                         string url = schemaLocation.Trim();
@@ -260,7 +262,7 @@ namespace XSDDiagram
             {
                 uri = new Uri(url);
             }
-            catch (UriFormatException)
+            catch (UriFormatException ex)
             {
                 throw new Exception("Cannot read the URL '" + url + "'!");
             }

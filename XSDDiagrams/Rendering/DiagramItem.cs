@@ -490,28 +490,30 @@ namespace XSDDiagram.Rendering
             XMLSchema.annotated annotated = this.TabSchema as XMLSchema.annotated;
             if (annotated != null && annotated.annotation != null)
             {
-                foreach (object o in annotated.annotation.Items)
-                {
-                    if (o is XMLSchema.documentation)
-                    {
-                        XMLSchema.documentation documentation = o as XMLSchema.documentation;
-                        if (documentation.Any != null && documentation.Any.Length > 0 && documentation.Any[0].Value != null)
-                        {
-                            text = documentation.Any[0].Value;
-                            text = text.Replace("\n", " ");
-                            text = text.Replace("\t", " ");
-                            text = text.Replace("\r", "");
-                            text = Regex.Replace(text, " +", " ");
-                            text = text.Trim();
-                        }
-                        else if (documentation.source != null)
-                        {
-                            text = documentation.source;
-                        }
+                text = DiagramHelpers.GetAnnotationText(annotated.annotation);
 
-                        break;
-                    }
-                }
+                //foreach (object o in annotated.annotation.Items)
+                //{
+                //    if (o is XMLSchema.documentation)
+                //    {
+                //        XMLSchema.documentation documentation = o as XMLSchema.documentation;
+                //        if (documentation.Any != null && documentation.Any.Length > 0 && documentation.Any[0].Value != null)
+                //        {
+                //            text = documentation.Any[0].Value;
+                //            text = text.Replace("\n", " ");
+                //            text = text.Replace("\t", " ");
+                //            text = text.Replace("\r", "");
+                //            text = Regex.Replace(text, " +", " ");
+                //            text = text.Trim();
+                //        }
+                //        else if (documentation.source != null)
+                //        {
+                //            text = documentation.source;
+                //        }
+                //
+                //        break;
+                //    }
+                //}
             }
 
             return text;

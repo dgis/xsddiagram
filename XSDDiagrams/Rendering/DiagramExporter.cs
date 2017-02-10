@@ -68,10 +68,10 @@ namespace XSDDiagram.Rendering
             DiagramAlertHandler alerteDelegate, IDictionary<string, object> specificRendererParameters)
         {
             string extension = Path.GetExtension(outputFilename).ToLower();
-            if (string.IsNullOrEmpty(extension)) 
-            { 
-                extension = ".svg"; 
-                outputFilename += extension; 
+            if (string.IsNullOrEmpty(extension))
+            {
+                extension = ".svg";
+                outputFilename += extension;
             }
             using (FileStream stream = File.Create(outputFilename))
             {
@@ -97,10 +97,10 @@ namespace XSDDiagram.Rendering
                 {
                     _diagram.Scale = 1.0f;
                     _diagram.Layout(referenceGraphics);
-                    
+
                     IntPtr hdc = referenceGraphics.GetHdc();
-                    Metafile metafile      = new Metafile(stream, hdc);
-                    Graphics graphics      = Graphics.FromImage(metafile);
+                    Metafile metafile = new Metafile(stream, hdc);
+                    Graphics graphics = Graphics.FromImage(metafile);
                     graphics.SmoothingMode = SmoothingMode.HighQuality;
                     _diagram.Layout(graphics);
                     DiagramGdiRenderer.Draw(_diagram, graphics);
@@ -117,13 +117,13 @@ namespace XSDDiagram.Rendering
                 }
             }
             else if (extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
-                extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase)      ||
+                extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
                 extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase))
             {
                 Rectangle bbox = _diagram.ScaleRectangle(_diagram.BoundingBox);
                 bool bypassAlert = true;
                 if (alerteDelegate != null && (bbox.Width > 10000 || bbox.Height > 10000))
-                    bypassAlert = alerteDelegate("Huge image generation", 
+                    bypassAlert = alerteDelegate("Huge image generation",
                         String.Format("Do you agree to generate a {0}x{1} image?", bbox.Width, bbox.Height));
                 if (bypassAlert)
                 {
@@ -153,8 +153,14 @@ namespace XSDDiagram.Rendering
                             renderer.IsCSV = extension.CompareTo(".csv") == 0;
                             IDictionary<string, object> parameters = specificRendererParameters as IDictionary<string, object>;
                             object o;
-                            if (parameters != null && parameters.TryGetValue("TextOutputFields", out o))
-                                renderer.TextOutputFields = o as IList<string>;
+                            if (parameters != null) {
+                                if (parameters.TryGetValue("TextOutputFields", out o))
+                                    renderer.TextOutputFields = o as IList<string>;
+                                if (parameters.TryGetValue("DisplayAttributes", out o) && o is bool)
+                                    renderer.DisplayAttributes = (bool)o;
+                                if (parameters.TryGetValue("Schema", out o))
+                                    renderer.Schema = o as Schema;
+                            }
                             renderer.Render(_diagram);
                         }
 

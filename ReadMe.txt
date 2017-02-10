@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 1.2alpha Copyright (c) 2006-2016 Regis Cosnier, All Rights Reserved.
+Version 1.2alpha Copyright (c) 2006-2017 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -39,7 +39,7 @@ COMMAND LINE USAGE:
 
 or on Windows use 'XSDDiagramConsole.exe' instead of 'XSDDiagram.exe' if you need the console:
 
-> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-a] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 Options:
 
@@ -63,6 +63,8 @@ Options:
 	Work only with the '-o', '-os png' or '-os jpg' option.
 -f PATH,NAME,TYPE,NAMESPACE,COMMENT
 	specifies the fields you want to output when rendering to a txt or csf file.
+-a
+	outputs the attributes in text mode only (.txt and .csv).
 -y
 	force huge image generation without user prompt.
 -u USERNAME
@@ -96,7 +98,7 @@ Example 4:
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
 Example 5:
-> XSDDiagramConsole.exe -os txt -r TotoRoot -e 3 -f NAME,TYPE,COMMENT ./folder1/toto.xsd
+> XSDDiagramConsole.exe -os txt -r TotoRoot -e 3 -f PATH,TYPE,COMMENT -a ./folder1/toto.xsd
 	will write a textual representation in the standard output from a diagram with a root element
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 
@@ -112,7 +114,6 @@ TODO LIST:
 - Add an icon "Go to Diagram" on tool bar, to help working with lot of includes (Majo).
 - Show/hide group elements in the settings (Mario M.).
 - Font look blurry on Windows, add default font size in the settings (Mario M.).
-- Multi-(language) documentation (https://github.com/dgis/xsddiagram/issues/8)
 - Add the infer XSD file in the command line.
 - NoukNouk suggestions:
  + Add some display parameter like font type / size for tags / annotation... background color, vertical margin between tags...
@@ -136,11 +137,14 @@ TODO LIST:
 
 CHANGES:
 
-version 1.2alpha (2016-11-??)
+version 1.2alpha (2017-02-??)
 - Add infer XSD from XML menu.
 - Fix a null reference exception in the documentation (Thanks Mario M.).
 - Add the namespace in the command line option -r (Thanks Kevin).
 - Add the option --no-gui to prevent the UI to be shown (Thanks Kevin).
+- Add multi-(language) documentation (https://github.com/dgis/xsddiagram/issues/8).
+- Fix the URL escaping in the import (https://github.com/dgis/xsddiagram/issues/11).
+- Add the attributes of an element with the option -a for text output only.
 
 version 1.1 (2016-07-08)
 - Fix SVG page size.

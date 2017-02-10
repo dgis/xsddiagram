@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DiagramHelpers.cs" />
     <Compile Include="Parsing\Schema.cs" />
     <Compile Include="Parsing\XmlSchema.cs" />
     <Compile Include="Parsing\XMLSchemaEx.cs" />
