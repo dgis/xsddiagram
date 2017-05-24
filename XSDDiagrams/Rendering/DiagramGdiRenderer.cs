@@ -492,7 +492,10 @@ namespace XSDDiagram.Rendering
                 stringFormatText.Alignment = StringAlignment.Center;
                 stringFormatText.LineAlignment = StringAlignment.Center;
                 stringFormatText.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
-                _graphics.DrawString(drawingItem.Name, drawingItem.FontScaled, foreground, new RectangleF(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height), stringFormatText);
+
+
+                string type = drawingItem.GetTypeAnnotation();
+                _graphics.DrawString(drawingItem.Name +" : "+type,drawingItem.FontScaled, foreground, new RectangleF(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height), stringFormatText);
             }
 
             // Draw Documentation

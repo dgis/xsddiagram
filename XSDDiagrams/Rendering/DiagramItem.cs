@@ -484,6 +484,24 @@ namespace XSDDiagram.Rendering
             return _diagram.ScaleRectangle(rectangle); 
         }
 
+        public String GetTypeAnnotation()
+        {
+            string text = null;
+            XMLSchema.element element = this.TabSchema as XMLSchema.element;
+            
+            if (element != null)
+            {
+                String t = "" + element.type;
+                int idx = t.LastIndexOf(':');
+                
+                return t.Substring(idx + 1); 
+                
+
+            }
+
+            return text;
+        }
+
         public string GetTextDocumentation()
         {
             string text = null;
