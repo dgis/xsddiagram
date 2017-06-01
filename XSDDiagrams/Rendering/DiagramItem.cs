@@ -76,9 +76,9 @@ namespace XSDDiagram.Rendering
             _childExpandButtonBox  = Rectangle.Empty;
             _boundingBox           = Rectangle.Empty;
             _documentationMinWidth = 100;
-            _size                  = new Size(50, 25);
+            _size                  = new Size(100, 25);
             _margin                = new Size(10, 5);
-            _padding               = new Size(10, 15);
+            _padding               = new Size(10, 2);
             _itemType              = DiagramItemType.element;
             _childElements         = new List<DiagramItem>();
         }
