@@ -144,7 +144,7 @@ namespace XSDDiagram.Rendering
 				childDiagramElement.Diagram = this;
 				childDiagramElement.TabSchema = childElement;
                 string type = childDiagramElement.GetTypeAnnotation();
-                childDiagramElement.Name = childElement.name != null ? childElement.name + " : " + type : "";
+                childDiagramElement.Name = childElement.name != null ? childElement.name + "::" + type : "";
 				childDiagramElement.NameSpace = nameSpace;
 				childDiagramElement.ItemType = DiagramItemType.element;
 				int occurrence;
