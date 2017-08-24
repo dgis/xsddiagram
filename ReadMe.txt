@@ -111,6 +111,7 @@ NOTES:
 
 TODO LIST:
 
+- Add redefine (for external schema) and restrictions.
 - Add an icon "Go to Diagram" on tool bar, to help working with lot of includes (Majo).
 - Show/hide group elements in the settings (Mario M.).
 - Font look blurry on Windows, add default font size in the settings (Mario M.).
@@ -137,7 +138,7 @@ TODO LIST:
 
 CHANGES:
 
-version 1.2alpha (2017-02-??)
+version 1.2alpha (2017-09-??)
 - Add infer XSD from XML menu.
 - Fix a null reference exception in the documentation (Thanks Mario M.).
 - Add the namespace in the command line option -r (Thanks Kevin).
@@ -145,6 +146,7 @@ version 1.2alpha (2017-02-??)
 - Add multi-(language) documentation (https://github.com/dgis/xsddiagram/issues/8).
 - Fix the URL escaping in the import (https://github.com/dgis/xsddiagram/issues/11).
 - Add the attributes of an element with the option -a for text output only.
+- Fix bad case sensitivity to reference the elements (https://github.com/dgis/xsddiagram/issues/15).
 
 version 1.1 (2016-07-08)
 - Fix SVG page size.
@@ -268,7 +270,7 @@ version 0.1 (2006-09-14)
 
 LICENSE:
 
-Copyright (c) 2006-2016 Regis COSNIER, All Rights Reserved.
+Copyright (c) 2006-2017 Regis COSNIER, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).

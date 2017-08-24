@@ -57,7 +57,7 @@ namespace XSDDiagram.Rendering
             _alignement = DiagramAlignement.Center;
             _rootElements = new List<DiagramItem>();
             _selectedElement = null;
-            _elementsByName = new Dictionary<string, XSDObject>(StringComparer.OrdinalIgnoreCase);
+            _elementsByName = new Dictionary<string, XSDObject>(); // StringComparer.OrdinalIgnoreCase);
         }
 
         #endregion

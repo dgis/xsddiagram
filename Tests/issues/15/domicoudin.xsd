@@ -1,0 +1,36 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="x">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="a"/>
+				<xs:element ref="b"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="a">
+		<xs:complexType>
+			<xs:sequence>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="b">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="A"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="A">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="c"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="c">
+		<xs:complexType>
+			<xs:sequence>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

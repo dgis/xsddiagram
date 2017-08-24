@@ -25,8 +25,8 @@ namespace XSDDiagram
         private static XmlSerializer schemaSerializer = new XmlSerializer(typeof(XMLSchema.schema));
 
         private List<XSDObject> elements = new List<XSDObject>();
-        private Dictionary<string, XSDObject> hashtableElementsByName =  new Dictionary<string, XSDObject>(StringComparer.OrdinalIgnoreCase);
-        private Dictionary<string, object> hashtableAttributesByName = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, XSDObject> hashtableElementsByName = new Dictionary<string, XSDObject>(); // StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, object> hashtableAttributesByName = new Dictionary<string, object>(); // StringComparer.OrdinalIgnoreCase);
         private XSDObject firstElement = null;
         private List<string> loadError = new List<string>();
         private List<string> listOfXsdFilename = new List<string>();
