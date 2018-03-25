@@ -546,7 +546,11 @@ namespace XSDDiagram
 							resultElement.ShowChildElements = true;
 						}
 						else
-							resultElement.ShowChildElements ^= true;
+                        {
+                            this.diagram.ClearSearch();
+                            resultElement.ShowChildElements ^= true;
+                        }
+							
 
                         //UpdateDiagram();
                         //this.panelDiagram.ScrollTo(this.diagram.ScalePoint(resultElement.Location), true);
@@ -1496,7 +1500,10 @@ namespace XSDDiagram
                     element.ShowChildElements = true;
                 }
                 else
+                {
+                    this.diagram.ClearSearch();
                     element.ShowChildElements ^= true;
+                }
                 UpdateDiagram();
                 this.panelDiagram.ScrollTo(this.diagram.ScalePoint(element.Location), true);
             }
@@ -1682,12 +1689,49 @@ namespace XSDDiagram
             UpdateDiagram();
         }
 
+        private void toolStripButtonSearch_Click(object sender, EventArgs e)
+        {
+            Search();
+        }
+
+        private void toolStripTextBoxSearch_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((int)e.KeyChar == (int)Keys.Enter)
+            {
+                Search();
+                e.Handled = true;
+            }
+        }
+
+
+        private void Search()
+        {
+            var searchedItem = this.diagram.Search(toolStripTextBoxSearch.Text);
+            if (searchedItem != null)
+            {
+                SelectDiagramElement(searchedItem);
+                UpdateDiagram();
+                this.panelDiagram.ScrollTo(this.diagram.ScalePoint(searchedItem.Location), true);
+                this.toolStripStatusLabel1.Text = "Search: '" + toolStripTextBoxSearch.Text + "' (" + this.diagram.ActualSearchHit + " of " + this.diagram.SearchHits + " hits)";
+            }
+            else
+            {
+                this.toolStripStatusLabel1.Text = "Find: Can't find the text '" + toolStripTextBoxSearch.Text + "'";
+            }
+        }
+
+
         private void MainForm_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (e.Control && (e.KeyCode == Keys.D0 || e.KeyCode == Keys.NumPad0))
 			{
 				this.toolStripComboBoxZoom.SelectedIndex = 8;
 			}
+            else if (e.Control && (e.KeyCode == Keys.F))
+            {
+                this.toolStripTextBoxSearch.SelectAll();
+                this.toolStripTextBoxSearch.Focus();
+            }
 		}
 
 

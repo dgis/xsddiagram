@@ -262,8 +262,12 @@ namespace XSDDiagram.Rendering
                 return _showChildElements; 
             } 
             set 
-            { 
-                _showChildElements = value; 
+            {
+                if (_showChildElements != value)
+                {
+                    _showChildElements = value;
+                    this._diagram.ClearSearch();
+                }
             } 
         }
         

@@ -20,6 +20,7 @@ FEATURES:
 - Registration in the Windows Explorer contextual menu (for Windows administrator only)
 - Drag'n drop a xsd file or url on the main window header
 - Command line image generation
+- Find showed elements in Diagram
 
 
 QUICK START:
@@ -138,7 +139,7 @@ TODO LIST:
 
 CHANGES:
 
-version 1.2alpha (2017-09-??)
+version 1.2alpha (2018-03-??)
 - Add infer XSD from XML menu.
 - Fix a null reference exception in the documentation (Thanks Mario M.).
 - Add the namespace in the command line option -r (Thanks Kevin).
@@ -147,6 +148,7 @@ version 1.2alpha (2017-09-??)
 - Fix the URL escaping in the import (https://github.com/dgis/xsddiagram/issues/11).
 - Add the attributes of an element with the option -a for text output only.
 - Fix bad case sensitivity to reference the elements (https://github.com/dgis/xsddiagram/issues/15).
+- Add search functionality of showed elements (shortcut Ctrl+F)
 
 version 1.1 (2016-07-08)
 - Fix SVG page size.

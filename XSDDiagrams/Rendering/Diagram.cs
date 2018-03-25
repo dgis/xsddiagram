@@ -9,6 +9,7 @@
 //    Authors:
 //      Regis Cosnier (Initial developer)
 //      Paul Selormey (Refactoring)
+//      Edu Serna (Add Search Functionality)
 
 using System;
 using System.Drawing;
@@ -40,6 +41,9 @@ namespace XSDDiagram.Rendering
         private IDictionary<string, XSDObject> _elementsByName;
         private List<DiagramItem> _rootElements;
         private DiagramItem _selectedElement;
+        private String _lastSearchText;
+        private int _lastSearchHitElementIndex;
+        private List<DiagramItem> _lastSearchHitElements;
 
         private XMLSchema.any _fakeAny;
 
@@ -58,6 +62,10 @@ namespace XSDDiagram.Rendering
             _rootElements = new List<DiagramItem>();
             _selectedElement = null;
             _elementsByName = new Dictionary<string, XSDObject>(); // StringComparer.OrdinalIgnoreCase);
+            _lastSearchText = String.Empty;
+            _lastSearchHitElementIndex = 0;
+            _lastSearchHitElements = new List<DiagramItem>();
+
         }
 
         #endregion
@@ -82,6 +90,9 @@ namespace XSDDiagram.Rendering
         public IDictionary<string, XSDObject> ElementsByName { get { return _elementsByName; } set { _elementsByName = value; } }
 		public List<DiagramItem> RootElements { get { return _rootElements; } }
         public DiagramItem SelectedElement { get { return _selectedElement; } }
+
+        public int SearchHits {  get { return _lastSearchHitElements.Count; } }
+        public int ActualSearchHit {  get { return _lastSearchHitElementIndex + 1; } }
 
         #endregion
 
@@ -115,7 +126,8 @@ namespace XSDDiagram.Rendering
 
 		public DiagramItem AddElement(DiagramItem parentDiagramElement, XMLSchema.element childElement, string nameSpace)
 		{
-			if (childElement != null)
+            ClearSearch();
+            if (childElement != null)
 			{
 				DiagramItem childDiagramElement = new DiagramItem();
 
@@ -221,7 +233,8 @@ namespace XSDDiagram.Rendering
             XMLSchema.complexType childElement, bool isReference, 
             string nameSpace)
 		{
-			if (childElement != null)
+            ClearSearch();
+            if (childElement != null)
 			{
 				DiagramItem childDiagramElement = new DiagramItem();
 				childDiagramElement.Diagram = this;
@@ -338,7 +351,8 @@ namespace XSDDiagram.Rendering
             XMLSchema.group childGroup, DiagramItemGroupType type, 
             string nameSpace)
 		{
-			if (childGroup != null)
+            ClearSearch();
+            if (childGroup != null)
 			{
 				DiagramItem childDiagramGroup = new DiagramItem();
 				childDiagramGroup.ItemType = DiagramItemType.group;
@@ -403,6 +417,7 @@ namespace XSDDiagram.Rendering
 
 		public void Remove(DiagramItem element)
 		{
+            ClearSearch();
 			if (element.Parent == null)
 				_rootElements.Remove(element);
 			else
@@ -415,6 +430,7 @@ namespace XSDDiagram.Rendering
 
 		public void RemoveAll()
 		{
+            ClearSearch();
 			_rootElements.Clear();
 		}
 
@@ -436,6 +452,58 @@ namespace XSDDiagram.Rendering
             _elementsByName.Clear();
             _rootElements.Clear();
             _selectedElement = null;
+            ClearSearch();
+        }
+
+        public void ClearSearch()
+        {
+            _lastSearchText = String.Empty;
+            _lastSearchHitElements.Clear();
+        }
+
+        public DiagramItem Search(String text)
+        {
+            if (String.IsNullOrEmpty(text)) return null;
+            text = text.ToLowerInvariant();
+            if (text == _lastSearchText)
+            {
+                _lastSearchHitElementIndex++;
+                if (_lastSearchHitElementIndex >= _lastSearchHitElements.Count)
+                {
+                    _lastSearchHitElementIndex = 0;
+                }
+                return _lastSearchHitElements[_lastSearchHitElementIndex];
+            }
+            else
+            {
+                _lastSearchHitElementIndex = 0;
+                _lastSearchHitElements.Clear();
+                Search(text, _rootElements);
+                if (_lastSearchHitElements.Count == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    _lastSearchText = text;
+                    return _lastSearchHitElements[_lastSearchHitElementIndex];
+                }
+            }
+        }
+
+        private void Search(String text, IList<DiagramItem> items)
+        {
+            foreach (var item in items)
+            {
+                if (item.Name.ToLowerInvariant().Contains(text))
+                {
+                    _lastSearchHitElements.Add(item);
+                }
+                if (item.HasChildElements && item.ShowChildElements)
+                {
+                    Search(text, item.ChildElements);
+                }
+            }
         }
 
         public void Layout(Graphics g)
@@ -526,7 +594,8 @@ namespace XSDDiagram.Rendering
 
 		public void ExpandChildren(DiagramItem parentDiagramElement)
 		{
-			if (parentDiagramElement.ItemType == DiagramItemType.element || parentDiagramElement.ItemType == DiagramItemType.type)
+            ClearSearch();
+            if (parentDiagramElement.ItemType == DiagramItemType.element || parentDiagramElement.ItemType == DiagramItemType.type)
 			{
 				DiagramItem diagramElement = parentDiagramElement;
 				if (diagramElement.TabSchema is XMLSchema.element)
@@ -852,6 +921,7 @@ namespace XSDDiagram.Rendering
 
         private void ExpandOneLevel(DiagramItem parentItem)
         {
+            ClearSearch();
             foreach (DiagramItem item in parentItem.ChildElements)
             {
                 this.ExpandOneLevel(item);
