@@ -21,10 +21,10 @@ namespace XSDDiagram
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openURLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveDiagramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.validateXMLFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.generateSampleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.inferXSDFromXMLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveDiagramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.generateSampleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.validateXMLFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.recentFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
@@ -61,10 +61,14 @@ namespace XSDDiagram
             this.toolStripButtonShowDocumentation = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonTogglePanel = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripTextBoxSearch = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripButtonSearch = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButtonAbout = new System.Windows.Forms.ToolStripButton();
             this.splitContainerMain = new System.Windows.Forms.SplitContainer();
             this.tabControlView = new System.Windows.Forms.TabControl();
             this.tabPageDiagram = new System.Windows.Forms.TabPage();
+            this.panelDiagram = new XSDDiagram.DiagramControlContainer();
             this.splitContainerDiagramElement = new System.Windows.Forms.SplitContainer();
             this.tabControlElement = new System.Windows.Forms.TabControl();
             this.tabPageElementAttibutes = new System.Windows.Forms.TabPage();
@@ -104,7 +108,6 @@ namespace XSDDiagram
             this.expandOneLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxElementPath = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.panelDiagram = new XSDDiagram.DiagramControlContainer();
             this.menuStripMain.SuspendLayout();
             this.statusStripMain.SuspendLayout();
             this.toolStripMain.SuspendLayout();
@@ -176,6 +179,13 @@ namespace XSDDiagram
             this.openURLToolStripMenuItem.Text = "Open &URL...";
             this.openURLToolStripMenuItem.Click += new System.EventHandler(this.openURLToolStripMenuItem_Click);
             // 
+            // inferXSDFromXMLToolStripMenuItem
+            // 
+            this.inferXSDFromXMLToolStripMenuItem.Name = "inferXSDFromXMLToolStripMenuItem";
+            this.inferXSDFromXMLToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.inferXSDFromXMLToolStripMenuItem.Text = "Infer XSD from XML...";
+            this.inferXSDFromXMLToolStripMenuItem.Click += new System.EventHandler(this.inferXSDFromXMLToolStripMenuItem_Click);
+            // 
             // saveDiagramToolStripMenuItem
             // 
             this.saveDiagramToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.SaveGreen;
@@ -185,13 +195,6 @@ namespace XSDDiagram
             this.saveDiagramToolStripMenuItem.Text = "&Export Diagram...";
             this.saveDiagramToolStripMenuItem.Click += new System.EventHandler(this.saveDiagramToolStripMenuItem_Click);
             // 
-            // validateXMLFileToolStripMenuItem
-            // 
-            this.validateXMLFileToolStripMenuItem.Name = "validateXMLFileToolStripMenuItem";
-            this.validateXMLFileToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
-            this.validateXMLFileToolStripMenuItem.Text = "&Validate XML File...";
-            this.validateXMLFileToolStripMenuItem.Click += new System.EventHandler(this.validateXMLFileToolStripMenuItem_Click);
-            // 
             // generateSampleToolStripMenuItem
             // 
             this.generateSampleToolStripMenuItem.Name = "generateSampleToolStripMenuItem";
@@ -200,12 +203,12 @@ namespace XSDDiagram
             this.generateSampleToolStripMenuItem.Visible = false;
             this.generateSampleToolStripMenuItem.Click += new System.EventHandler(this.generateSampleToolStripMenuItem_Click);
             // 
-            // inferXSDFromXMLToolStripMenuItem
+            // validateXMLFileToolStripMenuItem
             // 
-            this.inferXSDFromXMLToolStripMenuItem.Name = "inferXSDFromXMLToolStripMenuItem";
-            this.inferXSDFromXMLToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
-            this.inferXSDFromXMLToolStripMenuItem.Text = "Infer XSD from XML...";
-            this.inferXSDFromXMLToolStripMenuItem.Click += new System.EventHandler(this.inferXSDFromXMLToolStripMenuItem_Click);
+            this.validateXMLFileToolStripMenuItem.Name = "validateXMLFileToolStripMenuItem";
+            this.validateXMLFileToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.validateXMLFileToolStripMenuItem.Text = "&Validate XML File...";
+            this.validateXMLFileToolStripMenuItem.Click += new System.EventHandler(this.validateXMLFileToolStripMenuItem_Click);
             // 
             // recentFilesToolStripMenuItem
             // 
@@ -267,7 +270,7 @@ namespace XSDDiagram
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.windowsExplorerRegistrationToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
             // windowsExplorerRegistrationToolStripMenuItem
@@ -309,7 +312,7 @@ namespace XSDDiagram
             // 
             this.nextTabToolStripMenuItem.Name = "nextTabToolStripMenuItem";
             this.nextTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Tab)));
-            this.nextTabToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.nextTabToolStripMenuItem.Size = new System.Drawing.Size(240, 22);
             this.nextTabToolStripMenuItem.Text = "&Next Tab";
             this.nextTabToolStripMenuItem.Click += new System.EventHandler(this.nextTabToolStripMenuItem_Click);
             // 
@@ -318,7 +321,7 @@ namespace XSDDiagram
             this.previousTabToolStripMenuItem.Name = "previousTabToolStripMenuItem";
             this.previousTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.Tab)));
-            this.previousTabToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.previousTabToolStripMenuItem.Size = new System.Drawing.Size(240, 22);
             this.previousTabToolStripMenuItem.Text = "&Previous Tab";
             this.previousTabToolStripMenuItem.Click += new System.EventHandler(this.previousTabToolStripMenuItem_Click);
             // 
@@ -374,6 +377,9 @@ namespace XSDDiagram
             this.toolStripButtonShowDocumentation,
             this.toolStripButtonTogglePanel,
             this.toolStripSeparator4,
+            this.toolStripTextBoxSearch,
+            this.toolStripButtonSearch,
+            this.toolStripSeparator3,
             this.toolStripButtonAbout});
             this.toolStripMain.Location = new System.Drawing.Point(0, 24);
             this.toolStripMain.Name = "toolStripMain";
@@ -567,6 +573,30 @@ namespace XSDDiagram
             this.toolStripSeparator4.Name = "toolStripSeparator4";
             this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
             // 
+            // toolStripTextBoxSearch
+            // 
+            this.toolStripTextBoxSearch.AcceptsReturn = true;
+            this.toolStripTextBoxSearch.Name = "toolStripTextBoxSearch";
+            this.toolStripTextBoxSearch.Size = new System.Drawing.Size(100, 25);
+            this.toolStripTextBoxSearch.ToolTipText = "Search elements showed in the Diagram";
+            this.toolStripTextBoxSearch.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.toolStripTextBoxSearch_KeyPress);
+            // 
+            // toolStripButtonSearch
+            // 
+            this.toolStripButtonSearch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonSearch.Image = global::XSDDiagram.Properties.Resources.Search;
+            this.toolStripButtonSearch.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonSearch.Name = "toolStripButtonSearch";
+            this.toolStripButtonSearch.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonSearch.Text = "toolStripButton1";
+            this.toolStripButtonSearch.ToolTipText = "Search";
+            this.toolStripButtonSearch.Click += new System.EventHandler(this.toolStripButtonSearch_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+            // 
             // toolStripButtonAbout
             // 
             this.toolStripButtonAbout.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -619,6 +649,23 @@ namespace XSDDiagram
             this.tabPageDiagram.TabIndex = 0;
             this.tabPageDiagram.Text = "Diagram";
             this.tabPageDiagram.UseVisualStyleBackColor = true;
+            // 
+            // panelDiagram
+            // 
+            this.panelDiagram.AllowDrop = true;
+            this.panelDiagram.AutoScroll = true;
+            this.panelDiagram.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.panelDiagram.CausesValidation = false;
+            this.panelDiagram.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelDiagram.Location = new System.Drawing.Point(0, 0);
+            this.panelDiagram.Margin = new System.Windows.Forms.Padding(0);
+            this.panelDiagram.Name = "panelDiagram";
+            this.panelDiagram.Size = new System.Drawing.Size(650, 499);
+            this.panelDiagram.TabIndex = 0;
+            this.panelDiagram.VirtualPoint = new System.Drawing.Point(0, 0);
+            this.panelDiagram.VirtualSize = new System.Drawing.Size(10, 10);
+            this.panelDiagram.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragDrop);
+            this.panelDiagram.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragEnter);
             // 
             // splitContainerDiagramElement
             // 
@@ -898,14 +945,14 @@ namespace XSDDiagram
             this.removeAllToolStripMenuItem,
             this.expandOneLevelToolStripMenuItem});
             this.contextMenuStripDiagram.Name = "contextMenuStripDiagram";
-            this.contextMenuStripDiagram.Size = new System.Drawing.Size(266, 142);
+            this.contextMenuStripDiagram.Size = new System.Drawing.Size(265, 142);
             this.contextMenuStripDiagram.Opened += new System.EventHandler(this.contextMenuStripDiagram_Opened);
             // 
             // gotoXSDFileToolStripMenuItem
             // 
             this.gotoXSDFileToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Move;
             this.gotoXSDFileToolStripMenuItem.Name = "gotoXSDFileToolStripMenuItem";
-            this.gotoXSDFileToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.gotoXSDFileToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.gotoXSDFileToolStripMenuItem.Text = "&Goto XSD File";
             this.gotoXSDFileToolStripMenuItem.Click += new System.EventHandler(this.gotoXSDFileToolStripMenuItem_Click);
             // 
@@ -913,7 +960,7 @@ namespace XSDDiagram
             // 
             this.expandToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Expand;
             this.expandToolStripMenuItem.Name = "expandToolStripMenuItem";
-            this.expandToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.expandToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.expandToolStripMenuItem.Text = "E&xpand / Collapse [SPACE or RIGHT]";
             this.expandToolStripMenuItem.Click += new System.EventHandler(this.expandToolStripMenuItem_Click);
             // 
@@ -921,20 +968,20 @@ namespace XSDDiagram
             // 
             this.removeFromDiagramToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Minus;
             this.removeFromDiagramToolStripMenuItem.Name = "removeFromDiagramToolStripMenuItem";
-            this.removeFromDiagramToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.removeFromDiagramToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.removeFromDiagramToolStripMenuItem.Text = "&Remove From Diagram [DEL]";
             this.removeFromDiagramToolStripMenuItem.Click += new System.EventHandler(this.removeFromDiagramToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(262, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(261, 6);
             // 
             // addAllToolStripMenuItem
             // 
             this.addAllToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.PlusPlus;
             this.addAllToolStripMenuItem.Name = "addAllToolStripMenuItem";
-            this.addAllToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.addAllToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.addAllToolStripMenuItem.Text = "Add &All";
             this.addAllToolStripMenuItem.Click += new System.EventHandler(this.toolStripButtonAddAllToDiagram_Click);
             // 
@@ -942,7 +989,7 @@ namespace XSDDiagram
             // 
             this.removeAllToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Delete;
             this.removeAllToolStripMenuItem.Name = "removeAllToolStripMenuItem";
-            this.removeAllToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.removeAllToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.removeAllToolStripMenuItem.Text = "&Remove All";
             this.removeAllToolStripMenuItem.Click += new System.EventHandler(this.toolStripButtonRemoveAllFromDiagram_Click);
             // 
@@ -950,7 +997,7 @@ namespace XSDDiagram
             // 
             this.expandOneLevelToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Expand;
             this.expandOneLevelToolStripMenuItem.Name = "expandOneLevelToolStripMenuItem";
-            this.expandOneLevelToolStripMenuItem.Size = new System.Drawing.Size(265, 22);
+            this.expandOneLevelToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.expandOneLevelToolStripMenuItem.Text = "&Expand All One Level";
             this.expandOneLevelToolStripMenuItem.Click += new System.EventHandler(this.expandOneLevelToolStripMenuItem_Click);
             // 
@@ -968,23 +1015,6 @@ namespace XSDDiagram
             this.toolTip.AutomaticDelay = 0;
             this.toolTip.OwnerDraw = true;
             this.toolTip.ShowAlways = true;
-            // 
-            // panelDiagram
-            // 
-            this.panelDiagram.AllowDrop = true;
-            this.panelDiagram.AutoScroll = true;
-            this.panelDiagram.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.panelDiagram.CausesValidation = false;
-            this.panelDiagram.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelDiagram.Location = new System.Drawing.Point(0, 0);
-            this.panelDiagram.Margin = new System.Windows.Forms.Padding(0);
-            this.panelDiagram.Name = "panelDiagram";
-            this.panelDiagram.Size = new System.Drawing.Size(650, 499);
-            this.panelDiagram.TabIndex = 0;
-            this.panelDiagram.VirtualPoint = new System.Drawing.Point(0, 0);
-            this.panelDiagram.VirtualSize = new System.Drawing.Size(10, 10);
-            this.panelDiagram.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragDrop);
-            this.panelDiagram.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDiagram_DragEnter);
             // 
             // MainForm
             // 
@@ -1123,6 +1153,9 @@ namespace XSDDiagram
         private System.Windows.Forms.ToolStripMenuItem expandToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem generateSampleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem inferXSDFromXMLToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton toolStripButtonSearch;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripTextBox toolStripTextBoxSearch;
     }
 }
 
