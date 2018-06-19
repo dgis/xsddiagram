@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 1.2alpha Copyright (c) 2006-2017 Regis Cosnier, All Rights Reserved.
+Version 1.2 Copyright (c) 2006-2018 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -139,7 +139,7 @@ TODO LIST:
 
 CHANGES:
 
-version 1.2alpha (2018-03-??)
+version 1.2 (2018-06-19)
 - Add infer XSD from XML menu.
 - Fix a null reference exception in the documentation (Thanks Mario M.).
 - Add the namespace in the command line option -r (Thanks Kevin).
@@ -148,7 +148,7 @@ version 1.2alpha (2018-03-??)
 - Fix the URL escaping in the import (https://github.com/dgis/xsddiagram/issues/11).
 - Add the attributes of an element with the option -a for text output only.
 - Fix bad case sensitivity to reference the elements (https://github.com/dgis/xsddiagram/issues/15).
-- Add search functionality of showed elements (shortcut Ctrl+F)
+- Add search functionality of showed elements (shortcut Ctrl+F) (https://github.com/dgis/xsddiagram/pull/17)
 
 version 1.1 (2016-07-08)
 - Fix SVG page size.
@@ -272,7 +272,7 @@ version 0.1 (2006-09-14)
 
 LICENSE:
 
-Copyright (c) 2006-2017 Regis COSNIER, All Rights Reserved.
+Copyright (c) 2006-2018 Regis COSNIER, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -283,6 +283,7 @@ CONTRIBUTORS:
 Regis Cosnier (Initial developer)
 Mathieu Malaterre (Debian and Ubuntu package)
 Paul Selormey (Refactoring)
+Edu Serna (searching feature)
 Adrian Covrig
 Hermann Swart
 Arjan Kloosterboer
