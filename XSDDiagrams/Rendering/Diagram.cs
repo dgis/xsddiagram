@@ -1,5 +1,5 @@
 //    XSDDiagram - A XML Schema Definition file viewer
-//    Copyright (C) 2006-2011  Regis COSNIER
+//    Copyright (C) 2006-2019  Regis COSNIER
 //    
 //    The content of this file is subject to the terms of either
 //    the GNU Lesser General Public License only (LGPL) or
@@ -434,17 +434,19 @@ namespace XSDDiagram.Rendering
 			_rootElements.Clear();
 		}
 
-		public void ExpandOneLevel()
+		public bool ExpandOneLevel()
 		{
+            bool result = false;
 			foreach (DiagramItem item in _rootElements)
 			{
-                this.ExpandOneLevel(item);
+                result |= this.ExpandOneLevel(item);
 
                 if (item.HasChildElements && item.ChildElements.Count == 0)
                 {
-                    this.ExpandChildren(item);
+                    result |= this.ExpandChildren(item);
                 }
 			}
+            return result;
 		}
 
 		public void Clear()
@@ -592,11 +594,13 @@ namespace XSDDiagram.Rendering
                 (int)Math.Round(rectangle.Height * this.Scale));
 		}
 
-		public void ExpandChildren(DiagramItem parentDiagramElement)
+		public bool ExpandChildren(DiagramItem parentDiagramElement)
 		{
+            bool result = false;
             ClearSearch();
             if (parentDiagramElement.ItemType == DiagramItemType.element || parentDiagramElement.ItemType == DiagramItemType.type)
 			{
+                result = true;
 				DiagramItem diagramElement = parentDiagramElement;
 				if (diagramElement.TabSchema is XMLSchema.element)
 				{
@@ -641,7 +645,8 @@ namespace XSDDiagram.Rendering
 			}
 			else if (parentDiagramElement.ItemType == DiagramItemType.group)
 			{
-				DiagramItem diagramCompositors = parentDiagramElement;
+                result = true;
+                DiagramItem diagramCompositors = parentDiagramElement;
 				XMLSchema.group group = diagramCompositors.TabSchema as XMLSchema.group;
 
                 if (group.Items != null)
@@ -683,6 +688,7 @@ namespace XSDDiagram.Rendering
                     AddAny(diagramCompositors, null, diagramCompositors.NameSpace);
                 }
 			}
+            return result;
         }
 
         public void SelectElement(DiagramItem element)
@@ -919,18 +925,20 @@ namespace XSDDiagram.Rendering
 			}
 		}
 
-        private void ExpandOneLevel(DiagramItem parentItem)
+        private bool ExpandOneLevel(DiagramItem parentItem)
         {
+            bool result = false;
             ClearSearch();
             foreach (DiagramItem item in parentItem.ChildElements)
             {
-                this.ExpandOneLevel(item);
+                result |= this.ExpandOneLevel(item);
 
                 if (item.HasChildElements && item.ChildElements.Count == 0)
                 {
-                    this.ExpandChildren(item);
+                    result |= this.ExpandChildren(item);
                 }
             }
+            return result;
         }
 
         #endregion

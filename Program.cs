@@ -1,5 +1,5 @@
 //    XSDDiagram - A XML Schema Definition file viewer
-//    Copyright (C) 2006-2011  Regis COSNIER
+//    Copyright (C) 2006-2019  Regis COSNIER
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ namespace XSDDiagram
 		//static extern bool AllocConsole();
 
 		static string usage = @"XSD Diagram, version {0}
-Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-a] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT,SEQ,LASTCHILD,XSDTYPE] [-a] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 -o FILE
 	specifies the output image. '.png','.jpg', '.svg', '.txt', '.csv' ('.emf' on Windows) are allowed.
@@ -56,8 +56,8 @@ Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] 
 -z N
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
--f PATH,NAME,TYPE,NAMESPACE,COMMENT
-	specifies the fields you want to output when rendering to a txt or csf file.
+-f PATH,NAME,TYPE,NAMESPACE,COMMENT,SEQ,LASTCHILD,XSDTYPE
+	specifies the fields you want to output when rendering to a txt or csv file.
 -a
 	outputs the attributes in text mode only (.txt and .csv).
 -y
@@ -189,7 +189,11 @@ Example 5:
 				for (int i = 0; i < Options.ExpandLevel; i++)
                 {
 					Log("Expanding to level {0}...\n", i + 1);
-                    diagram.ExpandOneLevel();
+                    if (!diagram.ExpandOneLevel())
+                    {
+                        Log("Cannot expand more.\n");
+                        break;
+                    }
                 }
                 diagram.Layout(graphics);
 				Log("Saving image...\n");

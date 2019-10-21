@@ -1,6 +1,6 @@
 XSD Diagram is a free xml schema definition diagram viewer (http://regis.cosnier.free.fr).
 
-Version 1.2 Copyright (c) 2006-2018 Regis Cosnier, All Rights Reserved.
+Version 1.3alpha Copyright (c) 2006-2019 Regis Cosnier, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -40,7 +40,7 @@ COMMAND LINE USAGE:
 
 or on Windows use 'XSDDiagramConsole.exe' instead of 'XSDDiagram.exe' if you need the console:
 
-> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT] [-a] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
+> XSDDiagramConsole.exe [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] [-d] [-z N] [-f PATH,NAME,TYPE,NAMESPACE,COMMENT,SEQ,LASTCHILD,XSDTYPE] [-a] [-y] [-u USERNAME] [-p PASSWORD] [file.xsd or URL]
 
 Options:
 
@@ -62,8 +62,8 @@ Options:
 -z N
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.
--f PATH,NAME,TYPE,NAMESPACE,COMMENT
-	specifies the fields you want to output when rendering to a txt or csf file.
+-f PATH,NAME,TYPE,NAMESPACE,COMMENT,SEQ,LASTCHILD,XSDTYPE
+	specifies the fields you want to output when rendering to a txt or csv file.
 -a
 	outputs the attributes in text mode only (.txt and .csv).
 -y
@@ -138,6 +138,9 @@ TODO LIST:
 
 
 CHANGES:
+
+version 1.3 (2019-10-XX)
+- Add the fields SEQ,LASTCHILD,XSDTYPE when rendering to a txt or csv file (https://github.com/dgis/xsddiagram/issues/22).
 
 version 1.2 (2018-06-19)
 - Add infer XSD from XML menu.
@@ -272,7 +275,7 @@ version 0.1 (2006-09-14)
 
 LICENSE:
 
-Copyright (c) 2006-2018 Regis COSNIER, All Rights Reserved.
+Copyright (c) 2006-2019 Regis COSNIER, All Rights Reserved.
 
 This program is free software and may be distributed
 according to the terms of the GNU General Public License (GPL).
@@ -284,6 +287,7 @@ Regis Cosnier (Initial developer)
 Mathieu Malaterre (Debian and Ubuntu package)
 Paul Selormey (Refactoring)
 Edu Serna (searching feature)
+TCH68k (for the text fileds: SEQ,LASTCHILD,XSDTYPE)
 Adrian Covrig
 Hermann Swart
 Arjan Kloosterboer

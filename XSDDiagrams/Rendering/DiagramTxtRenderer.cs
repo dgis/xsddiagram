@@ -1,5 +1,5 @@
 ﻿//    XSDDiagram - A XML Schema Definition file viewer
-//    Copyright (C) 2006-2011  Regis COSNIER
+//    Copyright (C) 2006-2019  Regis COSNIER
 //    
 //    The content of this file is subject to the terms of either
 //    the GNU Lesser General Public License only (LGPL) or
@@ -32,7 +32,7 @@ namespace XSDDiagram.Rendering
         private Schema _schema;
 
         private static List<string> fields = new List<string>() {
-            "PATH", "NAME", "TYPE", "NAMESPACE", "COMMENT"
+            "PATH", "NAME", "TYPE", "NAMESPACE", "COMMENT", "SEQ", "LASTCHILD", "XSDTYPE"
         };
 
         #endregion
@@ -53,11 +53,13 @@ namespace XSDDiagram.Rendering
 
         #region Public Properties
 
+        public bool iteratingLastChild;
+
         public override string Name
         {
             get
             {
-                return "SVG";
+                return "TXT";
             }
         }
 
@@ -124,7 +126,7 @@ namespace XSDDiagram.Rendering
 
         public override void BeginItemsRender()
         {
-            //PATH,NAME,TYPE,NAMESPACE,COMMENT,ATTRIBUT_NAME,ATTRIBUT_TYPE,ATTRIBUT_COMMENT
+            //PATH,NAME,TYPE,NAMESPACE,COMMENT,SEQ,LASTCHILD,XSDTYPE,ATTRIBUT_NAME,ATTRIBUT_TYPE,ATTRIBUT_COMMENT
             //foreach (string field in _finalTextOutputFields)
             for (int i = 0; i < _finalTextOutputFields.Count; i++)
             {
@@ -157,9 +159,10 @@ namespace XSDDiagram.Rendering
                         _finalTextOutputFields.Add(field);
 
             this.BeginItemsRender();
-
+            int c = 0;
             foreach (DiagramItem element in diagram.RootElements)
             {
+                this.iteratingLastChild = diagram.RootElements.Count == ++c;
                 this.Render(element);
             }
 
@@ -179,6 +182,9 @@ namespace XSDDiagram.Rendering
                 type = "simpleType";
             else if (drawingItem.TabSchema is XMLSchema.complexType)
                 type = "complexType";
+
+            string occurences = String.Format("{0}..", drawingItem.MinOccurrence) +
+                    (drawingItem.MaxOccurrence == -1 ? "∞" : string.Format("{0}", drawingItem.MaxOccurrence));
 
             if (type.Length > 0)
             {
@@ -221,9 +227,34 @@ namespace XSDDiagram.Rendering
                     }
                 }
 
+                //bool lastChild = drawingItem.Parent.ChildElements[drawingItem.Parent.ChildElements.Count - 1] == drawingItem;
+
                 // Output the item
+                string t;
+                XMLSchema.element el;
                 for (int i = 0; i < _finalTextOutputFields.Count; i++)
                 {
+                    el = drawingItem.TabSchema as XMLSchema.element;
+                    if (el != null)
+                    {
+                        string et = "" + el.type;
+                        if (et == "")
+                        {
+                            t = "[none]";
+                        }
+                        else
+                        {
+                            t = et.Substring(et.LastIndexOf(':') + 1);
+                            if (t == "")
+                            {
+                                t = "[none]";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        t = "[none]";
+                    }
                     if (i > 0)
                         _writer.Write(_fieldSeparator);
                     string field = _finalTextOutputFields[i];
@@ -234,6 +265,9 @@ namespace XSDDiagram.Rendering
                         case "TYPE": _writer.Write(type); break;
                         case "NAMESPACE": _writer.Write(drawingItem.NameSpace); break;
                         case "COMMENT": _writer.Write(comment); break;
+                        case "SEQ": _writer.Write(occurences); break;
+                        case "LASTCHILD": _writer.Write(this.iteratingLastChild ? "1" : "0"); break;
+                        case "XSDTYPE": _writer.Write(t); break;
                     }
                 }
                 _writer.WriteLine();
@@ -328,8 +362,10 @@ namespace XSDDiagram.Rendering
             // Draw children expand box
             if (drawingItem.HasChildElements && drawingItem.ShowChildElements)
             {
+                int c = 0;
                 foreach (DiagramItem element in drawingItem.ChildElements)
                 {
+                    this.iteratingLastChild = drawingItem.ChildElements.Count == ++c;
                     this.Render(element);
                     //_writer.WriteLine();
                 }
