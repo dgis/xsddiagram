@@ -507,13 +507,13 @@ namespace XSDDiagram.Rendering
             }
 
             // Draw occurences small text
-            if (drawingItem.MaxOccurrence > 1 || drawingItem.MaxOccurrence == -1)
+            // if (drawingItem.MaxOccurrence > 1 || drawingItem.MaxOccurrence == -1)
             {
                 string occurences = String.Format("{0}..", drawingItem.MinOccurrence) + 
                     (drawingItem.MaxOccurrence == -1 ? "∞" : string.Format("{0}", drawingItem.MaxOccurrence));
                 PointF pointOccurences = new PointF();
-                pointOccurences.X = drawingItem.Diagram.Scale * (drawingItem.Location.X + drawingItem.Size.Width - 10);
-                pointOccurences.Y = drawingItem.Diagram.Scale * (drawingItem.Location.Y + drawingItem.Size.Height + 10);
+                pointOccurences.X = drawingItem.Diagram.Scale * (drawingItem.Location.X + drawingItem.Size.Width + 20);
+                pointOccurences.Y = drawingItem.Diagram.Scale * (drawingItem.Location.Y + drawingItem.Size.Height - 17);
                 string style = String.Format(
                     "font-family:{0};font-size:{1}pt;fill:{2};text-anchor:end;dominant-baseline:central", 
                     drawingItem.SmallFont.Name, drawingItem.SmallFont.Size * fontScale, foregroundColor);
