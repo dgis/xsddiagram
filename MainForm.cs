@@ -19,29 +19,22 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Security.Principal;
 using System.Windows.Forms;
 using System.Xml;
-using System.Xml.Serialization;
+using System.Xml.Schema;
 
 // To generate the XMLSchema.cs file:
 // > xsd.exe XMLSchema.xsd /classes /l:cs /n:XMLSchema /order
 
 using XSDDiagram.Rendering;
-using System.Xml.Schema;
-using System.Diagnostics;
-
-using System.Security.Principal;
 
 namespace XSDDiagram
 {
-	public partial class MainForm : Form
+    public partial class MainForm : Form
 	{
         private DiagramPrinter _diagramPrinter;
         private DiagramGdiRenderer _diagramGdiRenderer;
@@ -61,9 +54,15 @@ namespace XSDDiagram
 
         private MRUManager mruManager;
 
+        private static MainForm mainForm = null;
+        public static MainForm Form { get { return mainForm; } }
+
+
         public MainForm()
 		{
-			InitializeComponent();
+            mainForm = this;
+
+            InitializeComponent();
 
             bool isElevated = false;
             WindowsIdentity identity = null;
@@ -89,7 +88,11 @@ namespace XSDDiagram
                     identity.Dispose();
             }
             this.toolsToolStripMenuItem.Visible = isElevated && !Options.IsRunningOnMono;
-            this.diagram.ShowDocumentation = this.toolStripButtonShowDocumentation.Checked = Options.ShowDocumentation;
+            this.diagram.ShowDocumentation = this.toolStripButtonShowDocumentation.Checked = Options.ShowDocumentation | Settings.Default.ShowDocumentation;
+            this.diagram.AlwaysShowOccurence = Settings.Default.AlwaysShowOccurence;
+            this.diagram.ShowType = Settings.Default.ShowType;
+            this.diagram.CompactLayoutDensity = Settings.Default.CompactLayoutDensity;
+
 
             this.originalTitle = Text;
 
@@ -178,10 +181,15 @@ namespace XSDDiagram
             this.mruManager = new MRUManager(this.recentFilesToolStripMenuItem, "xsddiagram", this.recentFilesToolStripMenuSubItemFile_Click, this.recentFilesToolStripMenuSubItemClearAll_Click);
 
 
-            this.toolStripComboBoxZoom.SelectedIndex = 8;
-			this.toolStripComboBoxAlignement.SelectedIndex = 1;
+            this.toolStripComboBoxZoom.SelectedIndex = Settings.Default.Zoom; // 8;
+            this.toolStripComboBoxAlignement.SelectedIndex = Settings.Default.Alignement; // 1;
 
-			if (!string.IsNullOrEmpty(Options.InputFile))
+            this.toolStripButtonTogglePanel.Checked = Settings.Default.DisplayPanel;
+            this.splitContainerMain.Panel2Collapsed = !this.toolStripButtonTogglePanel.Checked;
+
+
+
+            if (!string.IsNullOrEmpty(Options.InputFile))
 			{
 				LoadSchema(Options.InputFile);
 				foreach (var rootElement in Options.RootElements)
@@ -317,15 +325,55 @@ namespace XSDDiagram
             return MessageBox.Show(this, message, title, MessageBoxButtons.YesNo) == DialogResult.Yes;
         }
 
-		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        SettingsForm settingsForm;
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (settingsForm == null) {
+                settingsForm = new SettingsForm();
+                settingsForm.FormClosed += SettingsForm_FormClosed;
+                settingsForm.Show(this);
+            }
+            settingsForm.Focus();
+        }
+
+        private void SettingsForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            settingsForm.FormClosed -= SettingsForm_FormClosed;
+            settingsForm = null;
+        }
+
+        internal void ChangeSetting(string settingName)
+        {
+            switch (settingName)
+            {
+                case "AlwaysShowOccurence":
+                    this.diagram.AlwaysShowOccurence = Settings.Default.AlwaysShowOccurence;
+                    UpdateDiagram();
+                    break;
+                case "ShowType":
+                    this.diagram.ShowType = Settings.Default.ShowType;
+                    UpdateDiagram();
+                    break;
+                case "CompactLayoutDensity":
+                    this.diagram.CompactLayoutDensity = Settings.Default.CompactLayoutDensity;
+                    UpdateDiagram();
+                    break;
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Close();
 		}
 
-		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Settings.Default.Save();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			AboutForm aboutForm = new AboutForm();
-			aboutForm.ShowDialog(this);
+            new AboutForm().ShowDialog(this);
 		}
 
 		private void toolStripComboBoxSchemaElement_SelectedIndexChanged(object sender, EventArgs e)
@@ -884,9 +932,11 @@ namespace XSDDiagram
 				}
 			}
 			catch { }
-		}
 
-		private void toolStripComboBoxZoom_TextChanged(object sender, EventArgs e)
+            Settings.Default.Zoom = this.toolStripComboBoxZoom.SelectedIndex;
+        }
+
+        private void toolStripComboBoxZoom_TextChanged(object sender, EventArgs e)
 		{
 			//try
 			//{
@@ -977,9 +1027,11 @@ namespace XSDDiagram
 		private void toolStripButtonTogglePanel_Click(object sender, EventArgs e)
 		{
 			this.splitContainerMain.Panel2Collapsed = !this.toolStripButtonTogglePanel.Checked;
-		}
 
-		private void contextMenuStripDiagram_Opened(object sender, EventArgs e)
+            Settings.Default.DisplayPanel = this.toolStripButtonTogglePanel.Checked;
+        }
+
+        private void contextMenuStripDiagram_Opened(object sender, EventArgs e)
 		{
 			this.gotoXSDFileToolStripMenuItem.Enabled = false;
             this.expandToolStripMenuItem.Enabled = false;
@@ -1142,9 +1194,11 @@ namespace XSDDiagram
 				case "Bottom": this.diagram.Alignement = DiagramAlignement.Far; break;
 			}
 			UpdateDiagram();
-		}
 
-		void diagram_RequestAnyElement(DiagramItem diagramElement, out XMLSchema.element element, out string nameSpace)
+            Settings.Default.Alignement = this.toolStripComboBoxAlignement.SelectedIndex;
+        }
+
+        void diagram_RequestAnyElement(DiagramItem diagramElement, out XMLSchema.element element, out string nameSpace)
 		{
 			element = null;
 			nameSpace = "";
@@ -1687,6 +1741,8 @@ namespace XSDDiagram
         {
             this.diagram.ShowDocumentation = this.toolStripButtonShowDocumentation.Checked;
             UpdateDiagram();
+
+            Settings.Default.ShowDocumentation = this.toolStripButtonShowDocumentation.Checked;
         }
 
         private void toolStripButtonSearch_Click(object sender, EventArgs e)
@@ -1719,7 +1775,6 @@ namespace XSDDiagram
                 this.toolStripStatusLabel1.Text = "Find: Can't find the text '" + toolStripTextBoxSearch.Text + "'";
             }
         }
-
 
         private void MainForm_KeyUp(object sender, KeyEventArgs e)
 		{

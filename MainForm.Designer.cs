@@ -32,6 +32,8 @@ namespace XSDDiagram
             this.printPreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.printToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.windowsExplorerRegistrationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -156,6 +158,8 @@ namespace XSDDiagram
             this.printPreviewToolStripMenuItem,
             this.printToolStripMenuItem,
             this.toolStripMenuItem1,
+            this.settingsToolStripMenuItem,
+            this.toolStripMenuItem5,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -166,7 +170,7 @@ namespace XSDDiagram
             this.openToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Open;
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.openToolStripMenuItem.Text = "&Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -175,15 +179,15 @@ namespace XSDDiagram
             this.openURLToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Open;
             this.openURLToolStripMenuItem.Name = "openURLToolStripMenuItem";
             this.openURLToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.U)));
-            this.openURLToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.openURLToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.openURLToolStripMenuItem.Text = "Open &URL...";
             this.openURLToolStripMenuItem.Click += new System.EventHandler(this.openURLToolStripMenuItem_Click);
             // 
             // inferXSDFromXMLToolStripMenuItem
             // 
             this.inferXSDFromXMLToolStripMenuItem.Name = "inferXSDFromXMLToolStripMenuItem";
-            this.inferXSDFromXMLToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
-            this.inferXSDFromXMLToolStripMenuItem.Text = "Infer XSD from XML...";
+            this.inferXSDFromXMLToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.inferXSDFromXMLToolStripMenuItem.Text = "Infer XSD from &XML...";
             this.inferXSDFromXMLToolStripMenuItem.Click += new System.EventHandler(this.inferXSDFromXMLToolStripMenuItem_Click);
             // 
             // saveDiagramToolStripMenuItem
@@ -191,14 +195,14 @@ namespace XSDDiagram
             this.saveDiagramToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.SaveGreen;
             this.saveDiagramToolStripMenuItem.Name = "saveDiagramToolStripMenuItem";
             this.saveDiagramToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-            this.saveDiagramToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.saveDiagramToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.saveDiagramToolStripMenuItem.Text = "&Export Diagram...";
             this.saveDiagramToolStripMenuItem.Click += new System.EventHandler(this.saveDiagramToolStripMenuItem_Click);
             // 
             // generateSampleToolStripMenuItem
             // 
             this.generateSampleToolStripMenuItem.Name = "generateSampleToolStripMenuItem";
-            this.generateSampleToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.generateSampleToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.generateSampleToolStripMenuItem.Text = "&Generate Sample...";
             this.generateSampleToolStripMenuItem.Visible = false;
             this.generateSampleToolStripMenuItem.Click += new System.EventHandler(this.generateSampleToolStripMenuItem_Click);
@@ -206,32 +210,32 @@ namespace XSDDiagram
             // validateXMLFileToolStripMenuItem
             // 
             this.validateXMLFileToolStripMenuItem.Name = "validateXMLFileToolStripMenuItem";
-            this.validateXMLFileToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.validateXMLFileToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.validateXMLFileToolStripMenuItem.Text = "&Validate XML File...";
             this.validateXMLFileToolStripMenuItem.Click += new System.EventHandler(this.validateXMLFileToolStripMenuItem_Click);
             // 
             // recentFilesToolStripMenuItem
             // 
             this.recentFilesToolStripMenuItem.Name = "recentFilesToolStripMenuItem";
-            this.recentFilesToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.recentFilesToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.recentFilesToolStripMenuItem.Text = "&Recent Files";
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.closeToolStripMenuItem.Text = "&Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(201, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(202, 6);
             // 
             // pageToolStripMenuItem
             // 
             this.pageToolStripMenuItem.Name = "pageToolStripMenuItem";
-            this.pageToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.pageToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.pageToolStripMenuItem.Text = "Page Set&up...";
             this.pageToolStripMenuItem.Click += new System.EventHandler(this.pageToolStripMenuItem_Click);
             // 
@@ -239,7 +243,7 @@ namespace XSDDiagram
             // 
             this.printPreviewToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.PrintPreview;
             this.printPreviewToolStripMenuItem.Name = "printPreviewToolStripMenuItem";
-            this.printPreviewToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.printPreviewToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.printPreviewToolStripMenuItem.Text = "Print Pre&view...";
             this.printPreviewToolStripMenuItem.Click += new System.EventHandler(this.printPreviewToolStripMenuItem_Click);
             // 
@@ -248,20 +252,32 @@ namespace XSDDiagram
             this.printToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Print;
             this.printToolStripMenuItem.Name = "printToolStripMenuItem";
             this.printToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
-            this.printToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.printToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.printToolStripMenuItem.Text = "&Print...";
             this.printToolStripMenuItem.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(201, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(202, 6);
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.settingsToolStripMenuItem.Text = "Se&ttings...";
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(202, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -270,7 +286,7 @@ namespace XSDDiagram
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.windowsExplorerRegistrationToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
             // windowsExplorerRegistrationToolStripMenuItem
@@ -280,7 +296,7 @@ namespace XSDDiagram
             this.unregisterToolStripMenuItem});
             this.windowsExplorerRegistrationToolStripMenuItem.Image = global::XSDDiagram.Properties.Resources.Properties;
             this.windowsExplorerRegistrationToolStripMenuItem.Name = "windowsExplorerRegistrationToolStripMenuItem";
-            this.windowsExplorerRegistrationToolStripMenuItem.Size = new System.Drawing.Size(262, 22);
+            this.windowsExplorerRegistrationToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.windowsExplorerRegistrationToolStripMenuItem.Text = "&Windows Explorer Contextual Menu";
             // 
             // registerToolStripMenuItem
@@ -312,7 +328,7 @@ namespace XSDDiagram
             // 
             this.nextTabToolStripMenuItem.Name = "nextTabToolStripMenuItem";
             this.nextTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Tab)));
-            this.nextTabToolStripMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.nextTabToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.nextTabToolStripMenuItem.Text = "&Next Tab";
             this.nextTabToolStripMenuItem.Click += new System.EventHandler(this.nextTabToolStripMenuItem_Click);
             // 
@@ -321,7 +337,7 @@ namespace XSDDiagram
             this.previousTabToolStripMenuItem.Name = "previousTabToolStripMenuItem";
             this.previousTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.Tab)));
-            this.previousTabToolStripMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.previousTabToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.previousTabToolStripMenuItem.Text = "&Previous Tab";
             this.previousTabToolStripMenuItem.Click += new System.EventHandler(this.previousTabToolStripMenuItem_Click);
             // 
@@ -718,6 +734,7 @@ namespace XSDDiagram
             this.listViewAttributes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewAttributes.FullRowSelect = true;
             this.listViewAttributes.GridLines = true;
+            this.listViewAttributes.HideSelection = false;
             this.listViewAttributes.LabelEdit = true;
             this.listViewAttributes.Location = new System.Drawing.Point(3, 3);
             this.listViewAttributes.MultiSelect = false;
@@ -811,6 +828,7 @@ namespace XSDDiagram
             this.listViewEnumerate.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.listViewEnumerate.FullRowSelect = true;
             this.listViewEnumerate.GridLines = true;
+            this.listViewEnumerate.HideSelection = false;
             this.listViewEnumerate.Location = new System.Drawing.Point(0, 313);
             this.listViewEnumerate.Name = "listViewEnumerate";
             this.listViewEnumerate.Size = new System.Drawing.Size(214, 91);
@@ -1032,6 +1050,7 @@ namespace XSDDiagram
             this.MainMenuStrip = this.menuStripMain;
             this.Name = "MainForm";
             this.Text = "XSD Diagram";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
@@ -1156,6 +1175,8 @@ namespace XSDDiagram
         private System.Windows.Forms.ToolStripButton toolStripButtonSearch;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripTextBox toolStripTextBoxSearch;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
     }
 }
 

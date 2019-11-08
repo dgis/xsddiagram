@@ -483,7 +483,7 @@ namespace XSDDiagram.Rendering
                 string style = String.Format(
                     "font-family:{0};font-size:{1}pt;fill:{2};font-weight:bold;text-anchor:middle;dominant-baseline:central", 
                     drawingItem.Font.Name, drawingItem.Font.Size * fontScale, foregroundColor);
-                SVGText(drawingItem.Name, style, 
+                SVGText(drawingItem.Diagram.ShowType && !string.IsNullOrEmpty(drawingItem.Type) ? drawingItem.Name + ":" + drawingItem.Type : drawingItem.Name, style, 
                     new Rectangle(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height));
             }
 
@@ -507,13 +507,14 @@ namespace XSDDiagram.Rendering
             }
 
             // Draw occurences small text
-            // if (drawingItem.MaxOccurrence > 1 || drawingItem.MaxOccurrence == -1)
+            if (drawingItem.Diagram.AlwaysShowOccurence || (drawingItem.MaxOccurrence > 1 || drawingItem.MaxOccurrence == -1))
             {
                 string occurences = String.Format("{0}..", drawingItem.MinOccurrence) + 
                     (drawingItem.MaxOccurrence == -1 ? "∞" : string.Format("{0}", drawingItem.MaxOccurrence));
                 PointF pointOccurences = new PointF();
-                pointOccurences.X = drawingItem.Diagram.Scale * (drawingItem.Location.X + drawingItem.Size.Width + 20);
-                pointOccurences.Y = drawingItem.Diagram.Scale * (drawingItem.Location.Y + drawingItem.Size.Height - 17);
+                bool compactLayoutDensity = drawingItem.Diagram.CompactLayoutDensity;
+                pointOccurences.X = drawingItem.Diagram.Scale * (drawingItem.Location.X + drawingItem.Size.Width + (compactLayoutDensity ? +20 : -10));
+                pointOccurences.Y = drawingItem.Diagram.Scale * (drawingItem.Location.Y + drawingItem.Size.Height + (compactLayoutDensity ? -17 : +10));
                 string style = String.Format(
                     "font-family:{0};font-size:{1}pt;fill:{2};text-anchor:end;dominant-baseline:central", 
                     drawingItem.SmallFont.Name, drawingItem.SmallFont.Size * fontScale, foregroundColor);

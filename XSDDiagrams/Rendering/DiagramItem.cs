@@ -13,8 +13,6 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Text;
 
 namespace XSDDiagram.Rendering
 {
@@ -37,10 +35,12 @@ namespace XSDDiagram.Rendering
         private Size _size;
         private Size _margin;
         private Size _padding;
+        private Size _paddingCompact;
         private Point _location;
 
         private string _name;
         private string _nameSpace;
+        private string _type;
 
         private Rectangle _elementBox;
         private Rectangle _childExpandButtonBox;
@@ -66,6 +66,7 @@ namespace XSDDiagram.Rendering
         {
             _name                  = String.Empty;
             _nameSpace             = String.Empty;
+            _type                  = String.Empty;
             _minOccurrence         = -1;
             _maxOccurrence         = -1;   
             _location              = new Point(0, 0);
@@ -78,7 +79,8 @@ namespace XSDDiagram.Rendering
             _documentationMinWidth = 100;
             _size                  = new Size(100, 25);
             _margin                = new Size(10, 5);
-            _padding               = new Size(10, 2);
+            _padding               = new Size(10, 15);
+            _paddingCompact        = new Size(10, 4);
             _itemType              = DiagramItemType.element;
             _childElements         = new List<DiagramItem>();
         }
@@ -146,7 +148,19 @@ namespace XSDDiagram.Rendering
                 _nameSpace = value; 
             } 
         }
-        
+
+        public string Type
+        {
+            get
+            {
+                return _type;
+            }
+            set
+            {
+                _type = value;
+            }
+        }
+
         public DiagramItemType ItemType 
         { 
             get 
@@ -372,6 +386,18 @@ namespace XSDDiagram.Rendering
             } 
         }
 
+        public Size PaddingCompact
+        {
+            get
+            {
+                return _paddingCompact;
+            }
+            set
+            {
+                _paddingCompact = value;
+            }
+        }
+
         public Rectangle ElementBox
         {
             get
@@ -543,19 +569,17 @@ namespace XSDDiagram.Rendering
 
         public void GenerateMeasure(Graphics g)
         {
+            Size padding = Diagram.CompactLayoutDensity ? _paddingCompact : _padding;
+
             if (_parent != null)
                 _depth = _parent.Depth + 1;
 
             if (_itemType == DiagramItemType.group)
-            {
                 _size = new Size(40, 20);
-            }
-            //else
-            //    size = new Size(50, 25);
 
             if (_name.Length > 0)
             {
-                SizeF sizeF = g.MeasureString(_name, Font);
+                SizeF sizeF = g.MeasureString(Diagram.ShowType && !string.IsNullOrEmpty(_type) ? _name + ":" + _type : _name, Font);
                 //MONOFIX size = sizeF.ToSize();
                 _size = new Size((int)sizeF.Width, (int)sizeF.Height);
                 _size = _size + new Size(2 * Margin.Width + (_hasChildElements ? ChildExpandButtonSize : 0), 2 * Margin.Height);
@@ -574,8 +598,8 @@ namespace XSDDiagram.Rendering
                     childBoundingBoxHeight += element.BoundingBox.Size.Height;
                 }
             }
-            _boundingBox.Width = _size.Width + 2 * _padding.Width + childBoundingBoxWidth;
-            _boundingBox.Height = Math.Max(_size.Height + 2 * _padding.Height, childBoundingBoxHeight);
+            _boundingBox.Width = _size.Width + 2 * padding.Width + childBoundingBoxWidth;
+            _boundingBox.Height = Math.Max(_size.Height + 2 * padding.Height, childBoundingBoxHeight);
 
             if (_diagram.ShowDocumentation)
             {
@@ -590,10 +614,10 @@ namespace XSDDiagram.Rendering
                     }
 
                     SizeF sizeF = g.MeasureString(text, DocumentationFont);
-                    double documentationWidth = Math.Max(1.0, _size.Width + _padding.Width); // * 2.0);
+                    double documentationWidth = Math.Max(1.0, _size.Width + padding.Width); // * 2.0);
                     double documentationHeight = (Math.Ceiling(sizeF.Width / documentationWidth) + 1.8) * sizeF.Height;
                     _documentationBox = new Rectangle(new Point(0, 0), new Size((int)documentationWidth, (int)documentationHeight));
-                    _boundingBox.Height = Math.Max(_size.Height + 2 * _padding.Height + _documentationBox.Height + 2 * _padding.Height, childBoundingBoxHeight);
+                    _boundingBox.Height = Math.Max(_size.Height + 2 * padding.Height + _documentationBox.Height + 2 * padding.Height, childBoundingBoxHeight);
                 }
             }
 
@@ -610,7 +634,8 @@ namespace XSDDiagram.Rendering
 
         public void GenerateLocation()
         {
-            _location.X = _boundingBox.X + _padding.Width;
+            Size padding = Diagram.CompactLayoutDensity ? _paddingCompact : _padding;
+            _location.X = _boundingBox.X + padding.Width;
 
             switch (_diagram.Alignement)
             {
@@ -620,21 +645,21 @@ namespace XSDDiagram.Rendering
 				    if(_diagram.ShowDocumentation && !_documentationBox.IsEmpty)
                     {
                         _location.Y = _boundingBox.Y +
-                            (_boundingBox.Height - (2 * _padding.Height + _documentationBox.Height)) / 2;
+                            (_boundingBox.Height - (2 * padding.Height + _documentationBox.Height)) / 2;
                     }
                     break;
                 case DiagramAlignement.Near:
                     if (_itemType == DiagramItemType.group && _parent != null && _parent.ChildElements.Count == 1)
                         _location.Y = _parent.Location.Y + (_parent._elementBox.Height - _elementBox.Height) / 2;
                     else
-                        _location.Y = _boundingBox.Y + _padding.Height;
+                        _location.Y = _boundingBox.Y + padding.Height;
                     break;
                 case DiagramAlignement.Far:
                     if (_itemType == DiagramItemType.group && _parent != null && _parent.ChildElements.Count == 1)
                         _location.Y = _parent.Location.Y + (_parent._elementBox.Height - _elementBox.Height) / 2;
                     else
                         _location.Y = _boundingBox.Y +
-                            _boundingBox.Height - _size.Height - _padding.Height;
+                            _boundingBox.Height - _size.Height - padding.Height;
                     break;
             }
 
@@ -644,7 +669,7 @@ namespace XSDDiagram.Rendering
                 foreach (DiagramItem element in _childElements)
                     childrenHeight += element.BoundingBox.Height;
 
-                int childrenX = _boundingBox.X + 2 * _padding.Width + Size.Width;
+                int childrenX = _boundingBox.X + 2 * padding.Width + Size.Width;
                 int childrenY = _boundingBox.Y + Math.Max(0, (_boundingBox.Height - childrenHeight) / 2);
 
                 foreach (DiagramItem element in _childElements)
@@ -667,9 +692,9 @@ namespace XSDDiagram.Rendering
 			if (!_documentationBox.IsEmpty)
             {
                 if(_diagram.Alignement == DiagramAlignement.Far)
-                    _documentationBox.Offset(_location.X, _location.Y - _documentationBox.Height - _padding.Height);
+                    _documentationBox.Offset(_location.X, _location.Y - _documentationBox.Height - padding.Height);
                 else
-                    _documentationBox.Offset(_location.X, _location.Y + _elementBox.Height + _padding.Height);
+                    _documentationBox.Offset(_location.X, _location.Y + _elementBox.Height + padding.Height);
             }
         }
 

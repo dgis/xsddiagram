@@ -12,9 +12,7 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
-using System.Text.RegularExpressions;
 
 namespace XSDDiagram.Rendering
 {
@@ -492,8 +490,7 @@ namespace XSDDiagram.Rendering
                 stringFormatText.Alignment = StringAlignment.Center;
                 stringFormatText.LineAlignment = StringAlignment.Center;
                 stringFormatText.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
-                
-                _graphics.DrawString(drawingItem.Name,drawingItem.FontScaled, foreground, new RectangleF(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height), stringFormatText);
+                _graphics.DrawString(drawingItem.Diagram.ShowType && !string.IsNullOrEmpty(drawingItem.Type) ? drawingItem.Name + ":" + drawingItem.Type : drawingItem.Name, drawingItem.FontScaled, foreground, new RectangleF(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height), stringFormatText);
             }
 
             // Draw Documentation
@@ -522,7 +519,7 @@ namespace XSDDiagram.Rendering
             }
 
             // Draw occurences small text
-            // if (drawingItem.MaxOccurrence > 1 || drawingItem.MaxOccurrence == -1)
+            if (drawingItem.Diagram.AlwaysShowOccurence || (drawingItem.MaxOccurrence > 1 || drawingItem.MaxOccurrence == -1))
             {
                 StringFormat stringFormatOccurences = new StringFormat();
                 stringFormatOccurences.Alignment = StringAlignment.Far;
@@ -531,8 +528,9 @@ namespace XSDDiagram.Rendering
                 //string occurences = string.Format("{0}..", drawingItem.MinOccurrence) + (drawingItem.MaxOccurrence == -1 ? "\u0066∞" : string.Format("{0}", drawingItem.MaxOccurrence));
                 string occurences = string.Format("{0}..", drawingItem.MinOccurrence) + (drawingItem.MaxOccurrence == -1 ? "\u221E" : string.Format("{0}", drawingItem.MaxOccurrence));
                 PointF pointOccurences = new PointF();
-                pointOccurences.X = drawingItem.Diagram.Scale * (drawingItem.Location.X + drawingItem.Size.Width + 20);
-                pointOccurences.Y = drawingItem.Diagram.Scale * (drawingItem.Location.Y + drawingItem.Size.Height - 17 );
+                bool compactLayoutDensity = drawingItem.Diagram.CompactLayoutDensity;
+                pointOccurences.X = drawingItem.Diagram.Scale * (drawingItem.Location.X + drawingItem.Size.Width + (compactLayoutDensity ? +20 : -10));
+                pointOccurences.Y = drawingItem.Diagram.Scale * (drawingItem.Location.Y + drawingItem.Size.Height + (compactLayoutDensity ? -17 : +10));
                 _graphics.DrawString(occurences, drawingItem.SmallFontScaled, foreground, pointOccurences, stringFormatOccurences);
             }
 

@@ -23,6 +23,9 @@ namespace XSDDiagram.Rendering
 
         private bool _showBoundingBox;
         private bool _showDocumentation;
+        private bool _alwaysShowOccurence;
+        private bool _showType;
+        private bool _compactLayoutDensity;
         private Size _size;
 		private Size _padding;
         private float _scale;
@@ -65,7 +68,6 @@ namespace XSDDiagram.Rendering
             _lastSearchText = String.Empty;
             _lastSearchHitElementIndex = 0;
             _lastSearchHitElements = new List<DiagramItem>();
-
         }
 
         #endregion
@@ -79,6 +81,9 @@ namespace XSDDiagram.Rendering
 		public DiagramAlignement Alignement { get { return _alignement; } set { _alignement = value; } }
         public bool ShowBoundingBox { get { return _showBoundingBox; } set { _showBoundingBox = value; } }
         public bool ShowDocumentation { get { return _showDocumentation; } set { _showDocumentation = value; } }
+        public bool AlwaysShowOccurence { get { return _alwaysShowOccurence; } set { _alwaysShowOccurence = value; } }
+        public bool ShowType { get { return _showType; } set { _showType = value; } }
+        public bool CompactLayoutDensity { get { return _compactLayoutDensity; } set { _compactLayoutDensity = value; } }
 
         public Font Font { get { return _font; } set { _font = value; } }
         public Font FontScaled { get { return _fontScaled; } set { _fontScaled = value; } }
@@ -155,10 +160,12 @@ namespace XSDDiagram.Rendering
 
 				childDiagramElement.Diagram = this;
 				childDiagramElement.TabSchema = childElement;
+                childDiagramElement.Name = childElement.name != null ? childElement.name : "";
+                childDiagramElement.NameSpace = nameSpace;
                 string type = childDiagramElement.GetTypeAnnotation();
-                childDiagramElement.Name = childElement.name != null ? childElement.name + "::" + type : "";
-				childDiagramElement.NameSpace = nameSpace;
-				childDiagramElement.ItemType = DiagramItemType.element;
+                if (!String.IsNullOrEmpty(type))
+                    childDiagramElement.Type = type;
+                childDiagramElement.ItemType = DiagramItemType.element;
 				int occurrence;
 				if (int.TryParse(referenceElement != null ? referenceElement.minOccurs : childElement.minOccurs, out occurrence))
 					childDiagramElement.MinOccurrence = occurrence;
@@ -240,7 +247,6 @@ namespace XSDDiagram.Rendering
 				DiagramItem childDiagramElement = new DiagramItem();
 				childDiagramElement.Diagram = this;
 				childDiagramElement.TabSchema = childElement;                
-
                 childDiagramElement.Name = childElement.name != null ? childElement.name : "";
 				childDiagramElement.NameSpace = nameSpace;
 				childDiagramElement.ItemType = DiagramItemType.type;
