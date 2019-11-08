@@ -76,9 +76,9 @@ namespace XSDDiagram.Rendering
             _childExpandButtonBox  = Rectangle.Empty;
             _boundingBox           = Rectangle.Empty;
             _documentationMinWidth = 100;
-            _size                  = new Size(50, 25);
+            _size                  = new Size(100, 25);
             _margin                = new Size(10, 5);
-            _padding               = new Size(10, 15);
+            _padding               = new Size(10, 2);
             _itemType              = DiagramItemType.element;
             _childElements         = new List<DiagramItem>();
         }
@@ -486,6 +486,24 @@ namespace XSDDiagram.Rendering
         public Rectangle ScaleRectangle(Rectangle rectangle) 
         { 
             return _diagram.ScaleRectangle(rectangle); 
+        }
+
+        public String GetTypeAnnotation()
+        {
+            string text = null;
+            XMLSchema.element element = this.TabSchema as XMLSchema.element;
+            
+            if (element != null)
+            {
+                String t = "" + element.type;
+                int idx = t.LastIndexOf(':');
+                
+                return t.Substring(idx + 1); 
+                
+
+            }
+
+            return text;
         }
 
         public string GetTextDocumentation()

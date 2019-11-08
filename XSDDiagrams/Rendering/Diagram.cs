@@ -155,7 +155,8 @@ namespace XSDDiagram.Rendering
 
 				childDiagramElement.Diagram = this;
 				childDiagramElement.TabSchema = childElement;
-				childDiagramElement.Name = childElement.name != null ? childElement.name : "";
+                string type = childDiagramElement.GetTypeAnnotation();
+                childDiagramElement.Name = childElement.name != null ? childElement.name + "::" + type : "";
 				childDiagramElement.NameSpace = nameSpace;
 				childDiagramElement.ItemType = DiagramItemType.element;
 				int occurrence;
@@ -238,8 +239,9 @@ namespace XSDDiagram.Rendering
 			{
 				DiagramItem childDiagramElement = new DiagramItem();
 				childDiagramElement.Diagram = this;
-				childDiagramElement.TabSchema = childElement;
-				childDiagramElement.Name = childElement.name != null ? childElement.name : "";
+				childDiagramElement.TabSchema = childElement;                
+
+                childDiagramElement.Name = childElement.name != null ? childElement.name : "";
 				childDiagramElement.NameSpace = nameSpace;
 				childDiagramElement.ItemType = DiagramItemType.type;
 				childDiagramElement.MinOccurrence = 1;
