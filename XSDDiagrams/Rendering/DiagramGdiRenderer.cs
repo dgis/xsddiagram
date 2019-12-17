@@ -529,7 +529,7 @@ namespace XSDDiagram.Rendering
                 string occurences = string.Format("{0}..", drawingItem.MinOccurrence) + (drawingItem.MaxOccurrence == -1 ? "\u221E" : string.Format("{0}", drawingItem.MaxOccurrence));
                 PointF pointOccurences = new PointF();
                 bool compactLayoutDensity = drawingItem.Diagram.CompactLayoutDensity;
-                pointOccurences.X = drawingItem.Diagram.Scale * (drawingItem.Location.X + drawingItem.Size.Width + (compactLayoutDensity ? +20 : -10));
+                pointOccurences.X = drawingItem.Diagram.Scale * (drawingItem.Location.X + drawingItem.Size.Width + (compactLayoutDensity ? +23 : -10));
                 pointOccurences.Y = drawingItem.Diagram.Scale * (drawingItem.Location.Y + drawingItem.Size.Height + (compactLayoutDensity ? -17 : +10));
                 _graphics.DrawString(occurences, drawingItem.SmallFontScaled, foreground, pointOccurences, stringFormatOccurences);
             }

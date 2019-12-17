@@ -139,10 +139,11 @@ TODO LIST:
 
 CHANGES:
 
-version 1.3 (2019-11-XX)
+version 1.3 (2019-12-XX)
 - Add the fields SEQ,LASTCHILD,XSDTYPE when rendering to a txt or csv file (https://github.com/dgis/xsddiagram/issues/22).
 - Add the type in the diagram with all occurences with a compact layout (from Andreas Eidmann https://github.com/dgis/xsddiagram/pull/14)
 - Add a new settings windows with the options to show the type in the diagram, to show all the occurences, and to a compact layout.
+- Fix the issue #23 with the base path when downloading multiple includes.
 
 version 1.2 (2018-06-19)
 - Add infer XSD from XML menu.

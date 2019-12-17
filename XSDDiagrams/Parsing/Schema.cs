@@ -147,6 +147,7 @@ namespace XSDDiagram
                 {
                     string loadedFileName = "";
                     string schemaLocation = "";
+                    string baseUrlForChildImport = baseUrl;
 
                     if (openAttrs is XMLSchema.include)
                     {
@@ -174,25 +175,25 @@ namespace XSDDiagram
                             if (LoadSchemaFromUrl(basePath, url, out lf, out bu))
                             {
                                 loadedFileName = lf;
-                                baseUrl = bu; // The baseUrl change for this file
+                                baseUrlForChildImport = bu; // The baseUrl change for this file
                             }
                         }
                         else if (!File.Exists(loadedFileName))
                         {
                             // The relative file does not exist, so try to download it from the web with the baseUrl
-                            url = baseUrl + "/" + schemaLocation;
+                            url = baseUrlForChildImport + "/" + schemaLocation;
 
                             string lf, bu;
                             if (LoadSchemaFromUrl(basePath, url, out lf, out bu))
                             {
                                 loadedFileName = lf;
-                                baseUrl = bu; // The baseUrl change for this file
+                                baseUrlForChildImport = bu; // The baseUrl change for this file
                             }
                         }
                     }
 
                     if (!string.IsNullOrEmpty(loadedFileName))
-                        ImportSchema(loadedFileName, baseUrl);
+                        ImportSchema(loadedFileName, baseUrlForChildImport);
                 }
             }
 
