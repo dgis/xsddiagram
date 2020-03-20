@@ -30,7 +30,8 @@ namespace XSDDiagram
 		public static IList<string> RootElements { get; private set; }
 		public static int ExpandLevel { get; private set; }
         public static bool ShowDocumentation { get; private set; }
-        public static float Zoom { get; private set; }
+		public static bool CompactDiagram { get; private set; }
+		public static float Zoom { get; private set; }
 		public static bool ForceHugeImageGeneration { get; private set; }
 		public static bool RequestHelp { get; private set; }
 		public static bool IsRunningOnMono { get; private set; }
@@ -49,7 +50,8 @@ namespace XSDDiagram
 			RootElements = new List<string>();
 			ExpandLevel = 0;
             ShowDocumentation = false;
-            Zoom = 100.0f;
+			CompactDiagram = false;
+			Zoom = 100.0f;
 			ForceHugeImageGeneration = false;
 			RequestHelp = false;
             TextOutputFields = new List<string>();
@@ -120,11 +122,15 @@ namespace XSDDiagram
                         }
                         catch { }
                     }
-                }
-                else if(string.Compare("-d", argument, true) == 0)
-                {
-                    ShowDocumentation = true;
-                }
+				}
+				else if (string.Compare("-d", argument, true) == 0)
+				{
+					ShowDocumentation = true;
+				}
+				else if (string.Compare("-c", argument, true) == 0)
+				{
+					CompactDiagram = true;
+				}
 				else if (string.Compare("-z", argument, true) == 0)
 				{
 					if (currentArgument < arguments.Count)
