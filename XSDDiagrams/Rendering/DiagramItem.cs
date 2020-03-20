@@ -41,6 +41,7 @@ namespace XSDDiagram.Rendering
         private string _name;
         private string _nameSpace;
         private string _type;
+        private string _default;
 
         private Rectangle _elementBox;
         private Rectangle _childExpandButtonBox;
@@ -158,6 +159,17 @@ namespace XSDDiagram.Rendering
             set
             {
                 _type = value;
+            }
+        }
+        public string Default
+        {
+            get
+            {
+                return _default;
+            }
+            set
+            {
+                _default = value;
             }
         }
 
@@ -514,22 +526,12 @@ namespace XSDDiagram.Rendering
             return _diagram.ScaleRectangle(rectangle); 
         }
 
-        public String GetTypeAnnotation()
+        public String GetTypeAnnotation(System.Xml.XmlQualifiedName typeString)
         {
-            string text = null;
-            XMLSchema.element element = this.TabSchema as XMLSchema.element;
-            
-            if (element != null)
-            {
-                String t = "" + element.type;
-                int idx = t.LastIndexOf(':');
+            String t = "" + typeString;
+            int idx = t.LastIndexOf(':');
                 
-                return t.Substring(idx + 1); 
-                
-
-            }
-
-            return text;
+            return t.Substring(idx + 1); 
         }
 
         public string GetTextDocumentation()
@@ -579,7 +581,7 @@ namespace XSDDiagram.Rendering
 
             if (_name.Length > 0)
             {
-                SizeF sizeF = g.MeasureString(Diagram.ShowType && !string.IsNullOrEmpty(_type) ? _name + ":" + _type : _name, Font);
+                SizeF sizeF = g.MeasureString(this.GetLabel(), Font);
                 //MONOFIX size = sizeF.ToSize();
                 _size = new Size((int)sizeF.Width, (int)sizeF.Height);
                 _size = _size + new Size(2 * Margin.Width + (_hasChildElements ? ChildExpandButtonSize : 0), 2 * Margin.Height);
@@ -735,6 +737,13 @@ namespace XSDDiagram.Rendering
             {
                 region = DiagramHitTestRegion.None;
             }
+        }
+
+        public string GetLabel()
+        {
+            var labelLHS = (this.Diagram.ShowType || this.ItemType == DiagramItemType.attribute) && !string.IsNullOrEmpty(this.Type) ? this.Name + " : " + this.Type : this.Name;
+            var label = (! string.IsNullOrEmpty(this.Default)) ? labelLHS + " = " + this.Default : labelLHS;
+            return label;
         }
 
         #endregion

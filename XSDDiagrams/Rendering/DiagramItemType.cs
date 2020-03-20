@@ -18,7 +18,9 @@ namespace XSDDiagram.Rendering
     public enum DiagramItemType 
     { 
         element, 
-        type, 
-        group 
+        type,
+        group,
+        attrGroup,
+        attribute
     }
 }
