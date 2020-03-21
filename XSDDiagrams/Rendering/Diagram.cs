@@ -774,7 +774,8 @@ namespace XSDDiagram.Rendering
 				{
 					if (complexTypeElement.Items[i] is XMLSchema.group ||
 						complexTypeElement.Items[i] is XMLSchema.complexType ||
-						complexTypeElement.Items[i] is XMLSchema.complexContent)
+						complexTypeElement.Items[i] is XMLSchema.complexContent ||
+						complexTypeElement.Items[i] is XMLSchema.attribute)
 					{
 						hasChildren = true;
 						isSimpleType = complexTypeElement.mixed;
