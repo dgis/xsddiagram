@@ -482,7 +482,7 @@ namespace XSDDiagram.Rendering
             } 
         }
 
-        public IList<DiagramItem> ChildElements 
+        public List<DiagramItem> ChildElements 
         { 
             get 
             { 

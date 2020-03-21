@@ -154,9 +154,8 @@ Example 5:
                     LogError("\r\n");
                 }
 
-                Diagram diagram = new Diagram();
+                Diagram diagram = new Diagram(schema);
                 diagram.ShowDocumentation = Options.ShowDocumentation;
-                diagram.ElementsByName = schema.ElementsByName;
 				diagram.Scale = Options.Zoom / 100.0f;
                 diagram.CompactLayoutDensity = true;
 
