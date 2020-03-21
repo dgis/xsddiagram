@@ -927,11 +927,6 @@ namespace XSDDiagram.Rendering
 								ExpandAnnotated(parentDiagramElement, annotated, extensionType.@base.Namespace);
 							}
 
-							//foreach (XMLSchema.annotated item in extensionType.Items)
-							//{
-							//	ExpandAnnotated(parentDiagramElement, item, extensionType.@base.Namespace);
-							//}
-
 							XMLSchema.group group = extensionType.group as XMLSchema.group;
 							if (group != null)
 							{
