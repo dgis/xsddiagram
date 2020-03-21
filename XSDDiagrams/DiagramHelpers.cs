@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using XMLSchema;
 
 namespace XSDDiagram
 {
@@ -181,19 +183,8 @@ namespace XSDDiagram
                 else if (simpleType.Item is XMLSchema.list)
                 {
                     XMLSchema.list list = simpleType.Item as XMLSchema.list;
-                    type = QualifiedNameToAttributeTypeName(list.itemType);
-                    nameSpace = list.itemType.Namespace;
+                    getListTypeInfo(list, out type, out nameSpace);
                 }
-                else
-                {
-                }
-            }
-            else
-            {
-
-            }
-            if (string.IsNullOrEmpty(attribute.name) && string.IsNullOrEmpty(name))
-            {
             }
             if (isRestriction)
             {
@@ -218,6 +209,23 @@ namespace XSDDiagram
 
             }
             return null;
+        }
+
+        private static void getListTypeInfo(list list, out string itemType, out string nameSpace)
+        {
+            var typeQualifiedName = list.itemType;
+            if (typeQualifiedName == null)
+            {
+                Trace.Assert(list.simpleType != null);
+                Trace.Assert(list.simpleType is localSimpleType);
+                Trace.Assert(list.simpleType.Item is restriction);
+                var item = list.simpleType.Item as restriction;
+                Trace.Assert(item.@base != null);
+                typeQualifiedName = item.@base;
+            }
+
+            itemType = QualifiedNameToAttributeTypeName(typeQualifiedName);
+            nameSpace = typeQualifiedName.Namespace;
         }
 
         private static void ParseAttributeGroup(Schema schema, string nameSpace, List<XSDAttribute> listAttributes, XMLSchema.attributeGroup attributeGroup, bool isRestriction)
