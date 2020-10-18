@@ -204,7 +204,7 @@ namespace XSDDiagram
             else
             {
                 XSDAttribute xsdAttribute = new XSDAttribute(filename, name, nameSpace, type, isReference, attribute.@default, attribute.use.ToString(), attribute);
-                listAttributes.Insert(0, xsdAttribute);
+                listAttributes.Add(xsdAttribute);
                 return xsdAttribute;
 
             }
