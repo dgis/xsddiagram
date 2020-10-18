@@ -4,6 +4,12 @@
    1. Include .Net Desktop Development
 2. Open the solution `XSDDiagram2012.sln`
 
+# Creating new Release
+
+1. Set Release configuration for the solution.
+2. Zip all the files in `XSDDiagramConsole\bin\Release\`
+3. Create new release in github.
+
 # Common issues
 
 ## Error while trying to open project properties
