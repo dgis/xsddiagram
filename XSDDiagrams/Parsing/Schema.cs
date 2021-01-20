@@ -17,6 +17,7 @@ using System.Net;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
 using System.Text;
+using XMLSchema;
 
 namespace XSDDiagram
 {
@@ -203,54 +204,86 @@ namespace XSDDiagram
             {
                 foreach (XMLSchema.openAttrs openAttrs in schemaDOM.Items1)
                 {
-                    if (openAttrs is XMLSchema.element)
-                    {
-                        XMLSchema.element element = openAttrs as XMLSchema.element;
-                        XSDObject xsdObject = new XSDObject(fileName, element.name, nameSpace, "element", element);
-                        this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
-
-                        if (this.firstElement == null)
-                            this.firstElement = xsdObject;
-
-                        elements.Add(xsdObject);
-                    }
-                    else if (openAttrs is XMLSchema.group)
-                    {
-                        XMLSchema.group group = openAttrs as XMLSchema.group;
-                        XSDObject xsdObject = new XSDObject(fileName, group.name, nameSpace, "group", group);
-                        this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
-
-                        elements.Add(xsdObject);
-                    }
-                    else if (openAttrs is XMLSchema.simpleType)
-                    {
-                        XMLSchema.simpleType simpleType = openAttrs as XMLSchema.simpleType;
-                        XSDObject xsdObject = new XSDObject(fileName, simpleType.name, nameSpace, "simpleType", simpleType);
-                        this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
-
-                        elements.Add(xsdObject);
-                    }
-                    else if (openAttrs is XMLSchema.complexType)
-                    {
-                        XMLSchema.complexType complexType = openAttrs as XMLSchema.complexType;
-                        XSDObject xsdObject = new XSDObject(fileName, complexType.name, nameSpace, "complexType", complexType);
-                        this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
-
-                        elements.Add(xsdObject);
-                    }
-                    else if (openAttrs is XMLSchema.attribute)
-                    {
-                        XMLSchema.attribute attribute = openAttrs as XMLSchema.attribute;
-                        XSDAttribute xsdAttribute = new XSDAttribute(fileName, attribute.name, nameSpace, "attribute", attribute.@ref != null, attribute.@default, attribute.use.ToString(), attribute);
-                        this.hashtableAttributesByName[xsdAttribute.FullName] = xsdAttribute;
-                    }
-                    else if (openAttrs is XMLSchema.attributeGroup)
-                    {
-                        XMLSchema.attributeGroup attributeGroup = openAttrs as XMLSchema.attributeGroup;
-                        XSDAttributeGroup xsdAttributeGroup = new XSDAttributeGroup(fileName, attributeGroup.name, nameSpace, "attributeGroup", attributeGroup is XMLSchema.attributeGroupRef, attributeGroup);
-                        this.hashtableAttributesByName[xsdAttributeGroup.FullName] = xsdAttributeGroup;
-                    }
+                    this.recAddChildren(openAttrs, fileName, nameSpace);
                 }
+            }
+        }
+
+        private void recAddChildren(XMLSchema.openAttrs[] openAttrsList, string fileName, string nameSpace)
+        {
+            if (openAttrsList == null)
+            {
+                return;
+            }
+            foreach (XMLSchema.openAttrs child in openAttrsList)
+            {
+                this.recAddChildren(child, fileName, nameSpace);
+            }
+        }
+
+        private void recAddChildren(XMLSchema.openAttrs openAttrs, string fileName, string nameSpace)
+        {
+            if (openAttrs == null)
+            {
+                return;
+            }
+
+            if (openAttrs is XMLSchema.element)
+            {
+                XMLSchema.element element = openAttrs as XMLSchema.element;
+                XSDObject xsdObject = new XSDObject(fileName, element.name, nameSpace, "element", element);
+                this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
+
+                if (this.firstElement == null)
+                    this.firstElement = xsdObject;
+
+                elements.Add(xsdObject);
+
+                this.recAddChildren(element.Item, fileName, nameSpace);
+            }
+            else if (openAttrs is XMLSchema.group)
+            {
+                XMLSchema.group group = openAttrs as XMLSchema.group;
+                if (group.name != null)
+                {
+                    XSDObject xsdObject = new XSDObject(fileName, group.name, nameSpace, "group", group);
+                    this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
+                    elements.Add(xsdObject);
+                }
+
+                this.recAddChildren(group.Items, fileName, nameSpace);
+            }
+            else if (openAttrs is XMLSchema.simpleType)
+            {
+                XMLSchema.simpleType simpleType = openAttrs as XMLSchema.simpleType;
+                XSDObject xsdObject = new XSDObject(fileName, simpleType.name, nameSpace, "simpleType", simpleType);
+                this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
+
+                elements.Add(xsdObject);
+            }
+            else if (openAttrs is XMLSchema.complexType)
+            {
+                XMLSchema.complexType complexType = openAttrs as XMLSchema.complexType;
+                if (complexType.name != null)
+                {
+                    XSDObject xsdObject = new XSDObject(fileName, complexType.name, nameSpace, "complexType", complexType);
+                    this.hashtableElementsByName[xsdObject.FullName] = xsdObject;
+                    elements.Add(xsdObject);
+                }
+
+                this.recAddChildren(complexType.Items, fileName, nameSpace);
+            }
+            else if (openAttrs is XMLSchema.attribute)
+            {
+                XMLSchema.attribute attribute = openAttrs as XMLSchema.attribute;
+                XSDAttribute xsdAttribute = new XSDAttribute(fileName, attribute.name, nameSpace, "attribute", attribute.@ref != null, attribute.@default, attribute.use.ToString(), attribute);
+                this.hashtableAttributesByName[xsdAttribute.FullName] = xsdAttribute;
+            }
+            else if (openAttrs is XMLSchema.attributeGroup)
+            {
+                XMLSchema.attributeGroup attributeGroup = openAttrs as XMLSchema.attributeGroup;
+                XSDAttributeGroup xsdAttributeGroup = new XSDAttributeGroup(fileName, attributeGroup.name, nameSpace, "attributeGroup", attributeGroup is XMLSchema.attributeGroupRef, attributeGroup);
+                this.hashtableAttributesByName[xsdAttributeGroup.FullName] = xsdAttributeGroup;
             }
         }
 

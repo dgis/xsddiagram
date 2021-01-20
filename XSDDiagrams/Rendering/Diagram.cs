@@ -14,6 +14,7 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace XSDDiagram.Rendering
 {
@@ -41,7 +42,7 @@ namespace XSDDiagram.Rendering
         private Rectangle _boundingBox;
 		private DiagramAlignement _alignement;
 
-        private IDictionary<string, XSDObject> _elementsByName;
+        private Schema _schema;
         private List<DiagramItem> _rootElements;
         private DiagramItem _selectedElement;
         private String _lastSearchText;
@@ -54,7 +55,7 @@ namespace XSDDiagram.Rendering
 
         #region Constructors and Destructor
 
-        public Diagram()
+        public Diagram(Schema schema)
         {
             _scale = 1.0f;
             _lastScale = 1.0f;
@@ -64,8 +65,8 @@ namespace XSDDiagram.Rendering
             _alignement = DiagramAlignement.Center;
             _rootElements = new List<DiagramItem>();
             _selectedElement = null;
-            _elementsByName = new Dictionary<string, XSDObject>(); // StringComparer.OrdinalIgnoreCase);
-            _lastSearchText = String.Empty;
+			_schema = schema;
+			_lastSearchText = String.Empty;
             _lastSearchHitElementIndex = 0;
             _lastSearchHitElements = new List<DiagramItem>();
         }
@@ -92,7 +93,7 @@ namespace XSDDiagram.Rendering
         public Font DocumentationFont { get { return _documentationFont; } set { _documentationFont = value; } }
         public Font DocumentationFontScaled { get { return _documentationFontScaled; } set { _documentationFontScaled = value; } }
 
-        public IDictionary<string, XSDObject> ElementsByName { get { return _elementsByName; } set { _elementsByName = value; } }
+        public Schema Schema { get { return _schema; } }
 		public List<DiagramItem> RootElements { get { return _rootElements; } }
         public DiagramItem SelectedElement { get { return _selectedElement; } }
 
@@ -144,7 +145,7 @@ namespace XSDDiagram.Rendering
 						childDiagramElement.IsReference = true;
 
                         XSDObject objectReferred = null;
-                        if(_elementsByName.TryGetValue(childElement.@ref.Namespace + ":element:" + childElement.@ref.Name, out objectReferred) && objectReferred != null)
+                        if(_schema.ElementsByName.TryGetValue(childElement.@ref.Namespace + ":element:" + childElement.@ref.Name, out objectReferred) && objectReferred != null)
 						{
 							XMLSchema.element elementReferred = objectReferred.Tag as XMLSchema.element;
 							if (elementReferred != null)
@@ -162,7 +163,7 @@ namespace XSDDiagram.Rendering
 				childDiagramElement.TabSchema = childElement;
                 childDiagramElement.Name = childElement.name != null ? childElement.name : "";
                 childDiagramElement.NameSpace = nameSpace;
-                string type = childDiagramElement.GetTypeAnnotation();
+                string type = childDiagramElement.GetTypeAnnotation(childElement.type);
                 if (!String.IsNullOrEmpty(type))
                     childDiagramElement.Type = type;
                 childDiagramElement.ItemType = DiagramItemType.element;
@@ -199,7 +200,7 @@ namespace XSDDiagram.Rendering
 				if (childElement.@abstract)
 				{
 					string abstractElementFullName = childDiagramElement.FullName;
-					foreach(XSDObject xsdObject in _elementsByName.Values)
+					foreach(XSDObject xsdObject in _schema.ElementsByName.Values)
 					{
 						if (xsdObject != null && xsdObject.Tag is XMLSchema.element)
 						{
@@ -281,6 +282,37 @@ namespace XSDDiagram.Rendering
 				return childDiagramElement;
 			}
 			return null;
+		}
+
+		public DiagramItem AddAttribute(DiagramItem parentDiagramElement,
+			XMLSchema.attribute childElement, string nameSpace)
+		{
+			Debug.Assert(parentDiagramElement != null);
+			DiagramItem childDiagramElement = new DiagramItem();
+			childDiagramElement.Diagram = this;
+			childDiagramElement.TabSchema = childElement;
+			childDiagramElement.Name = childElement.name;
+			childDiagramElement.NameSpace = nameSpace;
+			childDiagramElement.ItemType = DiagramItemType.attribute;
+			if (childElement.use == XMLSchema.attributeUse.required)
+			{
+				childDiagramElement.MinOccurrence = 1;
+				childDiagramElement.MaxOccurrence = 1;
+			} else
+			{
+				childDiagramElement.MinOccurrence = 0;
+				childDiagramElement.MaxOccurrence = 1;
+			}
+			
+			string type = childDiagramElement.GetTypeAnnotation(childElement.type);
+			childDiagramElement.Type = type;
+			childDiagramElement.Default = childElement.@default;
+			childDiagramElement.IsReference = false;
+			childDiagramElement.IsSimpleContent = true;
+			childDiagramElement.HasChildElements = false;
+			childDiagramElement.Parent = parentDiagramElement;
+			parentDiagramElement.ChildElements.Add(childDiagramElement);
+			return childDiagramElement;
 		}
 
 		public DiagramItem AddAny(DiagramItem parentDiagramElement, 
@@ -372,7 +404,7 @@ namespace XSDDiagram.Rendering
 					childDiagramGroup.Name = childGroup.@ref.Name != null ? childGroup.@ref.Name : "";
 					childDiagramGroup.NameSpace = childGroup.@ref.Namespace != null ? childGroup.@ref.Namespace : "";
                     XSDObject grpObject = null;
-                    if (_elementsByName.TryGetValue(childDiagramGroup.FullName, out grpObject) && grpObject != null)
+                    if (_schema.ElementsByName.TryGetValue(childDiagramGroup.FullName, out grpObject) && grpObject != null)
                     {
                         XMLSchema.group group = grpObject.Tag as XMLSchema.group;
                         if (group != null)
@@ -423,6 +455,24 @@ namespace XSDDiagram.Rendering
 			return null;
 		}
 
+		public DiagramItem AddAttributeCompositor(DiagramItem parentDiagramElement, string nameSpace)
+		{
+			DiagramItem attributeIcon = new DiagramItem();
+			attributeIcon.ItemType = DiagramItemType.attrGroup;
+			attributeIcon.Name = "Attributes";
+			attributeIcon.Diagram = this;
+			attributeIcon.MaxOccurrence = 0;
+			attributeIcon.HasChildElements = true;
+			attributeIcon.NameSpace = nameSpace;
+			attributeIcon.Parent = parentDiagramElement;
+			parentDiagramElement.ChildElements.Add(attributeIcon);
+
+			attributeIcon.ShowChildElements = true;
+
+			return attributeIcon;
+		}
+
+
 		public void Remove(DiagramItem element)
 		{
             ClearSearch();
@@ -459,7 +509,6 @@ namespace XSDDiagram.Rendering
 
 		public void Clear()
 		{
-            _elementsByName.Clear();
             _rootElements.Clear();
             _selectedElement = null;
             ClearSearch();
@@ -622,7 +671,7 @@ namespace XSDDiagram.Rendering
 					else if (element.type != null)
 					{
                         XSDObject objectAnnotated = null;
-                        if(_elementsByName.TryGetValue(element.type.Namespace + ":type:" + element.type.Name, out objectAnnotated) && objectAnnotated != null)
+                        if(_schema.ElementsByName.TryGetValue(element.type.Namespace + ":type:" + element.type.Name, out objectAnnotated) && objectAnnotated != null)
                         {
                             XMLSchema.annotated annotated = objectAnnotated.Tag as XMLSchema.annotated;
                             ExpandAnnotated(diagramElement, annotated, element.type.Namespace);
@@ -724,7 +773,8 @@ namespace XSDDiagram.Rendering
 				{
 					if (complexTypeElement.Items[i] is XMLSchema.group ||
 						complexTypeElement.Items[i] is XMLSchema.complexType ||
-						complexTypeElement.Items[i] is XMLSchema.complexContent)
+						complexTypeElement.Items[i] is XMLSchema.complexContent ||
+						complexTypeElement.Items[i] is XMLSchema.attribute)
 					{
 						hasChildren = true;
 						isSimpleType = complexTypeElement.mixed;
@@ -741,7 +791,7 @@ namespace XSDDiagram.Rendering
 								else if (extensionType.@base != null)
 								{
                                     XSDObject xsdObject = null;
-                                    if(_elementsByName.TryGetValue(extensionType.@base.Namespace + ":type:" + extensionType.@base.Name, out xsdObject) && xsdObject != null)
+                                    if(_schema.ElementsByName.TryGetValue(extensionType.@base.Namespace + ":type:" + extensionType.@base.Name, out xsdObject) && xsdObject != null)
 									{
                                         XMLSchema.complexType baseComplexType = xsdObject.Tag as XMLSchema.complexType;
 										if (baseComplexType != null)
@@ -791,7 +841,7 @@ namespace XSDDiagram.Rendering
 			else if (childElement.type != null)
 			{
                 XSDObject xsdObject = null;
-                if(_elementsByName.TryGetValue(childElement.type.Namespace + ":type:" + childElement.type.Name, out xsdObject) && xsdObject != null)
+                if(_schema.ElementsByName.TryGetValue(childElement.type.Namespace + ":type:" + childElement.type.Name, out xsdObject) && xsdObject != null)
 				//if (_elementsByName.ContainsKey(childElement.type.Namespace + ":type:" + childElement.type.Name))
 				{
                     XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
@@ -834,9 +884,24 @@ namespace XSDDiagram.Rendering
 		{
 			if (complexTypeElement.Items != null)
 			{
-                XMLSchema.annotated[] items = complexTypeElement.Items;
-                XMLSchema.ItemsChoiceType4[] itemsChoiceType = complexTypeElement.ItemsElementName;
+				var attributes = DiagramHelpers.GetAnnotatedAttributes(_schema, complexTypeElement, parentDiagramElement.NameSpace);
+				DiagramItem attributeCompositor = parentDiagramElement.ChildElements.Find(x => x.ItemType == DiagramItemType.attrGroup);
+				foreach (var attr in attributes)
+				{
+					parentDiagramElement.ShowChildElements = true;
+					if (attributeCompositor == null)
+					{
+						attributeCompositor = AddAttributeCompositor(parentDiagramElement, parentDiagramElement.NameSpace);
+					}
+					if (! attributeCompositor.ChildElements.Exists(a => a.Name == attr.Tag.name))
+					{
+						AddAttribute(attributeCompositor, attr.Tag, attributeCompositor.NameSpace);
+					}
+				}
 
+				XMLSchema.annotated[] items = complexTypeElement.Items;
+                XMLSchema.ItemsChoiceType4[] itemsChoiceType = complexTypeElement.ItemsElementName;
+				
 				for (int i = 0; i < items.Length; i++)
 				{
 					if (items[i] is XMLSchema.group)
@@ -856,7 +921,7 @@ namespace XSDDiagram.Rendering
 							XMLSchema.extensionType extensionType = complexContent.Item as XMLSchema.extensionType;
 
 							XSDObject xsdObject = null;
-                            if(_elementsByName.TryGetValue(extensionType.@base.Namespace + ":type:" + extensionType.@base.Name, out xsdObject) && xsdObject != null)
+                            if(_schema.ElementsByName.TryGetValue(extensionType.@base.Namespace + ":type:" + extensionType.@base.Name, out xsdObject) && xsdObject != null)
 							{
 								XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
 								ExpandAnnotated(parentDiagramElement, annotated, extensionType.@base.Namespace);
@@ -902,7 +967,7 @@ namespace XSDDiagram.Rendering
 						{
 							XMLSchema.restrictionType restrictionType = complexContent.Item as XMLSchema.restrictionType;
 							XSDObject xsdObject = null;
-                            if(_elementsByName.TryGetValue(restrictionType.@base.Namespace + ":type:" + restrictionType.@base.Name, out xsdObject) && xsdObject != null)
+                            if(_schema.ElementsByName.TryGetValue(restrictionType.@base.Namespace + ":type:" + restrictionType.@base.Name, out xsdObject) && xsdObject != null)
                             {
                                 XMLSchema.annotated annotated = xsdObject.Tag as XMLSchema.annotated;
                                 ExpandAnnotated(parentDiagramElement, annotated, restrictionType.@base.Namespace);

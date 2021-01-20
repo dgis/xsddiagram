@@ -59,6 +59,8 @@ Options:
 	Be carefull, the result image can be huge.
 -d
 	Display the documentation.
+-c
+	Draw a compact diagram.
 -z N
 	specifies the zoom percentage from 10% to 1000% (only for .png image).
 	Work only with the '-o', '-os png' or '-os jpg' option.

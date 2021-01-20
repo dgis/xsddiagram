@@ -40,8 +40,8 @@ namespace XSDDiagram
         private DiagramGdiRenderer _diagramGdiRenderer;
         private Rectangle _renderingClipRectangle = new Rectangle();
 
-        private Diagram diagram = new Diagram();
         private Schema schema = new Schema();
+        private Diagram diagram = null;
         private Dictionary<string, TabPage> hashtableTabPageByFilename = new Dictionary<string, TabPage>();
 		private string originalTitle = "";
 		private DiagramItem contextualMenuPointedElement = null;
@@ -61,7 +61,7 @@ namespace XSDDiagram
         public MainForm()
 		{
             mainForm = this;
-
+            diagram = new Diagram(schema);
             InitializeComponent();
 
             bool isElevated = false;
@@ -488,7 +488,6 @@ namespace XSDDiagram
                 errorReportForm.ShowDialog(this);
             }
 
-            this.diagram.ElementsByName = this.schema.ElementsByName;
             if (this.schema.FirstElement != null)
                 this.toolStripComboBoxSchemaElement.SelectedItem = this.schema.FirstElement;
             else

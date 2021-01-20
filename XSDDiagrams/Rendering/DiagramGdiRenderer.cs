@@ -236,6 +236,7 @@ namespace XSDDiagram.Rendering
             switch (drawingItem.ItemType)
             {
                 case DiagramItemType.element:
+                case DiagramItemType.attribute:
                     {
                         // Draw the main shape following the min/max occurences
                         Pen foregroundBoxPen = new Pen(foreground);
@@ -260,7 +261,6 @@ namespace XSDDiagram.Rendering
                         }
                     }
                     break;
-
                 case DiagramItemType.type:
                     {
                         // Draw the main shape following the min/max occurences
@@ -481,6 +481,49 @@ namespace XSDDiagram.Rendering
                         }
                         break;
                     }
+                case DiagramItemType.attrGroup:
+                    {
+                        // Draw the main shape following the min/max occurences
+                        int bevel = (int)(scaledElementBox.Height * 0.30);
+                        Point[] pathPoint = new Point[8];
+                        pathPoint[0] = pathPoint[7] = scaledElementBox.Location;
+                        pathPoint[1] = scaledElementBox.Location; pathPoint[1].X = scaledElementBox.Right; pathPoint[2] = pathPoint[1];
+                        pathPoint[3] = pathPoint[4] = scaledElementBox.Location + scaledElementBox.Size;
+                        pathPoint[5] = scaledElementBox.Location; pathPoint[5].Y = scaledElementBox.Bottom; pathPoint[6] = pathPoint[5];
+                        pathPoint[0].X += bevel;
+                        pathPoint[1].X -= bevel;
+                        pathPoint[2].Y += bevel;
+                        pathPoint[3].Y -= bevel;
+                        pathPoint[4].X -= bevel;
+                        pathPoint[5].X += bevel;
+                        pathPoint[6].Y -= bevel;
+                        pathPoint[7].Y += bevel;
+
+                        GraphicsPath path = new GraphicsPath();
+                        path.StartFigure();
+                        path.AddPolygon(pathPoint);
+                        path.CloseFigure();
+
+                        Point[] pathPointShifted = new Point[8];
+                        Size scaledShiftedBevel = drawingItem.ScaleSize(new Size(3, 3));
+                        for (int i = 0; i < pathPoint.Length; i++)
+                            pathPointShifted[i] = pathPoint[i] + scaledShiftedBevel;
+
+                        GraphicsPath pathShifted = new GraphicsPath();
+                        pathShifted.StartFigure();
+                        pathShifted.AddPolygon(pathPointShifted);
+                        pathShifted.CloseFigure();
+
+                        Pen foregroundBoxPen = new Pen(foreground);
+                        Rectangle elementBoxShifted = scaledElementBox;
+                        elementBoxShifted.Offset(drawingItem.ScalePoint(new Point(3, 3)));
+                        _graphics.FillPath(background, pathShifted);
+                        _graphics.DrawPath(foregroundBoxPen, pathShifted);
+                        _graphics.FillPath(background, path);
+                        _graphics.DrawPath(foregroundBoxPen, path);
+
+                        break;
+                    }
             }
 
             // Draw text
@@ -490,7 +533,8 @@ namespace XSDDiagram.Rendering
                 stringFormatText.Alignment = StringAlignment.Center;
                 stringFormatText.LineAlignment = StringAlignment.Center;
                 stringFormatText.FormatFlags |= StringFormatFlags.NoClip; //MONOFIX
-                _graphics.DrawString(drawingItem.Diagram.ShowType && !string.IsNullOrEmpty(drawingItem.Type) ? drawingItem.Name + ":" + drawingItem.Type : drawingItem.Name, drawingItem.FontScaled, foreground, new RectangleF(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height), stringFormatText);
+                var label = drawingItem.GetLabel();
+                _graphics.DrawString(label, drawingItem.FontScaled, foreground, new RectangleF(scaledElementBox.X, scaledElementBox.Y, scaledElementBox.Width, scaledElementBox.Height), stringFormatText);
             }
 
             // Draw Documentation
