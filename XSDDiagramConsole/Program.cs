@@ -23,8 +23,9 @@ using System.Windows.Forms;
 using XSDDiagram.Rendering;
 using System.Threading;
 using System.Globalization;
+using XSDDiagram;
 
-namespace XSDDiagram
+namespace XSDDiagramConsole
 {
 	public static class Program
 	{
@@ -93,67 +94,65 @@ Example 5:
 	'TotoRoot' and expanding the tree from the root until the 3rd level.
 ";
 
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-		[STAThread]
-		public static void Main()
-		{
+        public static void Execute(Options options)
+        {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-			bool streamToOutput = !string.IsNullOrEmpty(Options.OutputFile) || Options.OutputOnStdOut;
+            var l = new Logger(options);
 
-			if (Options.RequestHelp || string.IsNullOrEmpty(Options.InputFile) || !streamToOutput ||
-				Options.RootElements.Count == 0 || Options.ExpandLevel < 0 || Options.Zoom < 10.0 || Options.Zoom > 1000.0)
+            bool streamToOutput = !string.IsNullOrEmpty(options.OutputFile) || options.OutputOnStdOut;
+
+            if (options.RequestHelp || string.IsNullOrEmpty(options.InputFile) || !streamToOutput ||
+                options.RootElements.Count == 0 || options.ExpandLevel < 0 || options.Zoom < 10.0 || options.Zoom > 1000.0)
             {
-				string version = typeof(Program).Assembly.GetName().Version.ToString();
-				Log(usage, version, Path.GetFileName(Environment.GetCommandLineArgs()[0]));
+                string version = typeof(Program).Assembly.GetName().Version.ToString();
+                l.Log(usage, version, Path.GetFileName(Environment.GetCommandLineArgs()[0]));
 
                 return;
             }
 
-			Log("Loading the file: {0}\n", Options.InputFile);
+            l.Log("Loading the file: {0}\n", options.InputFile);
 
             Schema schema = new Schema();
-            schema.RequestCredential += delegate(string url, string realm, int attemptCount, out string username, out string password)
+            schema.RequestCredential += delegate (string url, string realm, int attemptCount, out string username, out string password)
             {
                 username = password = "";
-                if(!string.IsNullOrEmpty(Options.Username))
+                if (!string.IsNullOrEmpty(options.Username))
                 {
                     if (attemptCount > 1)
                         return false;
-                    username = Options.Username;
-                    password = Options.Password;
+                    username = options.Username;
+                    password = options.Password;
                     return true;
                 }
                 return false;
             };
 
-			schema.LoadSchema(Options.InputFile);
+            schema.LoadSchema(options.InputFile);
 
             if (schema.LoadError.Count > 0)
             {
-                LogError("There are errors while loading:\n");
+                l.LogError("There are errors while loading:\n");
                 foreach (var error in schema.LoadError)
                 {
-                    LogError(error);
+                    l.LogError(error);
                 }
-                LogError("\r\n");
+                l.LogError("\r\n");
             }
 
             Diagram diagram = new Diagram(schema);
-            diagram.ShowDocumentation = Options.ShowDocumentation;
-			diagram.Scale = Options.Zoom / 100.0f;
+            diagram.ShowDocumentation = options.ShowDocumentation;
+            diagram.Scale = options.Zoom / 100.0f;
             diagram.CompactLayoutDensity = true;
 
-			foreach (var rootElement in Options.RootElements)
-			{
+            foreach (var rootElement in options.RootElements)
+            {
                 string elementName = rootElement;
                 string elementNamespace = null;
-                if(!string.IsNullOrEmpty(elementName))
+                if (!string.IsNullOrEmpty(elementName))
                 {
                     var pos = rootElement.IndexOf("@");
-                    if(pos != -1)
+                    if (pos != -1)
                     {
                         elementName = rootElement.Substring(0, pos);
                         elementNamespace = rootElement.Substring(pos + 1);
@@ -161,11 +160,11 @@ Example 5:
                 }
 
                 foreach (var element in schema.Elements)
-				{
+                {
                     if ((elementNamespace != null && elementNamespace == element.NameSpace && element.Name == elementName) ||
                         (elementNamespace == null && element.Name == elementName))
                     {
-						Log("Adding '{0}' element to the diagram...\n", rootElement);
+                        l.Log("Adding '{0}' element to the diagram...\n", rootElement);
                         diagram.Add(element.Tag, element.NameSpace);
                     }
                 }
@@ -175,94 +174,66 @@ Example 5:
             graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
-			for (int i = 0; i < Options.ExpandLevel; i++)
+            for (int i = 0; i < options.ExpandLevel; i++)
             {
-				Log("Expanding to level {0}...\n", i + 1);
+                l.Log("Expanding to level {0}...\n", i + 1);
                 if (!diagram.ExpandOneLevel())
                 {
-                    Log("Cannot expand more.\n");
+                    l.Log("Cannot expand more.\n");
                     break;
                 }
             }
             diagram.Layout(graphics);
-			Log("Saving image...\n");
+            l.Log("Saving image...\n");
             try
             {
-				bool result = false;
+                bool result = false;
 
                 DiagramExporter exporter = new DiagramExporter(diagram);
                 IDictionary<string, object> specificRendererParameters = new Dictionary<string, object>()
                         {
-                            { "TextOutputFields", Options.TextOutputFields },
-                            { "DisplayAttributes", Options.DisplayAttributes },
+                            { "TextOutputFields", options.TextOutputFields },
+                            { "DisplayAttributes", options.DisplayAttributes },
                             { "Schema", schema }
                             //For future parameters, {}
                         };
-                if (Options.OutputOnStdOut)
+                if (options.OutputOnStdOut)
                 {
                     Stream stream = Console.OpenStandardOutput();
-                    result = exporter.Export(stream, "." + Options.OutputOnStdOutExtension.ToLower(), graphics, new DiagramAlertHandler(ByPassSaveAlert), specificRendererParameters);
+                    result = exporter.Export(stream, "." + options.OutputOnStdOutExtension.ToLower(), graphics, new DiagramAlertHandler(ByPassSaveAlert), specificRendererParameters);
                     stream.Flush();
                 }
                 else
                 {
-                    result = exporter.Export(Options.OutputFile, graphics, new DiagramAlertHandler(SaveAlert), specificRendererParameters);
+                    result = exporter.Export(options.OutputFile, graphics, new DiagramAlertHandler(ByPassSaveAlert), specificRendererParameters);
                 }
 
-				if (result)
-					Log("The diagram is now saved in the file: {0}\n", Options.OutputFile);
+                if (result)
+                    l.Log("The diagram is now saved in the file: {0}\n", options.OutputFile);
                 else
-					Log("ERROR: The diagram has not been saved!\n");
+                    l.LogError("ERROR: The diagram has not been saved!\n");
             }
             catch (Exception ex)
             {
-				Log("ERROR: The diagram has not been saved. {0}\n", ex.Message);
+                l.LogError("ERROR: The diagram has not been saved. {0}\n", ex.Message);
             }
 
             graphics.Dispose();
             form.Dispose();
         }
 
-        static void Log(string format, params object[] arg)
-        {
-            if (Options.OutputOnStdOut)
-                return;
-            Console.Write(format, arg);
-        }
-
-        static void LogError(string format, params object[] arg)
-        {
-            Console.Error.Write(format, arg);
+		/// <summary>
+		/// The main entry point for the application.
+		/// </summary>
+		[STAThread]
+		public static void Main()
+		{
+            Execute(new Options(Environment.GetCommandLineArgs()));
         }
 
 		static bool ByPassSaveAlert(string title, string message)
 		{
 			return true;
 		}
-
-        static bool SaveAlert(string title, string message)
-        {
-			Log(string.Format("{0}. {1} [Yn] >", title, message));
-			if(Options.ForceHugeImageGeneration)
-			{
-				Log("\nYes\n");
-				return true;
-			}
-			
-            ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(false);
-			Log("\n");
-			if (consoleKeyInfo.Key == ConsoleKey.Y || consoleKeyInfo.Key == ConsoleKey.Enter)
-			{
-				Log("Ok, relax... It can take time!\n");
-				return true;
-			}
-			else
-				return false;
-        }
-
-		static void HandleThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
-		{
-			System.Diagnostics.Trace.WriteLine(e.ToString());
-		}
-	}
+    }
 }

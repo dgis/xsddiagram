@@ -18,30 +18,30 @@
 using System;
 using System.Collections.Generic;
 
-namespace XSDDiagram
+namespace XSDDiagramConsole
 {
     public class Options
     {
-		public static string[] Arguments { get; private set; }
-		public static string InputFile { get; private set; }
-		public static string OutputFile { get; private set; }
-        public static bool OutputOnStdOut { get; private set; }
-        public static string OutputOnStdOutExtension { get; private set; }
-		public static IList<string> RootElements { get; private set; }
-		public static int ExpandLevel { get; private set; }
-        public static bool ShowDocumentation { get; private set; }
-		public static bool CompactDiagram { get; private set; }
-		public static float Zoom { get; private set; }
-		public static bool ForceHugeImageGeneration { get; private set; }
-		public static bool RequestHelp { get; private set; }
-		public static bool IsRunningOnMono { get; private set; }
-        public static string Username { get; private set; }
-        public static string Password { get; private set; }
-        public static IList<string> TextOutputFields { get; private set; }
-        public static bool DisplayAttributes { get; private set; }
-        public static bool NoGUI { get; private set; }
+		public string[] Arguments { get; private set; }
+		public string InputFile { get; private set; }
+		public string OutputFile { get; private set; }
+        public bool OutputOnStdOut { get; private set; }
+        public string OutputOnStdOutExtension { get; private set; }
+		public IList<string> RootElements { get; private set; }
+		public int ExpandLevel { get; private set; }
+        public bool ShowDocumentation { get; private set; }
+		public bool CompactDiagram { get; private set; }
+		public float Zoom { get; private set; }
+		public bool ForceHugeImageGeneration { get; private set; }
+		public bool RequestHelp { get; private set; }
+		public bool IsRunningOnMono { get; private set; }
+        public string Username { get; private set; }
+        public string Password { get; private set; }
+        public IList<string> TextOutputFields { get; private set; }
+        public bool DisplayAttributes { get; private set; }
+        public bool NoGUI { get; private set; }
 
-        static Options()
+        public Options(string[] args)
 		{
 			InputFile = null;
 			OutputFile = null;
@@ -56,11 +56,10 @@ namespace XSDDiagram
 			RequestHelp = false;
             TextOutputFields = new List<string>();
             DisplayAttributes = false;
-            NoGUI = false;
+            NoGUI = true;
 
             IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
 
-			string[] args = Environment.GetCommandLineArgs();
 			List<string> arguments = new List<string>();
 			// Convert "--option:params" or "/option params" to "-option params"
 			foreach (var argument in args)
@@ -168,10 +167,6 @@ namespace XSDDiagram
                 else if (string.Compare("-a", argument, true) == 0)
                 {
                     DisplayAttributes = true;
-                }
-                else if (string.Compare("-no-gui", argument, true) == 0)
-                {
-                    NoGUI = true;
                 }
                 else
 					InputFile = argument;
