@@ -128,7 +128,7 @@ TODO LIST:
  + "Pattern" tab addition with the Annotation / Element window in order to show tag restriction/pattern
    like this one: <xs:restriction base="xs:string"><xs:pattern value="[A-Z]{2,2}[0-9]{2,2}[a-zA-Z0-9]{1,30}" /></xs:restriction>
 - BUG: Cascading substitution groups may appear weird.
-- Add include a possibility to show the length of an element (Jˆrg S.)
+- Add include a possibility to show the length of an element (JÔøΩrg S.)
 - Add the attributes to the element in the diagram (suggested by bob)
 - Tooltips above the diagram element with a summary (xpath/attributes/doc) (display 200ms after the mouse move -> avoid 100 %CPU)
 	o The optional display of attributes inside the diagram
@@ -293,6 +293,7 @@ Mathieu Malaterre (Debian and Ubuntu package)
 Paul Selormey (Refactoring)
 Edu Serna (searching feature)
 TCH68k (for the text fileds: SEQ,LASTCHILD,XSDTYPE)
+Cl√°udio Gomes (Refactoring)
 Adrian Covrig
 Hermann Swart
 Arjan Kloosterboer

@@ -74,16 +74,19 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\XSDDiagram2010.csproj">
-      <Project>{B212CAFE-B4C8-44CB-B82D-AA32B55D2719}</Project>
-      <Name>XSDDiagram2010</Name>
+    <ProjectReference Include="..\XSDDiagrams\XSDDiagrams2010.csproj">
+      <Project>{6D3DACE7-D51B-4259-883A-6899BF4D52E2}</Project>
+      <Name>XSDDiagrams2010</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +113,9 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
