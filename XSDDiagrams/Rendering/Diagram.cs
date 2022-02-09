@@ -893,7 +893,8 @@ namespace XSDDiagram.Rendering
 					{
 						attributeCompositor = AddAttributeCompositor(parentDiagramElement, parentDiagramElement.NameSpace);
 					}
-					if (! attributeCompositor.ChildElements.Exists(a => a.Name == attr.Tag.name))
+					// attr.Tag == null means that the element should not be drawn in the diagram.
+					if (attr.Tag != null && !attributeCompositor.ChildElements.Exists(a => a.Name == attr.Tag.name))
 					{
 						AddAttribute(attributeCompositor, attr.Tag, attributeCompositor.NameSpace);
 					}
