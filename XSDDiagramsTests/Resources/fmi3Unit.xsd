@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xs:include schemaLocation="fmi3Annotation.xsd"/>
+    <xs:annotation>
+        <xs:documentation>
+Copyright(c) 2008-2011 MODELISAR consortium,
+             2012-2022 Modelica Association Project "FMI".
+             All rights reserved.
+
+This file is licensed by the copyright holders under the 2-Clause BSD License
+(https://opensource.org/licenses/BSD-2-Clause):
+
+----------------------------------------------------------------------------
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+- Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimer.
+
+- Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+----------------------------------------------------------------------------
+        </xs:documentation>
+    </xs:annotation>
+    <xs:complexType name="fmi3Unit">
+        <xs:sequence>
+            <xs:element name="BaseUnit" minOccurs="0">
+                <xs:complexType>
+                    <xs:attribute name="kg" type="xs:int" default="0"/>
+                    <xs:attribute name="m" type="xs:int" default="0"/>
+                    <xs:attribute name="s" type="xs:int" default="0"/>
+                    <xs:attribute name="A" type="xs:int" default="0"/>
+                    <xs:attribute name="K" type="xs:int" default="0"/>
+                    <xs:attribute name="mol" type="xs:int" default="0"/>
+                    <xs:attribute name="cd" type="xs:int" default="0"/>
+                    <xs:attribute name="rad" type="xs:int" default="0"/>
+                    <xs:attribute name="factor" type="xs:double" default="1"/>
+                    <xs:attribute name="offset" type="xs:double" default="0"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="DisplayUnit" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="Annotations" minOccurs="0"/>
+                    </xs:sequence>
+                    <xs:attribute name="name" type="xs:normalizedString" use="required"/>
+                    <xs:attribute name="factor" type="xs:double" default="1"/>
+                    <xs:attribute name="offset" type="xs:double" default="0"/>
+                    <xs:attribute name="inverse" type="xs:boolean" default="false"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element ref="Annotations" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:normalizedString" use="required"/>
+    </xs:complexType>
+</xs:schema>

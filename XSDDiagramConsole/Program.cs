@@ -65,8 +65,6 @@ Usage: {1} [-o output.svg] [-os EXTENSION] [-r RootElement[@namespace]]* [-e N] 
 -p PASSWORD
 	specifies a password to authenticate when a xsd dependency
 	(import or include) is a secured url.
--no-gui
-	prevents the graphical interface to be opened.
 
 Example 1:
 > XSDDiagramConsole.exe -o file.png -r TotoRoot -r TotoComplexType@http://mynamespace -e 3 -d -z 200 ./folder1/toto.xsd
